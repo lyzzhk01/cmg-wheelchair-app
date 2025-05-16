@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能轮椅辅助应用</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .joystick-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+        .joystick {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #3b82f6;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .directions {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .direction {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+        }
+        .direction.up { top: 10px; left: 50%; transform: translateX(-50%); }
+        .direction.right { top: 50%; right: 10px; transform: translateY(-50%); }
+        .direction.down { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .direction.left { top: 50%; left: 10px; transform: translateY(-50%); }
+        
+        .battery-level {
+            width: 100%;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .battery-fill {
+            height: 100%;
+            background-color: #10b981;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 页面导航栏 -->
+    <nav class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+        <div class="flex justify-around items-center p-2">
+            <a href="#home" class="flex flex-col items-center p-2 text-blue-500">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="#control" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-gamepad text-xl"></i>
+                <span class="text-xs mt-1">控制</span>
+            </a>
+            <a href="#device" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-wheelchair text-xl"></i>
+                <span class="text-xs mt-1">设备</span>
+            </a>
+            <a href="#profile" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="pb-16 pt-4">
+        <!-- 登录注册页面 -->
+        <div id="login" class="p-4 max-w-md mx-auto">
+            <div class="text-center mb-8">
+                <svg class="w-20 h-20 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                </svg>
+                <h1 class="text-2xl font-bold text-blue-600">智能轮椅助手</h1>
+                <p class="text-gray-500">让出行更加便捷自由</p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h2 class="text-xl font-semibold mb-4">账号注册</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">邮箱地址</label>
+                    <div class="flex">
+                        <input type="email" class="flex-1 rounded-l-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入邮箱">
+                        <button class="bg-blue-500 text-white px-3 py-2 rounded-r-lg">获取验证码</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">验证码</label>
+                    <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入验证码">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请设置密码">
+                </div>
+                
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">注册并创建家庭圈</button>
+                
+                <p class="text-center text-sm text-gray-500 mt-4">
+                    已有账号？<a href="#" class="text-blue-600">立即登录</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- 添加设备页面 -->
+        <div id="add-device" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h2 class="text-xl font-semibold mb-4">添加智能轮椅</h2>
+                
+                <div class="text-center py-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bluetooth text-blue-600 text-3xl"></i>
+                    </div>
+                    <p class="text-gray-700 mb-6">正在搜索附近的智能轮椅设备...</p>
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 rounded-full p-3 mr-3">
+                            <i class="fas fa-wheelchair text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Orion-Wheelchair-A002</h3>
+                            <p class="text-sm text-gray-500">智能轮椅设备</p>
+                        </div>
+                        <button class="bg-blue-600 text-white px-4 py-1 rounded-full text-sm" id="connect-device-btn">连接</button>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-4">
+                    请确保智能轮椅设备已开启并处于蓝牙配对模式
+                </p>
+                
+                <button class="w-full border border-gray-300 text-gray-700 py-2 rounded-lg font-medium mt-4" id="refresh-devices-btn">
+                    手动刷新设备列表
+                </button>
+            </div>
+        </div>
+
+        <!-- 配置Wi-Fi页面 -->
+        <div id="wifi-setup" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h2 class="text-xl font-semibold mb-4">配置Wi-Fi</h2>
+                
+                <p class="text-gray-700 mb-4">
+                    请为您的智能轮椅设备配置Wi-Fi连接
+                </p>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Wi-Fi名称</label>
+                    <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入Wi-Fi名称">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Wi-Fi密码</label>
+                    <input type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入Wi-Fi密码">
+                </div>
+                
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition" id="confirm-wifi-btn">确认配置</button>
+            </div>
+        </div>
+
+        <!-- 添加成功页面 -->
+        <div id="device-success" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">设备添加成功</h2>
+                <p class="text-gray-700 mb-6">
+                    您的智能轮椅设备已成功连接到家庭网络
+                </p>
+                
+                <div class="border border-gray-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 rounded-full p-3 mr-3">
+                            <i class="fas fa-wheelchair text-blue-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-medium">Orion-Wheelchair-A002</h3>
+                            <p class="text-sm text-green-600">已连接</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition" id="go-to-device-status-btn">前往设备状态</button>
+            </div>
+        </div>
+
+        <!-- 远程控制页面 -->
+        <div id="control" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">远程控制</h2>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-700">已连接</span>
+                    </div>
+                </div>
+                
+                <div class="mb-8 joystick-container">
+                    <div class="directions">
+                        <div class="direction up"><i class="fas fa-chevron-up"></i></div>
+                        <div class="direction right"><i class="fas fa-chevron-right"></i></div>
+                        <div class="direction down"><i class="fas fa-chevron-down"></i></div>
+                        <div class="direction left"><i class="fas fa-chevron-left"></i></div>
+                    </div>
+                    <div class="joystick">
+                        <div class="w-full h-full rounded-full flex items-center justify-center">
+                            <div class="w-4 h-4 bg-white rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <button class="bg-red-600 text-white py-3 rounded-lg font-medium">
+                        <i class="fas fa-stop-circle mr-2"></i> 紧急停车
+                    </button>
+                    <button class="bg-yellow-500 text-white py-3 rounded-lg font-medium">
+                        <i class="fas fa-lock mr-2"></i> 远程锁车
+                    </button>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <h3 class="font-medium text-gray-700 mb-2">控制模式</h3>
+                    <div class="flex overflow-x-auto pb-2">
+                        <button class="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg mr-2">标准模式</button>
+                        <button class="flex-shrink-0 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2">低速模式</button>
+                        <button class="flex-shrink-0 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">精确模式</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态查询页面 -->
+        <div id="device-status" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h2 class="text-xl font-semibold">智能轮椅</h2>
+                <button class="text-blue-500" id="add-device-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-5 mb-4">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-wheelchair text-blue-500 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-lg">智能轮椅-A001</h3>
+                        <p class="text-sm text-green-500 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                            运行中 | 当前速度：2.5km/h
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="font-medium">电池电量</p>
+                        <p class="text-blue-500 font-bold">85%</p>
+                    </div>
+                    <div class="battery-level">
+                        <div class="battery-fill bg-blue-500" style="width: 85%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500 mt-1">
+                        <p>预计行驶：25 km</p>
+                        <p>预计可用：6小时30分钟</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mb-4">
+                    <button class="w-full bg-blue-500 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+                        <i class="fas fa-gamepad mr-2"></i> 远程控制
+                    </button>
+                    <button class="w-full bg-gray-100 text-gray-600 py-3 rounded-lg font-medium flex items-center justify-center">
+                        <i class="fas fa-lock mr-2"></i> 锁车
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex items-center mb-1">
+                            <i class="fas fa-route text-blue-400 mr-2"></i>
+                            <p class="text-xs text-gray-500">今日里程</p>
+                        </div>
+                        <p class="font-medium text-lg">12.5 km</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex items-center mb-1">
+                            <i class="fas fa-map-marker-alt text-blue-400 mr-2"></i>
+                            <p class="text-xs text-gray-500">当前位置</p>
+                        </div>
+                        <p class="font-medium text-sm">哈尔滨市中央大街</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-5 mb-4">
+                <h3 class="font-medium mb-3">设备详情</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">设备ID</p>
+                        <p class="font-medium">A001-28FC9D</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">电池健康度</p>
+                        <p class="font-medium">96%</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">固件版本</p>
+                        <p class="font-medium">V2.5.3</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">上次连接</p>
+                        <p class="font-medium">刚刚</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的页面 -->
+        <div id="profile" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-blue-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold">张先生</h2>
+                        <p class="text-gray-500">家庭管理员</p>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-gray-500 w-6"></i>
+                            <span class="ml-2">家庭成员管理</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-phone-alt text-gray-500 w-6"></i>
+                            <span class="ml-2">紧急联系人</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-cog text-gray-500 w-6"></i>
+                            <span class="ml-2">设置</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-bell text-gray-500 w-6"></i>
+                            <span class="ml-2">通知设置</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt text-gray-500 w-6"></i>
+                            <span class="ml-2">隐私设置</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-sync text-gray-500 w-6"></i>
+                            <span class="ml-2">检查更新</span>
+                        </div>
+                        <span class="text-xs text-red-500">有新版本</span>
+                    </a>
+                    <a href="#" class="flex items-center justify-between py-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-gray-500 w-6"></i>
+                            <span class="ml-2">关于我们</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
+                </div>
+                
+                <button class="w-full border border-gray-300 text-gray-700 py-2 rounded-lg font-medium mt-6">
+                    退出登录
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换页面的简单实现
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有页面的active状态
+                    navLinks.forEach(l => l.classList.remove('text-blue-500'));
+                    navLinks.forEach(l => l.classList.add('text-gray-400'));
+                    
+                    // 设置当前页面为active
+                    this.classList.remove('text-gray-400');
+                    this.classList.add('text-blue-500');
+                    
+                    // 隐藏所有页面
+                    document.getElementById('login').classList.add('hidden');
+                    document.getElementById('add-device').classList.add('hidden');
+                    document.getElementById('wifi-setup').classList.add('hidden');
+                    document.getElementById('device-success').classList.add('hidden');
+                    document.getElementById('control').classList.add('hidden');
+                    document.getElementById('device-status').classList.add('hidden');
+                    document.getElementById('profile').classList.add('hidden');
+                    
+                    // 显示对应页面
+                    const target = this.getAttribute('href').substring(1);
+                    if (target === 'home') {
+                        document.getElementById('login').classList.remove('hidden');
+                    } else if (target === 'control') {
+                        document.getElementById('control').classList.remove('hidden');
+                    } else if (target === 'device') {
+                        document.getElementById('device-status').classList.remove('hidden');
+                    } else if (target === 'profile') {
+                        document.getElementById('profile').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // 添加设备按钮事件处理
+            const addDeviceBtn = document.getElementById('add-device-btn');
+            if (addDeviceBtn) {
+                addDeviceBtn.addEventListener('click', function() {
+                    // 隐藏设备状态页面
+                    document.getElementById('device-status').classList.add('hidden');
+                    // 显示添加设备页面
+                    document.getElementById('add-device').classList.remove('hidden');
+                });
+            }
+
+            // 添加设备页面返回按钮
+            const deviceBackBtn = document.createElement('button');
+            deviceBackBtn.className = 'absolute top-4 left-4 text-gray-600';
+            deviceBackBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+            deviceBackBtn.addEventListener('click', function() {
+                // 隐藏添加设备页面
+                document.getElementById('add-device').classList.add('hidden');
+                // 显示设备状态页面
+                document.getElementById('device-status').classList.remove('hidden');
+            });
+            
+            // 添加返回按钮到添加设备页面
+            const addDevicePage = document.getElementById('add-device');
+            if (addDevicePage && !addDevicePage.querySelector('.back-btn')) {
+                addDevicePage.style.position = 'relative';
+                addDevicePage.appendChild(deviceBackBtn);
+            }
+            
+            // 连接设备按钮事件
+            const connectDeviceBtn = document.getElementById('connect-device-btn');
+            if (connectDeviceBtn) {
+                connectDeviceBtn.addEventListener('click', function() {
+                    // 隐藏添加设备页面
+                    document.getElementById('add-device').classList.add('hidden');
+                    // 显示WiFi设置页面
+                    document.getElementById('wifi-setup').classList.remove('hidden');
+                    
+                    // 添加返回按钮到WiFi设置页面
+                    const wifiSetupPage = document.getElementById('wifi-setup');
+                    if (wifiSetupPage && !wifiSetupPage.querySelector('.back-btn')) {
+                        const wifiBackBtn = document.createElement('button');
+                        wifiBackBtn.className = 'absolute top-4 left-4 text-gray-600 back-btn';
+                        wifiBackBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+                        wifiBackBtn.addEventListener('click', function() {
+                            // 隐藏WiFi设置页面
+                            document.getElementById('wifi-setup').classList.add('hidden');
+                            // 显示添加设备页面
+                            document.getElementById('add-device').classList.remove('hidden');
+                        });
+                        wifiSetupPage.style.position = 'relative';
+                        wifiSetupPage.appendChild(wifiBackBtn);
+                    }
+                });
+            }
+            
+            // 刷新设备列表按钮事件
+            const refreshDevicesBtn = document.getElementById('refresh-devices-btn');
+            if (refreshDevicesBtn) {
+                refreshDevicesBtn.addEventListener('click', function() {
+                    // 模拟刷新过程
+                    const spinner = document.querySelector('#add-device .animate-spin');
+                    if (spinner) {
+                        spinner.style.display = 'block';
+                        setTimeout(function() {
+                            spinner.style.display = 'none';
+                            alert('已刷新设备列表');
+                        }, 1500);
+                    }
+                });
+            }
+
+            // WiFi配置确认按钮事件
+            const confirmWifiBtn = document.getElementById('confirm-wifi-btn');
+            if (confirmWifiBtn) {
+                confirmWifiBtn.addEventListener('click', function() {
+                    // 显示加载动画
+                    const loadingEl = document.createElement('div');
+                    loadingEl.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    loadingEl.innerHTML = '<div class="bg-white p-5 rounded-lg"><div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div><p class="text-center">正在配置Wi-Fi，请稍候...</p></div>';
+                    document.body.appendChild(loadingEl);
+                    
+                    // 模拟配置过程
+                    setTimeout(function() {
+                        // 移除加载动画
+                        document.body.removeChild(loadingEl);
+                        
+                        // 隐藏WiFi设置页面
+                        document.getElementById('wifi-setup').classList.add('hidden');
+                        // 显示设备添加成功页面
+                        document.getElementById('device-success').classList.remove('hidden');
+                    }, 2000);
+                });
+            }
+            
+            // 前往设备状态按钮事件
+            const goToDeviceStatusBtn = document.getElementById('go-to-device-status-btn');
+            if (goToDeviceStatusBtn) {
+                goToDeviceStatusBtn.addEventListener('click', function() {
+                    // 隐藏设备添加成功页面
+                    document.getElementById('device-success').classList.add('hidden');
+                    // 显示设备状态页面
+                    document.getElementById('device-status').classList.remove('hidden');
+                    
+                    // 激活导航栏"设备"选项
+                    navLinks.forEach(l => l.classList.remove('text-blue-500'));
+                    navLinks.forEach(l => l.classList.add('text-gray-400'));
+                    
+                    const deviceNavLink = document.querySelector('nav a[href="#device"]');
+                    if (deviceNavLink) {
+                        deviceNavLink.classList.remove('text-gray-400');
+                        deviceNavLink.classList.add('text-blue-500');
+                    }
+                });
+            }
+
+            // 虚拟摇杆简单交互
+            const joystick = document.querySelector('.joystick');
+            const container = document.querySelector('.joystick-container');
+            
+            if (joystick && container) {
+                let isDragging = false;
+                
+                joystick.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                });
+                
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    
+                    const containerRect = container.getBoundingClientRect();
+                    const centerX = containerRect.left + containerRect.width / 2;
+                    const centerY = containerRect.top + containerRect.height / 2;
+                    
+                    let x = e.clientX - centerX;
+                    let y = e.clientY - centerY;
+                    
+                    // 限制在圆形范围内
+                    const radius = containerRect.width / 2 - joystick.offsetWidth / 2;
+                    const distance = Math.sqrt(x * x + y * y);
+                    
+                    if (distance > radius) {
+                        x = (x / distance) * radius;
+                        y = (y / distance) * radius;
+                    }
+                    
+                    joystick.style.transform = `translate(${x}px, ${y}px)`;
+                });
+                
+                document.addEventListener('mouseup', function() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    
+                    // 回到中心位置
+                    joystick.style.transform = 'translate(-50%, -50%)';
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

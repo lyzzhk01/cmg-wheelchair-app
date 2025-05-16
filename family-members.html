@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭成员管理 - 智能轮椅辅助应用</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center">
+            <a href="index.html" class="text-gray-600 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-lg font-semibold">家庭成员管理</h1>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <div class="p-4 max-w-md mx-auto">
+        <!-- 家庭成员列表 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold">家庭成员</h2>
+                <span class="text-sm text-gray-500">共3位成员</span>
+            </div>
+            
+            <!-- 管理员 -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">张先生</h3>
+                        <p class="text-xs text-gray-500">管理员 · 主要使用者</p>
+                    </div>
+                </div>
+                <div class="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">管理员</div>
+            </div>
+            
+            <!-- 成员1 -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">李女士</h3>
+                        <p class="text-xs text-gray-500">成员 · 家庭照护者</p>
+                    </div>
+                </div>
+                <button class="text-red-500 text-sm">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <!-- 成员2 -->
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">王医生</h3>
+                        <p class="text-xs text-gray-500">成员 · 医生</p>
+                    </div>
+                </div>
+                <button class="text-red-500 text-sm">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 添加成员 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-4">添加新成员</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">邮箱地址</label>
+                <input type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入邮箱">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">成员类型</label>
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>家庭照护者</option>
+                    <option>医生</option>
+                    <option>其他</option>
+                </select>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">权限设置</label>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="perm1" class="rounded text-blue-600 mr-2">
+                    <label for="perm1" class="text-sm">远程控制权限</label>
+                </div>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="perm2" class="rounded text-blue-600 mr-2" checked>
+                    <label for="perm2" class="text-sm">状态查询权限</label>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="perm3" class="rounded text-blue-600 mr-2">
+                    <label for="perm3" class="text-sm">设备配置权限</label>
+                </div>
+            </div>
+            
+            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">添加成员</button>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+        <div class="flex justify-around items-center p-2">
+            <a href="index.html#home" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="index.html#control" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-gamepad text-xl"></i>
+                <span class="text-xs mt-1">控制</span>
+            </a>
+            <a href="index.html#device" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-wheelchair text-xl"></i>
+                <span class="text-xs mt-1">设备</span>
+            </a>
+            <a href="index.html#profile" class="flex flex-col items-center p-2 text-blue-500">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+</body>
+</html> 
