@@ -97,4 +97,38 @@ body {
 .status-label {
     color: #6b7280;
     font-size: 0.75rem;
+}
+
+/* 轮椅SVG样式和动画 */
+.wheelchair-svg {
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes wheelRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.wheelchair-svg circle {
+    transform-origin: center;
+}
+
+.wheelchair-svg:hover circle:nth-of-type(1),
+.wheelchair-svg:hover circle:nth-of-type(3) {
+    animation: wheelRotate 4s linear infinite;
+}
+
+.wheelchair-svg:hover rect {
+    transition: fill 0.3s ease;
+    fill: #3b82f6;
+}
+
+/* 黑暗模式下的轮椅图形 */
+@media (prefers-color-scheme: dark) {
+    .wheelchair-svg rect {
+        fill: #555;
+    }
+    .wheelchair-svg rect:nth-of-type(2) {
+        fill: #666;
+    }
 } 
