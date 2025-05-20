@@ -131,4 +131,62 @@ body {
     .wheelchair-svg rect:nth-of-type(2) {
         fill: #666;
     }
+}
+
+/* 远程控制页面视频区域 */
+.aspect-video {
+    aspect-ratio: 16 / 9;
+}
+
+.pulse-animation {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+}
+
+#video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#remote-video {
+    position: relative;
+    z-index: 2;
+}
+
+#remote-video:not([src]) {
+    display: none;
+}
+
+#toggle-fullscreen, #toggle-mic {
+    transition: all 0.2s;
+}
+
+#toggle-fullscreen:hover, #toggle-mic:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* 媒体查询：在小屏幕上调整视频控制按钮大小 */
+@media (max-width: 374px) {
+    #toggle-fullscreen, #toggle-mic {
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
 } 
