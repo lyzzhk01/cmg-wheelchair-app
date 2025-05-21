@@ -189,4 +189,123 @@ body {
         padding: 0.25rem;
         font-size: 0.75rem;
     }
+}
+
+/* 语音波形动画样式 */
+.voice-wave {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    gap: 3px;
+}
+
+.voice-wave span {
+    display: block;
+    width: 2px;
+    height: 12px;
+    background-color: #60a5fa;
+    border-radius: 1px;
+    animation: wave-animation 1.2s infinite ease-in-out;
+}
+
+.voice-wave span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.voice-wave span:nth-child(2) {
+    animation-delay: 0.2s;
+    height: 16px;
+}
+
+.voice-wave span:nth-child(3) {
+    animation-delay: 0.4s;
+    height: 24px;
+}
+
+.voice-wave span:nth-child(4) {
+    animation-delay: 0.6s;
+    height: 16px;
+}
+
+.voice-wave span:nth-child(5) {
+    animation-delay: 0.8s;
+}
+
+@keyframes wave-animation {
+    0%, 100% {
+        transform: scaleY(0.5);
+    }
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+/* 语音按钮按下效果 */
+#voice-btn:active {
+    transform: scale(0.95);
+}
+
+/* 语音指令展开/收起动画 */
+#more-commands {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+#more-commands.expanded {
+    max-height: 500px;
+    opacity: 1;
+    padding-top: 0.5rem;
+}
+
+/* 箭头旋转动画 */
+#more-commands-btn .fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+#more-commands-btn.expanded .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* 打字指示器样式 */
+.typing-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    gap: 4px;
+    padding: 0 8px;
+}
+
+.typing-dots span {
+    display: block;
+    width: 6px;
+    height: 6px;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    animation: typing-animation 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes typing-animation {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
 } 
