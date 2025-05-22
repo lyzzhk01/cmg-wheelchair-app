@@ -447,9 +447,56 @@
                 <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mb-2 flex items-center justify-center">
                     <i class="fas fa-gamepad mr-2"></i> 远程控制
                 </button>
-                <button class="w-full bg-gray-700 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+                <button class="w-full bg-gray-700 text-white py-3 rounded-lg font-medium mb-3 flex items-center justify-center">
                     <i class="fas fa-lock mr-2"></i> 锁车
                 </button>
+                
+                <!-- 设备位置地图 -->
+                <div class="border border-gray-600 rounded-lg p-3 bg-gray-700 mb-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                            <span class="text-sm text-white">当前位置</span>
+                        </div>
+                        <button class="navigate-btn" id="navigate-btn">
+                            <span>导航前往</span>
+                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="relative rounded-lg overflow-hidden location-map" style="height: 150px;" id="device-location-map">
+                        <!-- 地图图像 -->
+                        <div class="absolute inset-0 bg-gray-800 flex justify-center items-center">
+                            <!-- 地图背景（模拟） -->
+                            <div class="absolute inset-0 opacity-80" style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/121.4737,31.2304,15,0/350x150?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover;"></div>
+                            
+                            <!-- 位置标记和精度圆圈 -->
+                            <div class="location-marker">
+                                <!-- 精度圆圈 -->
+                                <div class="accuracy-circle"></div>
+                                <!-- 位置标记点 -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                            </div>
+                            
+                            <!-- 右下角放大缩小按钮 -->
+                            <div class="map-controls">
+                                <button class="zoom-in" id="map-zoom-in"><i class="fas fa-plus"></i></button>
+                                <button class="zoom-out" id="map-zoom-out"><i class="fas fa-minus"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- 左下角位置信息 -->
+                        <div class="map-address" id="device-address">
+                            上海市浦东新区张江高科技园区
+                        </div>
+                    </div>
+                    
+                    <!-- 设备信息 -->
+                    <div class="flex justify-between text-xs text-gray-300 mt-2">
+                        <div id="location-update-time">更新于: 10:23</div>
+                        <div id="gps-accuracy">GPS精度: 5米</div>
+                    </div>
+                </div>
             </div>
 
             <!-- 设备详情模态框 -->
@@ -1540,6 +1587,105 @@
                     });
                 });
             }
+            
+            // 设备位置地图相关功能
+            function initDeviceLocationMap() {
+                // 获取地图相关元素
+                const mapElement = document.getElementById('device-location-map');
+                const zoomInBtn = document.getElementById('map-zoom-in');
+                const zoomOutBtn = document.getElementById('map-zoom-out');
+                const navigateBtn = document.getElementById('navigate-btn');
+                const deviceAddress = document.getElementById('device-address');
+                const locationUpdateTime = document.getElementById('location-update-time');
+                const gpsAccuracy = document.getElementById('gps-accuracy');
+                
+                if (!mapElement) return;
+                
+                // 模拟不同的位置数据
+                const locationData = [
+                    {
+                        lat: 31.2304,
+                        lng: 121.4737,
+                        address: '上海市浦东新区张江高科技园区',
+                        accuracy: '5米',
+                        time: '10:23'
+                    },
+                    {
+                        lat: 31.2354,
+                        lng: 121.4857,
+                        address: '上海市浦东新区世纪大道1号',
+                        accuracy: '8米',
+                        time: '10:45'
+                    },
+                    {
+                        lat: 31.2290,
+                        lng: 121.4688,
+                        address: '上海市黄浦区人民广场',
+                        accuracy: '3米',
+                        time: '11:12'
+                    }
+                ];
+                
+                // 当前位置索引和缩放级别
+                let currentLocationIndex = 0;
+                let currentZoomLevel = 15;
+                
+                // 更新地图显示
+                function updateMapDisplay() {
+                    const location = locationData[currentLocationIndex];
+                    
+                    // 更新地图背景图像 (使用Mapbox Static Images API)
+                    const mapBackground = mapElement.querySelector('.inset-0.opacity-80');
+                    if (mapBackground) {
+                        mapBackground.style.backgroundImage = `url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/${location.lng},${location.lat},${currentZoomLevel},0/350x150?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA')`;
+                    }
+                    
+                    // 更新位置信息
+                    if (deviceAddress) deviceAddress.textContent = location.address;
+                    if (locationUpdateTime) locationUpdateTime.textContent = `更新于: ${location.time}`;
+                    if (gpsAccuracy) gpsAccuracy.textContent = `GPS精度: ${location.accuracy}`;
+                }
+                
+                // 初始化地图显示
+                updateMapDisplay();
+                
+                // 定时模拟位置更新
+                setInterval(() => {
+                    currentLocationIndex = (currentLocationIndex + 1) % locationData.length;
+                    updateMapDisplay();
+                }, 30000); // 每30秒更新一次位置
+                
+                // 缩放按钮事件
+                if (zoomInBtn) {
+                    zoomInBtn.addEventListener('click', () => {
+                        if (currentZoomLevel < 19) { // 最大缩放级别
+                            currentZoomLevel += 1;
+                            updateMapDisplay();
+                        }
+                    });
+                }
+                
+                if (zoomOutBtn) {
+                    zoomOutBtn.addEventListener('click', () => {
+                        if (currentZoomLevel > 10) { // 最小缩放级别
+                            currentZoomLevel -= 1;
+                            updateMapDisplay();
+                        }
+                    });
+                }
+                
+                // 导航按钮事件
+                if (navigateBtn) {
+                    navigateBtn.addEventListener('click', () => {
+                        const location = locationData[currentLocationIndex];
+                        // 在实际应用中，这里可以打开地图应用进行导航
+                        alert(`已打开导航至: ${location.address}`);
+                    });
+                }
+            }
+            
+            // 在页面加载完成后初始化地图
+            initDeviceLocationMap();
         });
     </script>
 </body>
