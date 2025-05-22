@@ -399,7 +399,7 @@
                 <div class="flex justify-around items-center text-center mb-3 text-xs">
                     <div>
                         <i class="fas fa-wifi text-green-500 mb-1 block"></i>
-                        已连接
+                        设备在线
                     </div>
                     <div>
                         <i class="fab fa-bluetooth-b text-green-500 mb-1 block"></i>
@@ -427,18 +427,43 @@
                         </div>
                         <p class="text-sm flex items-center">
                             <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                            运行中 | 当前速度：2.5km/h
+                            运行中
                         </p>
                     </div>
                     
-                    <div class="flex justify-between text-sm text-white mt-3 font-medium">
-                        <div class="text-center">
-                            <p class="text-xs text-gray-400">预计行驶</p>
-                            <p class="text-lg font-bold text-blue-400">25 km</p>
+                    <!-- 当前速度和今日里程 -->
+                    <div class="flex justify-between items-center px-2 mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-tachometer-alt text-blue-400 mr-2 text-sm"></i>
+                            <div>
+                                <p class="text-xs text-gray-400">当前速度</p>
+                                <p class="text-md font-bold text-white">2.5 km/h</p>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <p class="text-xs text-gray-400">预计可用</p>
-                            <p class="text-lg font-bold text-blue-400">6小时30分钟</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-road text-blue-400 mr-2 text-sm"></i>
+                            <div class="w-24 text-right">
+                                <p class="text-xs text-gray-400">今日里程</p>
+                                <p class="text-md font-bold text-white">25 km</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 预计行驶和预计可用 -->
+                    <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-route text-blue-400 mr-2 text-sm"></i>
+                            <div>
+                                <p class="text-xs text-gray-400">预计行驶</p>
+                                <p class="text-md font-bold text-blue-400">125 km</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-blue-400 mr-2 text-sm"></i>
+                            <div class="w-24 text-right">
+                                <p class="text-xs text-gray-400">预计可用</p>
+                                <p class="text-md font-bold text-blue-400">6小时30分钟</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -696,7 +721,7 @@
             </div>
             
             <!-- 常用语音指令 -->
-            <div class="bg-white rounded-xl shadow-md p-4">
+            <div class="bg-white rounded-xl shadow-md p-4 hidden">
                 <h3 class="font-medium text-gray-700 mb-3">常用语音指令</h3>
                 <div class="grid grid-cols-2 gap-2">
                     <button class="voice-command-btn text-left text-sm bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition">
