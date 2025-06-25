@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭成员管理 - 智能轮椅辅助应用</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .invite-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        /* 自定义下拉菜单样式 */
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+        
+        .custom-select-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .custom-select-trigger:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .custom-select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 0;
+            overflow: hidden;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 0.25rem;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .custom-select.active .custom-select-options {
+            max-height: 300px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .custom-select-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .custom-select-option:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .custom-select-option.selected {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+        
+        .custom-select-option i {
+            margin-right: 0.75rem;
+            opacity: 0;
+        }
+        
+        .custom-select-option.selected i {
+            opacity: 1;
+        }
+        
+        /* 点击外部关闭下拉菜单 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 5;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* 模态窗口样式 */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+            margin: 1rem;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center">
+            <a href="index.html" class="text-gray-600 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-lg font-semibold">家庭成员管理</h1>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <div class="p-4 max-w-md mx-auto pb-20">
+        <!-- 家庭成员列表 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-lg font-semibold">家庭成员</h2>
+                <button id="invite-member-btn" class="text-blue-600 text-sm px-3 py-1 border border-blue-600 rounded-full flex items-center">
+                    <i class="fas fa-plus mr-1"></i> 邀请成员
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">共3位成员，可邀请成员通过邮件进行注册</p>
+            
+            <!-- 管理员 -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">张先生</h3>
+                        <p class="text-xs text-gray-500">管理员 · 主要使用者</p>
+                    </div>
+                </div>
+                <div class="bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded">管理员</div>
+            </div>
+            
+            <!-- 成员1 -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">李女士</h3>
+                        <p class="text-xs text-gray-500">成员 · 家庭照护者</p>
+                    </div>
+                </div>
+                <button class="text-red-500 text-sm">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <!-- 成员2 -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">王医生</h3>
+                        <p class="text-xs text-gray-500">成员 · 医生</p>
+                    </div>
+                </div>
+                <button class="text-red-500 text-sm">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <!-- 待接受邀请的成员 -->
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-envelope text-yellow-500"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">赵医生</h3>
+                        <p class="text-xs text-gray-500">zhao_doctor@example.com</p>
+                    </div>
+                </div>
+                <div class="invite-badge bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded">等待接受</div>
+            </div>
+        </div>
+        
+        <!-- 成员详情/编辑表单 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-4">管理成员权限</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">成员选择</label>
+                <div class="custom-select" id="member-select">
+                    <div class="custom-select-trigger">
+                        <span class="selected-value">王医生 (医生)</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option" data-value="李女士 (家庭照护者)">
+                            <i class="fas fa-check text-blue-500"></i>
+                            <span>李女士 (家庭照护者)</span>
+                        </div>
+                        <div class="custom-select-option selected" data-value="王医生 (医生)">
+                            <i class="fas fa-check text-blue-500"></i>
+                            <span>王医生 (医生)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">权限调整</label>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="edit-perm1" class="rounded text-blue-600 mr-2">
+                    <label for="edit-perm1" class="text-sm">远程控制权限</label>
+                </div>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="edit-perm2" class="rounded text-blue-600 mr-2" checked>
+                    <label for="edit-perm2" class="text-sm">状态查询权限</label>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="edit-perm3" class="rounded text-blue-600 mr-2">
+                    <label for="edit-perm3" class="text-sm">设备配置权限</label>
+                </div>
+            </div>
+            
+            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">保存更改</button>
+        </div>
+    </div>
+
+    <!-- 点击外部关闭下拉菜单的遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 邀请成员模态窗口 -->
+    <div id="invite-modal" class="modal">
+        <div class="modal-content max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">邀请新成员</h2>
+                <button id="close-invite-modal" class="text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4">
+                我们将向新成员发送邀请邮件，请填写以下信息
+            </p>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">成员姓名</label>
+                <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入成员姓名">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">邮箱地址</label>
+                <input type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入邮箱">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">成员类型</label>
+                <div class="custom-select" id="member-type-select">
+                    <div class="custom-select-trigger">
+                        <span class="selected-value">家庭照护者</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option selected" data-value="家庭照护者">
+                            <i class="fas fa-check text-blue-500"></i>
+                            <span>家庭照护者</span>
+                        </div>
+                        <div class="custom-select-option" data-value="医生">
+                            <i class="fas fa-check text-blue-500"></i>
+                            <span>医生</span>
+                        </div>
+                        <div class="custom-select-option" data-value="其他">
+                            <i class="fas fa-check text-blue-500"></i>
+                            <span>其他</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">权限设置</label>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="perm1" class="rounded text-blue-600 mr-2">
+                    <label for="perm1" class="text-sm">远程控制权限</label>
+                </div>
+                
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" id="perm2" class="rounded text-blue-600 mr-2" checked>
+                    <label for="perm2" class="text-sm">状态查询权限</label>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="perm3" class="rounded text-blue-600 mr-2">
+                    <label for="perm3" class="text-sm">设备配置权限</label>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="send-invite-btn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">发送邀请</button>
+                <button id="cancel-invite-btn" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg font-medium">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 邀请成功提示 -->
+    <div id="invite-success" class="modal">
+        <div class="modal-content max-w-sm p-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">邀请已发送</h3>
+                <p class="text-gray-600 mb-4">
+                    我们已向 <span class="invite-email font-medium">example@example.com</span> 发送了邀请邮件。
+                </p>
+                <p class="text-sm text-gray-500 mb-4">
+                    成员接受邀请后将自动加入您的家庭圈
+                </p>
+                <button id="close-success" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+        <div class="flex justify-around items-center p-2">
+            <a href="index.html#home" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="index.html#control" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-gamepad text-xl"></i>
+                <span class="text-xs mt-1">控制</span>
+            </a>
+            <a href="index.html#device" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-wheelchair text-xl"></i>
+                <span class="text-xs mt-1">设备</span>
+            </a>
+            <a href="index.html#profile" class="flex flex-col items-center p-2 text-blue-500">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 邀请模态窗口控制
+            const inviteMemberBtn = document.getElementById('invite-member-btn');
+            const inviteModal = document.getElementById('invite-modal');
+            const closeInviteModal = document.getElementById('close-invite-modal');
+            const cancelInviteBtn = document.getElementById('cancel-invite-btn');
+            
+            // 显示邀请模态窗口
+            if (inviteMemberBtn && inviteModal) {
+                inviteMemberBtn.addEventListener('click', function() {
+                    inviteModal.classList.add('active');
+                });
+            }
+            
+            // 关闭邀请模态窗口
+            if (closeInviteModal && inviteModal) {
+                closeInviteModal.addEventListener('click', function() {
+                    inviteModal.classList.remove('active');
+                });
+            }
+            
+            if (cancelInviteBtn && inviteModal) {
+                cancelInviteBtn.addEventListener('click', function() {
+                    inviteModal.classList.remove('active');
+                });
+            }
+            
+            // 点击模态窗口外部关闭
+            if (inviteModal) {
+                inviteModal.addEventListener('click', function(e) {
+                    if (e.target === inviteModal) {
+                        inviteModal.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 自定义下拉选择框
+            const customSelects = document.querySelectorAll('.custom-select');
+            const overlay = document.getElementById('overlay');
+            
+            customSelects.forEach(select => {
+                const trigger = select.querySelector('.custom-select-trigger');
+                const options = select.querySelector('.custom-select-options');
+                const optionItems = select.querySelectorAll('.custom-select-option');
+                const selectedValue = select.querySelector('.selected-value');
+                
+                // 打开下拉菜单
+                trigger.addEventListener('click', () => {
+                    const isActive = select.classList.contains('active');
+                    
+                    // 关闭所有其他下拉菜单
+                    customSelects.forEach(s => s.classList.remove('active'));
+                    overlay.classList.remove('active');
+                    
+                    if (!isActive) {
+                        select.classList.add('active');
+                        overlay.classList.add('active');
+                    }
+                });
+                
+                // 选择选项
+                optionItems.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const value = option.getAttribute('data-value');
+                        selectedValue.textContent = value;
+                        
+                        // 更新选中状态
+                        optionItems.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                        
+                        // 关闭下拉菜单
+                        select.classList.remove('active');
+                        overlay.classList.remove('active');
+                    });
+                });
+            });
+            
+            // 点击外部关闭下拉菜单
+            overlay.addEventListener('click', () => {
+                customSelects.forEach(select => select.classList.remove('active'));
+                overlay.classList.remove('active');
+            });
+            
+            // 邀请成功提示
+            const sendInviteBtn = document.getElementById('send-invite-btn');
+            const inviteSuccess = document.getElementById('invite-success');
+            const closeSuccess = document.getElementById('close-success');
+            const emailInput = document.querySelector('input[type="email"]');
+            const inviteEmail = document.querySelector('.invite-email');
+            
+            if (sendInviteBtn && inviteSuccess && emailInput && inviteEmail) {
+                sendInviteBtn.addEventListener('click', function() {
+                    // 获取邮箱值
+                    const email = emailInput.value.trim();
+                    if (email) {
+                        // 设置邮箱显示
+                        inviteEmail.textContent = email;
+                        // 隐藏邀请模态窗口
+                        inviteModal.classList.remove('active');
+                        // 显示成功提示
+                        inviteSuccess.classList.add('active');
+                    } else {
+                        alert('请输入有效的邮箱地址');
+                    }
+                });
+            }
+            
+            // 关闭成功提示
+            if (closeSuccess && inviteSuccess) {
+                closeSuccess.addEventListener('click', function() {
+                    inviteSuccess.classList.remove('active');
+                    // 清空邮箱输入
+                    if (emailInput) {
+                        emailInput.value = '';
+                    }
+                });
+                
+                // 点击模态框外部也关闭
+                inviteSuccess.addEventListener('click', function(e) {
+                    if (e.target === inviteSuccess) {
+                        inviteSuccess.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

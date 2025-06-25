@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紧急联系人 - 智能轮椅辅助应用</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        /* 拖拽排序样式 */
+        .contact-item {
+            transition: all 0.2s ease;
+        }
+        
+        .contact-item.dragging {
+            opacity: 0.5;
+            background-color: #f3f4f6;
+        }
+        
+        .contact-item .drag-handle {
+            cursor: grab;
+        }
+        
+        .contact-item .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        /* 折叠动画 */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 500px;
+        }
+        
+        /* 紧急按钮动画 */
+        .emergency-btn {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 rgba(220, 38, 38, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(220, 38, 38, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center">
+            <a href="index.html" class="text-gray-600 mr-4">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-lg font-semibold">紧急联系人</h1>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <div class="p-4 max-w-md mx-auto pb-20">
+        <!-- 紧急联系人列表 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">紧急联系人</h2>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-500 mr-2">共2位联系人</span>
+                    <button id="toggleAddContact" class="text-blue-600 text-sm border border-blue-600 rounded-full px-2 py-0.5 flex items-center">
+                        <i class="fas fa-plus mr-1"></i> 添加
+                    </button>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4">
+                紧急情况下，系统将按顺序自动拨打联系人电话，并发送当前位置和紧急信息。
+                <span class="text-xs block mt-1 text-gray-500">可通过拖动调整联系顺序</span>
+            </p>
+            
+            <!-- 联系人列表 -->
+            <div id="contactsList">
+                <!-- 联系人1 -->
+                <div class="contact-item flex items-center justify-between py-3 border-b border-gray-100" data-id="1">
+                    <div class="flex items-center">
+                        <div class="drag-handle px-1 text-gray-400 mr-1">
+                            <i class="fas fa-grip-lines"></i>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-phone-alt text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">李女士</h3>
+                            <p class="text-xs text-gray-500">li****@example.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-xs bg-gray-100 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center mr-3">1</span>
+                        <button class="text-gray-500 text-sm mr-2 edit-contact" data-id="1">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="text-red-500 text-sm delete-contact" data-id="1">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 联系人2 -->
+                <div class="contact-item flex items-center justify-between py-3" data-id="2">
+                    <div class="flex items-center">
+                        <div class="drag-handle px-1 text-gray-400 mr-1">
+                            <i class="fas fa-grip-lines"></i>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-phone-alt text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">王医生</h3>
+                            <p class="text-xs text-gray-500">wa****@example.com</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-xs bg-gray-100 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center mr-3">2</span>
+                        <button class="text-gray-500 text-sm mr-2 edit-contact" data-id="2">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="text-red-500 text-sm delete-contact" data-id="2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加紧急联系人 (可折叠) -->
+        <div id="addContactForm" class="bg-white rounded-xl shadow-md overflow-hidden mb-4">
+            <div class="collapsible-content">
+                <div class="p-6">
+                    <h2 class="text-lg font-semibold mb-4">添加紧急联系人</h2>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                        <input type="text" id="contactName" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入联系人姓名">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                        <input type="email" id="contactEmail" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入联系人邮箱">
+                    </div>
+                    
+                    <button id="submitContact" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">添加联系人</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 紧急信息设置 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <h2 class="text-lg font-semibold mb-4">紧急信息</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">紧急信息</label>
+                <textarea class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="请输入紧急情况下需要告知联系人的信息">我是张先生，如果您收到此紧急信息，请尽快与我联系或来我的位置查看。</textarea>
+                <p class="text-xs text-gray-500 mt-1">此信息将在紧急情况下发送给所有紧急联系人</p>
+            </div>
+            
+            <div class="flex items-center mb-4">
+                <input type="checkbox" id="location" class="rounded text-blue-600 mr-2" checked>
+                <label for="location" class="text-sm">同时发送当前位置信息</label>
+            </div>
+            
+            <div class="flex items-center mb-4">
+                <input type="checkbox" id="autoCall" class="rounded text-blue-600 mr-2" checked>
+                <label for="autoCall" class="text-sm">自动拨打紧急联系人电话</label>
+            </div>
+            
+            <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">保存设置</button>
+        </div>
+        
+        <!-- 紧急呼叫记录 -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">紧急呼叫记录</h2>
+                <span class="text-xs text-gray-500">最近30天</span>
+            </div>
+            
+            <!-- 没有记录的状态 -->
+            <div class="text-center py-8 text-gray-500">
+                <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="fas fa-history text-gray-400 text-xl"></i>
+                </div>
+                <p>暂无紧急呼叫记录</p>
+                <p class="text-xs mt-1">紧急呼叫记录将显示在这里</p>
+            </div>
+            
+            <!-- 有记录时显示的列表 (默认隐藏) -->
+            <div class="hidden">
+                <!-- 记录项 -->
+                <div class="flex items-center py-3 border-b border-gray-100">
+                    <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation text-red-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <h3 class="font-medium">紧急呼叫触发</h3>
+                            <span class="text-xs text-gray-500">05-18 14:30</span>
+                        </div>
+                        <p class="text-xs text-gray-500">已通知：李女士、王医生</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 紧急呼叫按钮 -->
+        <div class="fixed bottom-20 right-4 z-20">
+            <button class="emergency-btn w-16 h-16 bg-red-600 rounded-full text-white shadow-lg flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 联系人编辑模态框 -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-lg">编辑联系人</h3>
+                <button id="closeEditModal" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                <input type="text" id="editName" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入联系人姓名">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                <input type="email" id="editEmail" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入联系人邮箱">
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="saveEditContact" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition">保存</button>
+                <button id="cancelEditContact" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg font-medium">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+        <div class="flex justify-around items-center p-2">
+            <a href="index.html#home" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="index.html#control" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-gamepad text-xl"></i>
+                <span class="text-xs mt-1">控制</span>
+            </a>
+            <a href="index.html#device" class="flex flex-col items-center p-2 text-gray-400">
+                <i class="fas fa-wheelchair text-xl"></i>
+                <span class="text-xs mt-1">设备</span>
+            </a>
+            <a href="index.html#profile" class="flex flex-col items-center p-2 text-blue-500">
+                <i class="fas fa-user text-xl"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 联系人表单折叠功能
+            const toggleAddContact = document.getElementById('toggleAddContact');
+            const addContactForm = document.getElementById('addContactForm');
+            const addContactContent = addContactForm.querySelector('.collapsible-content');
+            
+            toggleAddContact.addEventListener('click', function() {
+                addContactContent.classList.toggle('expanded');
+            });
+            
+            // 编辑模态框控制
+            const editBtns = document.querySelectorAll('.edit-contact');
+            const editModal = document.getElementById('editModal');
+            const closeEditModal = document.getElementById('closeEditModal');
+            const cancelEditContact = document.getElementById('cancelEditContact');
+            const saveEditContact = document.getElementById('saveEditContact');
+            
+            // 样例联系人数据
+            const contacts = [
+                { id: 1, name: '李女士', email: 'li@example.com' },
+                { id: 2, name: '王医生', email: 'wang@example.com' }
+            ];
+            
+            let currentEditId = null;
+            
+            // 打开编辑模态框
+            editBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const contactId = parseInt(this.getAttribute('data-id'));
+                    currentEditId = contactId;
+                    
+                    // 获取联系人数据
+                    const contact = contacts.find(c => c.id === contactId);
+                    if (contact) {
+                        document.getElementById('editName').value = contact.name;
+                        document.getElementById('editEmail').value = contact.email;
+                    }
+                    
+                    editModal.classList.remove('hidden');
+                });
+            });
+            
+            // 关闭编辑模态框
+            [closeEditModal, cancelEditContact].forEach(btn => {
+                btn.addEventListener('click', function() {
+                    editModal.classList.add('hidden');
+                    currentEditId = null;
+                });
+            });
+            
+            // 保存编辑
+            saveEditContact.addEventListener('click', function() {
+                // 在实际应用中，这里应该保存到后端
+                // 现在仅更新前端显示
+                const name = document.getElementById('editName').value;
+                const email = document.getElementById('editEmail').value;
+                
+                if (name && email) {
+                    const contactItems = document.querySelectorAll('.contact-item');
+                    contactItems.forEach(item => {
+                        const itemId = parseInt(item.getAttribute('data-id'));
+                        if (itemId === currentEditId) {
+                            const nameEl = item.querySelector('h3');
+                            const emailEl = item.querySelector('p');
+                            
+                            nameEl.textContent = name;
+                            emailEl.textContent = email.replace(/(.{2})(.*)(@.*)/, '$1****$3');
+                        }
+                    });
+                    
+                    editModal.classList.add('hidden');
+                    currentEditId = null;
+                    
+                    // 成功提示
+                    alert('联系人已更新');
+                } else {
+                    alert('请填写联系人姓名和邮箱');
+                }
+            });
+            
+            // 删除联系人
+            const deleteBtns = document.querySelectorAll('.delete-contact');
+            deleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const contactId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('确定要删除这个联系人吗？')) {
+                        // 在实际应用中，这里应该从后端删除
+                        // 现在仅更新前端显示
+                        const contactItems = document.querySelectorAll('.contact-item');
+                        contactItems.forEach(item => {
+                            const itemId = parseInt(item.getAttribute('data-id'));
+                            if (itemId === contactId) {
+                                item.remove();
+                                
+                                // 更新联系人序号
+                                updateContactNumbers();
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 拖拽排序功能
+            let draggedItem = null;
+            
+            // 获取所有可拖拽项
+            const contactItems = document.querySelectorAll('.contact-item');
+            
+            contactItems.forEach(item => {
+                const handle = item.querySelector('.drag-handle');
+                
+                handle.addEventListener('mousedown', function(e) {
+                    draggedItem = item;
+                    item.classList.add('dragging');
+                    
+                    // 记录初始位置
+                    const initialY = e.clientY;
+                    const itemHeight = item.offsetHeight;
+                    
+                    // 移动事件
+                    document.addEventListener('mousemove', onMouseMove);
+                    
+                    // 释放事件
+                    document.addEventListener('mouseup', function onMouseUp() {
+                        if (draggedItem) {
+                            draggedItem.classList.remove('dragging');
+                            draggedItem = null;
+                            
+                            // 更新联系人序号
+                            updateContactNumbers();
+                        }
+                        
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    });
+                    
+                    // 阻止默认行为和冒泡
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+            
+            function onMouseMove(e) {
+                if (!draggedItem) return;
+                
+                const contactsList = document.getElementById('contactsList');
+                const items = [...contactsList.querySelectorAll('.contact-item:not(.dragging)')];
+                
+                // 找到鼠标位置下方的元素
+                const nextItem = items.find(item => {
+                    const box = item.getBoundingClientRect();
+                    return e.clientY < box.top + box.height / 2;
+                });
+                
+                if (nextItem) {
+                    contactsList.insertBefore(draggedItem, nextItem);
+                } else {
+                    contactsList.appendChild(draggedItem);
+                }
+            }
+            
+            // 更新联系人序号
+            function updateContactNumbers() {
+                const items = document.querySelectorAll('.contact-item');
+                items.forEach((item, index) => {
+                    const numberSpan = item.querySelector('.flex.items-center span');
+                    if (numberSpan) {
+                        numberSpan.textContent = index + 1;
+                    }
+                });
+                
+                // 更新联系人计数
+                const countSpan = document.querySelector('.flex.items-center .text-sm.text-gray-500');
+                if (countSpan) {
+                    countSpan.textContent = `共${items.length}位联系人`;
+                }
+            }
+            
+            // 添加新联系人
+            const submitContactBtn = document.getElementById('submitContact');
+            const contactNameInput = document.getElementById('contactName');
+            const contactEmailInput = document.getElementById('contactEmail');
+            
+            submitContactBtn.addEventListener('click', function() {
+                const name = contactNameInput.value.trim();
+                const email = contactEmailInput.value.trim();
+                
+                if (name && email) {
+                    // 创建新联系人元素
+                    const newContactItem = document.createElement('div');
+                    newContactItem.className = 'contact-item flex items-center justify-between py-3 border-b border-gray-100';
+                    newContactItem.setAttribute('data-id', '3'); // 在实际应用中应该是动态生成的ID
+                    
+                    const displayName = name;
+                    const displayEmail = email.replace(/(.{2})(.*)(@.*)/, '$1****$3');
+                    
+                    newContactItem.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="drag-handle px-1 text-gray-400 mr-1">
+                                <i class="fas fa-grip-lines"></i>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-envelope text-red-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">${displayName}</h3>
+                                <p class="text-xs text-gray-500">${displayEmail}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-xs bg-gray-100 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center mr-3">3</span>
+                            <button class="text-gray-500 text-sm mr-2 edit-contact" data-id="3">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="text-red-500 text-sm delete-contact" data-id="3">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // 添加到列表
+                    const contactsList = document.getElementById('contactsList');
+                    contactsList.appendChild(newContactItem);
+                    
+                    // 更新联系人序号
+                    updateContactNumbers();
+                    
+                    // 清空输入框
+                    contactNameInput.value = '';
+                    contactEmailInput.value = '';
+                    
+                    // 折叠表单
+                    addContactContent.classList.remove('expanded');
+                    
+                    // 添加新的编辑和删除功能
+                    const newEditBtn = newContactItem.querySelector('.edit-contact');
+                    const newDeleteBtn = newContactItem.querySelector('.delete-contact');
+                    
+                    newEditBtn.addEventListener('click', function() {
+                        const contactId = parseInt(this.getAttribute('data-id'));
+                        currentEditId = contactId;
+                        
+                        document.getElementById('editName').value = name;
+                        document.getElementById('editEmail').value = email;
+                        
+                        editModal.classList.remove('hidden');
+                    });
+                    
+                    newDeleteBtn.addEventListener('click', function() {
+                        const contactId = parseInt(this.getAttribute('data-id'));
+                        if (confirm('确定要删除这个联系人吗？')) {
+                            newContactItem.remove();
+                            updateContactNumbers();
+                        }
+                    });
+                    
+                    // 添加拖拽功能
+                    const newHandle = newContactItem.querySelector('.drag-handle');
+                    
+                    newHandle.addEventListener('mousedown', function(e) {
+                        draggedItem = newContactItem;
+                        newContactItem.classList.add('dragging');
+                        
+                        document.addEventListener('mousemove', onMouseMove);
+                        
+                        document.addEventListener('mouseup', function onMouseUp() {
+                            if (draggedItem) {
+                                draggedItem.classList.remove('dragging');
+                                draggedItem = null;
+                                updateContactNumbers();
+                            }
+                            
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                        });
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                    
+                } else {
+                    alert('请填写联系人姓名和邮箱');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
