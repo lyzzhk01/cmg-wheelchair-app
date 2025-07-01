@@ -584,6 +584,13 @@
                         </div>
                         <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
                     </a>
+                    <a href="#" id="map-management-btn" class="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <i class="fas fa-map text-gray-500 w-6"></i>
+                            <span class="ml-2">地图管理</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </a>
                     <a href="#" class="flex items-center justify-between py-3 border-b border-gray-100">
                         <div class="flex items-center">
                             <i class="fas fa-cog text-gray-500 w-6"></i>
@@ -825,7 +832,7 @@
                                 <p class="text-sm font-medium truncate">寻找轮椅</p>
                                 <span class="text-xs text-gray-500">18:42</span>
                             </div>
-                            <p class="text-xs text-gray-500 truncate">您的轮椅当前位于家中客厅区域。已在地图上标记位置并可导航前往。</p>
+                            <p class="text-xs text-gray-500 truncate">您的轮椅当前位置位于家中客厅区域。已在地图上标记位置并可导航前往。</p>
                         </div>
                         
                         <div class="bg-gray-50 hover:bg-gray-100 rounded-lg p-2 cursor-pointer">
@@ -841,6 +848,1190 @@
                 <div class="flex justify-between">
                     <button class="text-sm text-gray-500">导出对话</button>
                     <button class="text-sm text-gray-500">清除历史</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地图管理页面 -->
+        <div id="map-management" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="map-management-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">地图管理</h2>
+            </div>
+            
+            <!-- 已有地图列表 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-gray-800">我的地图</h3>
+                    <span class="text-sm text-gray-500">共2个</span>
+                </div>
+                
+                <!-- 地图项目 -->
+                <div class="space-y-3">
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-home text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">家庭地图</h4>
+                                    <p class="text-sm text-gray-500">创建于 2024-01-15</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">已启用</span>
+                                <button class="text-gray-400">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <span>面积: 120㎡</span>
+                            <span>充电桩: 1个</span>
+                            <span>停靠点: 3个</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-building text-gray-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">办公室地图</h4>
+                                    <p class="text-sm text-gray-500">创建于 2024-01-10</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">未启用</span>
+                                <button class="text-gray-400">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500 flex items-center justify-between">
+                            <span>面积: 80㎡</span>
+                            <span>充电桩: 1个</span>
+                            <span>停靠点: 2个</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 新建地图按钮 -->
+            <button id="create-new-map-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium flex items-center justify-center mb-4">
+                <i class="fas fa-plus mr-2"></i>
+                新建地图
+            </button>
+            
+            <!-- 帮助说明 -->
+            <div class="bg-blue-50 rounded-xl p-4">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                    <div>
+                        <h4 class="font-medium text-blue-800 mb-1">建图小贴士</h4>
+                        <p class="text-sm text-blue-700">
+                            建图前请确保轮椅电量充足（>50%），在室内环境进行，避免阳光直射和反光镜面，建议建图时间不超过30分钟。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新建地图 - 连接检查页面 -->
+        <div id="create-map-check" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="create-map-check-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">新建地图</h2>
+            </div>
+            
+            <!-- 进度指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm">2</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm">3</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>连接检查</span>
+                    <span>配置信息</span>
+                    <span>开始建图</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h3 class="text-lg font-semibold mb-4 text-center">连接状态检查</h3>
+                
+                <!-- 蓝牙连接检查 -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fab fa-bluetooth-b text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">蓝牙连接</h4>
+                                <p class="text-sm text-gray-500">检查与轮椅的蓝牙连接状态</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div id="bluetooth-status" class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- WiFi连接检查 -->
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-wifi text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">网络连接</h4>
+                                <p class="text-sm text-gray-500">检查轮椅的网络连接状态</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div id="wifi-status" class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <div class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 传感器检查 -->
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-satellite-dish text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">传感器检查</h4>
+                                <p class="text-sm text-gray-500">检查雷达和传感器工作状态</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div id="sensor-status" class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+                                <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 连接状态说明 -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-gray-500 mt-1 mr-2"></i>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-1">正在检查各项连接状态...</p>
+                            <p class="text-xs">• 蓝牙连接用于基础控制和状态同步</p>
+                            <p class="text-xs">• 网络连接用于实时数据传输和云端同步</p>
+                            <p class="text-xs">• 传感器用于环境感知和地图构建</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="connection-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
+                检查中...
+            </button>
+        </div>
+
+        <!-- 地图命名页面 -->
+        <div id="map-naming" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="map-naming-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">新建地图</h2>
+            </div>
+            
+            <!-- 进度指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-sm">3</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>连接检查</span>
+                    <span>配置信息</span>
+                    <span>开始建图</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h3 class="text-lg font-semibold mb-6 text-center">配置地图信息</h3>
+                
+                <!-- 地图命名 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">地图名称</label>
+                    <input type="text" id="map-name-input" class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入地图名称，如：家庭地图、办公室地图">
+                    <p class="text-xs text-gray-500 mt-1">建议使用具有标识性的名称，方便后续管理</p>
+                </div>
+                
+                <!-- 地图类型选择 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">地图类型</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="home">
+                            <div class="text-center">
+                                <i class="fas fa-home text-2xl text-blue-600 mb-2"></i>
+                                <p class="font-medium">家庭环境</p>
+                                <p class="text-xs text-gray-500">客厅、卧室、厨房等</p>
+                            </div>
+                        </div>
+                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="office">
+                            <div class="text-center">
+                                <i class="fas fa-building text-2xl text-green-600 mb-2"></i>
+                                <p class="font-medium">办公环境</p>
+                                <p class="text-xs text-gray-500">办公室、会议室等</p>
+                            </div>
+                        </div>
+                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="hospital">
+                            <div class="text-center">
+                                <i class="fas fa-hospital text-2xl text-red-600 mb-2"></i>
+                                <p class="font-medium">医疗环境</p>
+                                <p class="text-xs text-gray-500">医院、诊所等</p>
+                            </div>
+                        </div>
+                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="other">
+                            <div class="text-center">
+                                <i class="fas fa-map text-2xl text-gray-600 mb-2"></i>
+                                <p class="font-medium">其他环境</p>
+                                <p class="text-xs text-gray-500">自定义环境</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 预估面积 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">预估面积</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="area-slider" class="flex-1" min="20" max="500" value="100">
+                        <span id="area-value" class="text-lg font-semibold text-blue-600 w-16">100㎡</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>20㎡</span>
+                        <span>500㎡</span>
+                    </div>
+                </div>
+                
+                <!-- 建图说明 -->
+                <div class="bg-yellow-50 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-lightbulb text-yellow-600 mt-1 mr-2"></i>
+                        <div class="text-sm text-yellow-700">
+                            <p class="font-medium mb-1">建图小提示</p>
+                            <p class="text-xs">建图过程中请缓慢移动轮椅，确保传感器能够准确扫描环境。建议建图时间控制在20-30分钟内完成。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="naming-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
+                下一步
+            </button>
+        </div>
+
+        <!-- 环境检测页面 -->
+        <div id="environment-check" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="environment-check-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">环境检测</h2>
+            </div>
+            
+            <!-- 进度指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>连接检查</span>
+                    <span>配置信息</span>
+                    <span>开始建图</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <h3 class="text-lg font-semibold mb-4 text-center">环境适应性检测</h3>
+                
+                <!-- 环境检测结果 -->
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-home text-green-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-green-800">室内环境</h4>
+                                <p class="text-sm text-green-600">检测到适合建图的室内环境</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-sun text-green-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-green-800">光线条件</h4>
+                                <p class="text-sm text-green-600">光线适中，无强烈反射</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-volume-down text-yellow-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-medium text-yellow-800">环境噪音</h4>
+                                <p class="text-sm text-yellow-600">环境较为安静，建议降低行驶速度</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                </div>
+                
+                <!-- 手动确认 -->
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <h4 class="font-medium text-gray-800 mb-3">请手动确认环境条件</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="indoor-confirm">
+                            <span class="ml-2 text-sm">✓ 我确认当前处于室内环境</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="space-confirm">
+                            <span class="ml-2 text-sm">✓ 确认轮椅有足够的活动空间</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="obstacle-confirm">
+                            <span class="ml-2 text-sm">✓ 已清理主要通道上的障碍物</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="safety-confirm">
+                            <span class="ml-2 text-sm">✓ 环境安全，无危险区域</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 重要提醒 -->
+                <div class="bg-red-50 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-red-600 mt-1 mr-2"></i>
+                        <div class="text-sm text-red-700">
+                            <p class="font-medium mb-1">重要提醒</p>
+                            <p class="text-xs">建图过程中轮椅将自主移动，请确保：</p>
+                            <ul class="text-xs mt-2 space-y-1 ml-4">
+                                <li>• 周围没有人员或宠物</li>
+                                <li>• 地面平整，无积水或杂物</li>
+                                <li>• 您能够随时通过遥控器停止轮椅</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="environment-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
+                环境检测通过，继续
+            </button>
+        </div>
+
+        <!-- 建图注意事项页面 -->
+        <div id="mapping-precautions" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="precautions-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">建图须知</h2>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-orange-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">建图安全须知</h3>
+                    <p class="text-sm text-gray-600 mt-2">请仔细阅读并确认您已了解以下注意事项</p>
+                </div>
+                
+                <!-- 注意事项列表 -->
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-start p-4 border border-orange-200 rounded-lg bg-orange-50">
+                        <i class="fas fa-shield-alt text-orange-600 text-lg mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-orange-800 mb-1">安全第一</h4>
+                            <p class="text-sm text-orange-700">建图过程中请保持在轮椅附近，确保能够随时通过遥控器或语音指令停止轮椅移动。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start p-4 border border-blue-200 rounded-lg bg-blue-50">
+                        <i class="fas fa-route text-blue-600 text-lg mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-blue-800 mb-1">移动路径</h4>
+                            <p class="text-sm text-blue-700">轮椅将以较慢速度自主移动，尽量覆盖所有房间和通道。请不要在建图过程中移动家具。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start p-4 border border-green-200 rounded-lg bg-green-50">
+                        <i class="fas fa-clock text-green-600 text-lg mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-green-800 mb-1">时间控制</h4>
+                            <p class="text-sm text-green-700">建图过程预计需要15-30分钟，具体时间取决于环境大小。请确保轮椅电量充足。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start p-4 border border-purple-200 rounded-lg bg-purple-50">
+                        <i class="fas fa-wifi text-purple-600 text-lg mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-purple-800 mb-1">网络稳定</h4>
+                            <p class="text-sm text-purple-700">建图过程中请保持网络连接稳定，避免影响实时数据传输和地图同步。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start p-4 border border-red-200 rounded-lg bg-red-50">
+                        <i class="fas fa-ban text-red-600 text-lg mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-red-800 mb-1">禁止操作</h4>
+                            <p class="text-sm text-red-700">建图期间请勿：手动操作轮椅、关闭APP、切换网络、移动大型物品。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 风险确认 -->
+                <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <h4 class="font-medium text-gray-800 mb-3">风险确认</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-start">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="safety-risk-confirm">
+                            <span class="ml-2 text-sm">我已了解建图过程中的安全风险，并承诺在轮椅移动期间保持监督</span>
+                        </label>
+                        <label class="flex items-start">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="environment-risk-confirm">
+                            <span class="ml-2 text-sm">我确认建图环境安全，没有易碎物品或危险区域</span>
+                        </label>
+                        <label class="flex items-start">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="responsibility-confirm">
+                            <span class="ml-2 text-sm">我了解并接受因违反操作指南可能造成的风险和责任</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 紧急停止提醒 -->
+                <div class="bg-red-100 rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-hand-paper text-red-600 mr-2"></i>
+                        <h4 class="font-medium text-red-800">紧急停止</h4>
+                    </div>
+                    <p class="text-sm text-red-700">
+                        如遇紧急情况，可通过以下方式立即停止轮椅：
+                    </p>
+                    <ul class="text-sm text-red-700 mt-2 ml-4">
+                        <li>• 点击APP上的"紧急停止"按钮</li>
+                        <li>• 按住轮椅遥控器的停止键</li>
+                        <li>• 语音指令："停止轮椅"</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button id="precautions-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
+                我已阅读并同意，开始建图
+            </button>
+        </div>
+
+        <!-- 实时建图页面 -->
+        <div id="real-time-mapping" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <h2 class="text-xl font-semibold">实时建图</h2>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-red-500 rounded-full mr-2 pulse-animation"></div>
+                    <span class="text-sm text-red-600 font-medium">建图中</span>
+                </div>
+            </div>
+            
+            <!-- 建图进度 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold">建图进度</h3>
+                    <span id="mapping-progress-text" class="text-sm text-blue-600">15%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div id="mapping-progress-bar" class="bg-blue-600 h-2 rounded-full" style="width: 15%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>已用时间: <span id="elapsed-time">02:35</span></span>
+                    <span>预计剩余: <span id="remaining-time">12:25</span></span>
+                </div>
+            </div>
+            
+            <!-- 实时地图显示 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold">实时地图</h3>
+                    <div class="flex items-center space-x-2">
+                        <button id="map-zoom-in" class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-plus text-sm"></i>
+                        </button>
+                        <button id="map-zoom-out" class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-minus text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 地图画布 -->
+                <div class="relative bg-gray-900 rounded-lg overflow-hidden" style="height: 300px;">
+                    <canvas id="mapping-canvas" class="w-full h-full"></canvas>
+                    
+                    <!-- 轮椅位置指示器 -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full relative animate-pulse">
+                            <div class="absolute inset-0 bg-blue-400 rounded-full animate-ping"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图例 -->
+                    <div class="absolute bottom-2 left-2 bg-black bg-opacity-70 rounded-lg p-2">
+                        <div class="flex items-center space-x-3 text-xs text-white">
+                            <div class="flex items-center"><div class="w-2 h-2 bg-gray-400 mr-1"></div>墙壁</div>
+                            <div class="flex items-center"><div class="w-2 h-2 bg-blue-500 mr-1"></div>轮椅</div>
+                            <div class="flex items-center"><div class="w-2 h-2 bg-green-400 mr-1"></div>可通行</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 地图信息 -->
+                <div class="mt-3 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-xs text-gray-500">已扫描面积</p>
+                        <p class="font-semibold text-blue-600" id="scanned-area">18㎡</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">检测到房间</p>
+                        <p class="font-semibold text-green-600" id="detected-rooms">3</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">障碍物</p>
+                        <p class="font-semibold text-orange-600" id="obstacles-count">7</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 控制面板 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                <h3 class="font-semibold mb-3">轮椅控制</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">建图速度</span>
+                        <div class="flex items-center space-x-2">
+                            <button class="speed-btn w-8 h-8 bg-gray-200 rounded-full text-xs" data-speed="slow">慢</button>
+                            <button class="speed-btn w-8 h-8 bg-blue-600 text-white rounded-full text-xs" data-speed="normal">中</button>
+                            <button class="speed-btn w-8 h-8 bg-gray-200 rounded-full text-xs" data-speed="fast">快</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">扫描精度</span>
+                        <select class="text-sm border rounded px-2 py-1" id="scan-precision">
+                            <option value="high" selected>高精度</option>
+                            <option value="medium">标准</option>
+                            <option value="low">快速</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 紧急停止和保存按钮 -->
+            <div class="flex space-x-3">
+                <button id="emergency-stop-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium">
+                    <i class="fas fa-stop mr-2"></i>
+                    紧急停止
+                </button>
+                <button id="save-and-continue-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium">
+                    保存并继续
+                </button>
+            </div>
+        </div>
+
+        <!-- 设置充电桩页面 -->
+        <div id="set-charging-station" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="charging-station-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">设置充电桩</h2>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">1</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">2</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">3</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">4</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>充电桩</span>
+                    <span>定位点</span>
+                    <span>停靠点</span>
+                    <span>完成</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-charging-station text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">设置充电桩位置</h3>
+                    <p class="text-sm text-gray-600 mt-2">请在地图上标记轮椅充电桩的位置</p>
+                </div>
+                
+                <!-- 地图区域 -->
+                <div class="relative bg-gray-100 rounded-lg mb-4" style="height: 250px;">
+                    <canvas id="charging-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                    
+                    <!-- 充电桩标记 -->
+                    <div id="charging-station-marker" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-plug text-white text-xs"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作提示 -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs rounded-lg p-2">
+                        点击地图设置充电桩位置
+                    </div>
+                </div>
+                
+                <!-- 充电桩信息 -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">充电桩名称</label>
+                        <input type="text" id="charging-station-name" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="如：客厅充电桩" value="主充电桩">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">充电桩类型</label>
+                        <select id="charging-station-type" class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="standard">标准充电桩</option>
+                            <option value="fast">快速充电桩</option>
+                            <option value="wireless">无线充电桩</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 自动充电设置 -->
+                    <div class="border border-gray-200 rounded-lg p-3">
+                        <h4 class="font-medium text-gray-800 mb-3">自动充电设置</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="auto-charge-low-battery" checked>
+                                <span class="ml-2 text-sm">电量低于20%时自动返回充电</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="auto-charge-schedule">
+                                <span class="ml-2 text-sm">定时自动充电</span>
+                            </label>
+                            <div id="schedule-time" class="ml-6 hidden">
+                                <input type="time" class="text-sm border rounded px-2 py-1" value="02:00">
+                                <span class="text-xs text-gray-500 ml-2">每天凌晨充电</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 充电桩状态预览 -->
+                <div id="charging-station-preview" class="hidden mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-charging-station text-green-600 mr-3"></i>
+                        <div>
+                            <h4 class="font-medium text-green-800">充电桩已设置</h4>
+                            <p class="text-sm text-green-600" id="charging-position-info">位置: (125, 89)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="charging-station-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
+                设置定位点
+            </button>
+        </div>
+
+        <!-- 设置定位点页面 -->
+        <div id="set-waypoints" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="waypoints-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">设置定位点</h2>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">2</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">3</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">4</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>充电桩</span>
+                    <span>定位点</span>
+                    <span>停靠点</span>
+                    <span>完成</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">设置导航定位点</h3>
+                    <p class="text-sm text-gray-600 mt-2">添加重要位置，方便快速导航</p>
+                </div>
+                
+                <!-- 地图区域 -->
+                <div class="relative bg-gray-100 rounded-lg mb-4" style="height: 250px;">
+                    <canvas id="waypoints-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                    
+                    <!-- 已设置的定位点 -->
+                    <div id="waypoint-markers" class="absolute inset-0">
+                        <!-- 动态添加的定位点标记 -->
+                    </div>
+                    
+                    <!-- 操作提示 -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs rounded-lg p-2">
+                        点击地图添加定位点
+                    </div>
+                </div>
+                
+                <!-- 定位点列表 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium">已设置定位点</h4>
+                        <span class="text-sm text-gray-500" id="waypoints-count">0/8</span>
+                    </div>
+                    
+                    <div id="waypoints-list" class="space-y-2 max-h-32 overflow-y-auto">
+                        <!-- 动态生成的定位点列表 -->
+                    </div>
+                </div>
+                
+                <!-- 快速添加常用定位点 -->
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h4 class="font-medium text-gray-800 mb-3">快速添加</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="quick-waypoint-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-blue-500" data-name="客厅">
+                            <i class="fas fa-couch text-blue-600 mb-1"></i>
+                            <p>客厅</p>
+                        </button>
+                        <button class="quick-waypoint-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-blue-500" data-name="卧室">
+                            <i class="fas fa-bed text-green-600 mb-1"></i>
+                            <p>卧室</p>
+                        </button>
+                        <button class="quick-waypoint-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-blue-500" data-name="厨房">
+                            <i class="fas fa-utensils text-orange-600 mb-1"></i>
+                            <p>厨房</p>
+                        </button>
+                        <button class="quick-waypoint-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-blue-500" data-name="书房">
+                            <i class="fas fa-book text-purple-600 mb-1"></i>
+                            <p>书房</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="waypoints-next-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
+                添加停靠点
+            </button>
+        </div>
+
+        <!-- 添加停靠点页面 -->
+        <div id="set-parking-spots" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="parking-spots-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">添加停靠点</h2>
+            </div>
+            
+            <!-- 步骤指示器 -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">✓</div>
+                    <div class="flex-1 h-0.5 bg-blue-600 mx-2"></div>
+                    <div class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">3</div>
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    <div class="w-6 h-6 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center text-xs">4</div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <span>充电桩</span>
+                    <span>定位点</span>
+                    <span>停靠点</span>
+                    <span>完成</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-parking text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">设置停靠点</h3>
+                    <p class="text-sm text-gray-600 mt-2">设置轮椅的常用停靠位置</p>
+                </div>
+                
+                <!-- 地图区域 -->
+                <div class="relative bg-gray-100 rounded-lg mb-4" style="height: 250px;">
+                    <canvas id="parking-spots-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                    
+                    <!-- 停靠点标记 -->
+                    <div id="parking-spots-markers" class="absolute inset-0">
+                        <!-- 动态添加的停靠点标记 -->
+                    </div>
+                    
+                    <!-- 操作提示 -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs rounded-lg p-2">
+                        点击地图添加停靠点
+                    </div>
+                </div>
+                
+                <!-- 停靠点列表 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium">已设置停靠点</h4>
+                        <span class="text-sm text-gray-500" id="parking-spots-count">0/6</span>
+                    </div>
+                    
+                    <div id="parking-spots-list" class="space-y-2 max-h-32 overflow-y-auto">
+                        <!-- 动态生成的停靠点列表 -->
+                    </div>
+                </div>
+                
+                <!-- 停靠点类型选择 -->
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h4 class="font-medium text-gray-800 mb-3">停靠点类型</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="parking-type-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-purple-500" data-type="rest">
+                            <i class="fas fa-chair text-purple-600 mb-1"></i>
+                            <p>休息点</p>
+                        </button>
+                        <button class="parking-type-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-purple-500" data-type="temp">
+                            <i class="fas fa-clock text-orange-600 mb-1"></i>
+                            <p>临时停车</p>
+                        </button>
+                        <button class="parking-type-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-purple-500" data-type="night">
+                            <i class="fas fa-moon text-blue-600 mb-1"></i>
+                            <p>夜间停车</p>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 停靠设置 -->
+                <div class="mt-4 space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="auto-parking">
+                        <span class="ml-2 text-sm">自动停靠（轮椅将自动对齐停靠点）</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="parking-notification">
+                        <span class="ml-2 text-sm">到达停靠点时发送通知</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button id="parking-spots-next-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
+                设置安全区域
+            </button>
+        </div>
+
+        <!-- 设置安全区域页面 -->
+        <div id="set-safety-zones" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="safety-zones-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">设置安全区域</h2>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">划定安全区域</h3>
+                    <p class="text-sm text-gray-600 mt-2">设置轮椅的安全活动范围</p>
+                </div>
+                
+                <!-- 地图区域 -->
+                <div class="relative bg-gray-100 rounded-lg mb-4" style="height: 300px;">
+                    <canvas id="safety-zones-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                    
+                    <!-- 绘制工具提示 -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs rounded-lg p-2">
+                        <div id="drawing-mode">点击并拖拽绘制安全区域</div>
+                    </div>
+                    
+                    <!-- 绘制工具 -->
+                    <div class="absolute bottom-2 right-2 flex space-x-1">
+                        <button id="draw-rectangle" class="w-8 h-8 bg-green-500 text-white rounded text-xs" title="矩形">
+                            <i class="fas fa-square"></i>
+                        </button>
+                        <button id="draw-circle" class="w-8 h-8 bg-gray-500 text-white rounded text-xs" title="圆形">
+                            <i class="fas fa-circle"></i>
+                        </button>
+                        <button id="clear-zones" class="w-8 h-8 bg-red-500 text-white rounded text-xs" title="清除">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 安全区域列表 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium">已设置安全区域</h4>
+                        <span class="text-sm text-gray-500" id="safety-zones-count">0个</span>
+                    </div>
+                    
+                    <div id="safety-zones-list" class="space-y-2">
+                        <!-- 动态生成的安全区域列表 -->
+                    </div>
+                </div>
+                
+                <!-- 安全设置 -->
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h4 class="font-medium text-gray-800 mb-3">安全设置</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="zone-boundary-alert" checked>
+                            <span class="ml-2 text-sm">接近边界时警告提醒</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="auto-return-zone">
+                            <span class="ml-2 text-sm">超出安全区域时自动返回</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="emergency-contact-alert">
+                            <span class="ml-2 text-sm">离开安全区域时通知紧急联系人</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="safety-zones-next-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
+                设置禁行区
+            </button>
+        </div>
+
+        <!-- 设置禁行区页面 -->
+        <div id="set-restricted-zones" class="hidden p-4 max-w-md mx-auto">
+            <div class="flex items-center mb-4">
+                <button id="restricted-zones-back-btn" class="mr-3 text-gray-600">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-semibold">设置禁行区</h2>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-ban text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">设置禁行区域</h3>
+                    <p class="text-sm text-gray-600 mt-2">标记轮椅禁止进入的区域</p>
+                </div>
+                
+                <!-- 地图区域 -->
+                <div class="relative bg-gray-100 rounded-lg mb-4" style="height: 300px;">
+                    <canvas id="restricted-zones-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                    
+                    <!-- 绘制工具提示 -->
+                    <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs rounded-lg p-2">
+                        <div>点击并拖拽绘制禁行区域</div>
+                    </div>
+                    
+                    <!-- 绘制工具 -->
+                    <div class="absolute bottom-2 right-2 flex space-x-1">
+                        <button id="draw-restricted-rectangle" class="w-8 h-8 bg-red-500 text-white rounded text-xs" title="矩形">
+                            <i class="fas fa-square"></i>
+                        </button>
+                        <button id="draw-restricted-circle" class="w-8 h-8 bg-gray-500 text-white rounded text-xs" title="圆形">
+                            <i class="fas fa-circle"></i>
+                        </button>
+                        <button id="clear-restricted-zones" class="w-8 h-8 bg-orange-500 text-white rounded text-xs" title="清除">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 禁行区域列表 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-medium">已设置禁行区域</h4>
+                        <span class="text-sm text-gray-500" id="restricted-zones-count">0个</span>
+                    </div>
+                    
+                    <div id="restricted-zones-list" class="space-y-2">
+                        <!-- 动态生成的禁行区域列表 -->
+                    </div>
+                </div>
+                
+                <!-- 快速添加常见禁行区 -->
+                <div class="border border-gray-200 rounded-lg p-3 mb-4">
+                    <h4 class="font-medium text-gray-800 mb-3">常见禁行区域</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="restricted-zone-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-red-500" data-type="stairs">
+                            <i class="fas fa-walking text-red-600 mb-1"></i>
+                            <p>楼梯区域</p>
+                        </button>
+                        <button class="restricted-zone-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-red-500" data-type="kitchen">
+                            <i class="fas fa-utensils text-orange-600 mb-1"></i>
+                            <p>厨房操作台</p>
+                        </button>
+                        <button class="restricted-zone-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-red-500" data-type="balcony">
+                            <i class="fas fa-building text-blue-600 mb-1"></i>
+                            <p>阳台边缘</p>
+                        </button>
+                        <button class="restricted-zone-btn border border-gray-300 rounded-lg p-2 text-sm hover:border-red-500" data-type="bathroom">
+                            <i class="fas fa-bath text-cyan-600 mb-1"></i>
+                            <p>浴室淋浴区</p>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 禁行设置 -->
+                <div class="border border-gray-200 rounded-lg p-3">
+                    <h4 class="font-medium text-gray-800 mb-3">禁行设置</h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="strict-boundary" checked>
+                            <span class="ml-2 text-sm">严格边界检测（禁止任何部分进入）</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="approach-warning">
+                            <span class="ml-2 text-sm">接近禁行区时警告</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="force-stop">
+                            <span class="ml-2 text-sm">进入禁行区时强制停止</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="restricted-zones-next-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
+                完成建图
+            </button>
+        </div>
+
+        <!-- 完成建图页面 -->
+        <div id="mapping-complete" class="hidden p-4 max-w-md mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-4 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-semibold mb-2">建图完成！</h2>
+                <p class="text-gray-700 mb-6">
+                    恭喜您成功完成地图建立，轮椅现在可以在设定的环境中自主导航
+                </p>
+                
+                <!-- 建图总结 -->
+                <div class="text-left bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">建图总结</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500">地图名称</p>
+                            <p class="font-semibold" id="final-map-name">家庭地图</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">建图用时</p>
+                            <p class="font-semibold" id="final-mapping-time">18分35秒</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">扫描面积</p>
+                            <p class="font-semibold" id="final-scanned-area">125㎡</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">检测房间</p>
+                            <p class="font-semibold" id="final-rooms-count">5个</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">充电桩</p>
+                            <p class="font-semibold" id="final-charging-stations">1个</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">定位点</p>
+                            <p class="font-semibold" id="final-waypoints">4个</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">停靠点</p>
+                            <p class="font-semibold" id="final-parking-spots">3个</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">安全设置</p>
+                            <p class="font-semibold text-green-600">已完成</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 地图预览 -->
+                <div class="mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">地图预览</h3>
+                    <div class="bg-gray-100 rounded-lg" style="height: 200px;">
+                        <canvas id="final-map-preview" class="w-full h-full rounded-lg"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 同步状态 -->
+                <div class="flex items-center justify-center mb-6 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-cloud-upload-alt text-white text-sm"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="font-medium text-blue-800">云端同步中...</p>
+                        <p class="text-sm text-blue-600">正在将地图数据同步到云端</p>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="space-y-3">
+                    <button id="start-navigation-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
+                        <i class="fas fa-route mr-2"></i>
+                        开始导航
+                    </button>
+                    <button id="view-map-details-btn" class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-medium">
+                        查看地图详情
+                    </button>
+                    <button id="back-to-management-btn" class="w-full bg-gray-100 text-gray-600 py-3 rounded-xl font-medium">
+                        返回地图管理
+                    </button>
                 </div>
             </div>
         </div>
@@ -884,14 +2075,20 @@
                     this.classList.add('text-blue-500');
                     
                     // 隐藏所有页面
-                    document.getElementById('login').classList.add('hidden');
-                    document.getElementById('add-device').classList.add('hidden');
-                    document.getElementById('wifi-setup').classList.add('hidden');
-                    document.getElementById('device-success').classList.add('hidden');
-                    document.getElementById('control').classList.add('hidden');
-                    document.getElementById('device-status').classList.add('hidden');
-                    document.getElementById('profile').classList.add('hidden');
-                    document.getElementById('voice').classList.add('hidden');
+                    const allPages = [
+                        'login', 'add-device', 'wifi-setup', 'device-success', 'control', 
+                        'device-status', 'profile', 'voice', 'map-management', 'create-map-check',
+                        'map-naming', 'environment-check', 'mapping-precautions', 'real-time-mapping',
+                        'set-charging-station', 'set-waypoints', 'set-parking-spots', 'set-safety-zones',
+                        'set-restricted-zones', 'mapping-complete'
+                    ];
+                    
+                    allPages.forEach(pageId => {
+                        const page = document.getElementById(pageId);
+                        if (page) {
+                            page.classList.add('hidden');
+                        }
+                    });
                     
                     // 显示对应页面
                     const target = this.getAttribute('href').substring(1);
@@ -1613,6 +2810,15 @@
                 });
             }
             
+            // 地图管理按钮事件处理
+            const mapManagementBtn = document.getElementById('map-management-btn');
+            if (mapManagementBtn) {
+                mapManagementBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('map-management');
+                });
+            }
+            
             // 设备位置地图相关功能
             function initDeviceLocationMap() {
                 // 获取地图相关元素
@@ -1711,7 +2917,689 @@
             
             // 在页面加载完成后初始化地图
             initDeviceLocationMap();
+            
+            // 建图功能相关事件处理
+            initMappingFunctions();
         });
+        
+        // 建图功能初始化
+        function initMappingFunctions() {
+            // 地图管理入口
+            const mapManagementBtn = document.getElementById('map-management-btn');
+            if (mapManagementBtn) {
+                mapManagementBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage('map-management');
+                });
+            }
+            
+            // 地图管理页面返回按钮
+            const mapManagementBackBtn = document.getElementById('map-management-back-btn');
+            if (mapManagementBackBtn) {
+                mapManagementBackBtn.addEventListener('click', function() {
+                    showPage('profile');
+                });
+            }
+            
+            // 新建地图按钮
+            const createNewMapBtn = document.getElementById('create-new-map-btn');
+            if (createNewMapBtn) {
+                createNewMapBtn.addEventListener('click', function() {
+                    showPage('create-map-check');
+                    startConnectionCheck();
+                });
+            }
+            
+            // 连接检查页面
+            const createMapCheckBackBtn = document.getElementById('create-map-check-back-btn');
+            if (createMapCheckBackBtn) {
+                createMapCheckBackBtn.addEventListener('click', function() {
+                    showPage('map-management');
+                });
+            }
+            
+            // 地图命名页面
+            const mapNamingBackBtn = document.getElementById('map-naming-back-btn');
+            if (mapNamingBackBtn) {
+                mapNamingBackBtn.addEventListener('click', function() {
+                    showPage('create-map-check');
+                });
+            }
+            
+            // 地图命名输入验证
+            const mapNameInput = document.getElementById('map-name-input');
+            const namingNextBtn = document.getElementById('naming-next-btn');
+            if (mapNameInput && namingNextBtn) {
+                mapNameInput.addEventListener('input', function() {
+                    if (this.value.trim().length > 0) {
+                        namingNextBtn.disabled = false;
+                        namingNextBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                        namingNextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    } else {
+                        namingNextBtn.disabled = true;
+                        namingNextBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                        namingNextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    }
+                });
+                
+                namingNextBtn.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        showPage('environment-check');
+                    }
+                });
+            }
+            
+            // 地图类型选择
+            const mapTypeOptions = document.querySelectorAll('.map-type-option');
+            mapTypeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    mapTypeOptions.forEach(opt => {
+                        opt.classList.remove('border-blue-500', 'bg-blue-50');
+                        opt.classList.add('border-gray-300');
+                    });
+                    this.classList.remove('border-gray-300');
+                    this.classList.add('border-blue-500', 'bg-blue-50');
+                });
+            });
+            
+            // 面积滑块
+            const areaSlider = document.getElementById('area-slider');
+            const areaValue = document.getElementById('area-value');
+            if (areaSlider && areaValue) {
+                areaSlider.addEventListener('input', function() {
+                    areaValue.textContent = this.value + '㎡';
+                });
+            }
+            
+            // 环境检测页面
+            const environmentCheckBackBtn = document.getElementById('environment-check-back-btn');
+            const environmentNextBtn = document.getElementById('environment-next-btn');
+            if (environmentCheckBackBtn) {
+                environmentCheckBackBtn.addEventListener('click', function() {
+                    showPage('map-naming');
+                });
+            }
+            
+            // 环境确认复选框
+            const environmentCheckboxes = ['indoor-confirm', 'space-confirm', 'obstacle-confirm', 'safety-confirm'];
+            environmentCheckboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        const allChecked = environmentCheckboxes.every(checkId => 
+                            document.getElementById(checkId)?.checked
+                        );
+                        
+                        if (environmentNextBtn) {
+                            if (allChecked) {
+                                environmentNextBtn.disabled = false;
+                                environmentNextBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                                environmentNextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                                environmentNextBtn.textContent = '环境检测通过，继续';
+                            } else {
+                                environmentNextBtn.disabled = true;
+                                environmentNextBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                                environmentNextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                                environmentNextBtn.textContent = '请确认所有环境条件';
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (environmentNextBtn) {
+                environmentNextBtn.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        showPage('mapping-precautions');
+                    }
+                });
+            }
+            
+            // 建图注意事项页面
+            const precautionsBackBtn = document.getElementById('precautions-back-btn');
+            const precautionsNextBtn = document.getElementById('precautions-next-btn');
+            if (precautionsBackBtn) {
+                precautionsBackBtn.addEventListener('click', function() {
+                    showPage('environment-check');
+                });
+            }
+            
+            // 风险确认复选框
+            const riskCheckboxes = ['safety-risk-confirm', 'environment-risk-confirm', 'responsibility-confirm'];
+            riskCheckboxes.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        const allChecked = riskCheckboxes.every(checkId => 
+                            document.getElementById(checkId)?.checked
+                        );
+                        
+                        if (precautionsNextBtn) {
+                            if (allChecked) {
+                                precautionsNextBtn.disabled = false;
+                                precautionsNextBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                                precautionsNextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                            } else {
+                                precautionsNextBtn.disabled = true;
+                                precautionsNextBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                                precautionsNextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (precautionsNextBtn) {
+                precautionsNextBtn.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        showPage('real-time-mapping');
+                        startRealTimeMapping();
+                    }
+                });
+            }
+            
+            // 实时建图页面
+            const emergencyStopBtn = document.getElementById('emergency-stop-btn');
+            const saveAndContinueBtn = document.getElementById('save-and-continue-btn');
+            
+            if (emergencyStopBtn) {
+                emergencyStopBtn.addEventListener('click', function() {
+                    if (confirm('确定要停止建图吗？已扫描的数据将会保存。')) {
+                        stopMapping();
+                        showPage('set-charging-station');
+                    }
+                });
+            }
+            
+            if (saveAndContinueBtn) {
+                saveAndContinueBtn.addEventListener('click', function() {
+                    showPage('set-charging-station');
+                });
+            }
+            
+            // 建图速度控制
+            const speedBtns = document.querySelectorAll('.speed-btn');
+            speedBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    speedBtns.forEach(b => {
+                        b.classList.remove('bg-blue-600', 'text-white');
+                        b.classList.add('bg-gray-200');
+                    });
+                    this.classList.remove('bg-gray-200');
+                    this.classList.add('bg-blue-600', 'text-white');
+                });
+            });
+            
+            // 设置充电桩页面
+            initChargingStationPage();
+            
+            // 设置定位点页面
+            initWaypointsPage();
+            
+            // 设置停靠点页面
+            initParkingSpotsPage();
+            
+            // 设置安全区域页面
+            initSafetyZonesPage();
+            
+            // 设置禁行区页面
+            initRestrictedZonesPage();
+            
+            // 完成建图页面
+            initMappingCompletePage();
+        }
+        
+        // 页面切换函数
+        function showPage(pageId) {
+            // 隐藏所有页面
+            const pages = [
+                'login', 'add-device', 'wifi-setup', 'device-success', 'control', 
+                'device-status', 'profile', 'voice', 'map-management', 'create-map-check',
+                'map-naming', 'environment-check', 'mapping-precautions', 'real-time-mapping',
+                'set-charging-station', 'set-waypoints', 'set-parking-spots', 'set-safety-zones',
+                'set-restricted-zones', 'mapping-complete'
+            ];
+            
+            pages.forEach(page => {
+                const element = document.getElementById(page);
+                if (element) {
+                    element.classList.add('hidden');
+                }
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+            }
+        }
+        
+        // 开始连接检查
+        function startConnectionCheck() {
+            const bluetoothStatus = document.getElementById('bluetooth-status');
+            const wifiStatus = document.getElementById('wifi-status');
+            const sensorStatus = document.getElementById('sensor-status');
+            const connectionNextBtn = document.getElementById('connection-next-btn');
+            
+            // 模拟检查过程
+            setTimeout(() => {
+                // WiFi连接完成
+                if (wifiStatus) {
+                    wifiStatus.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+                    wifiStatus.classList.remove('bg-yellow-500');
+                    wifiStatus.classList.add('bg-green-500');
+                }
+                
+                setTimeout(() => {
+                    // 传感器检查完成
+                    if (sensorStatus) {
+                        sensorStatus.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+                        sensorStatus.classList.remove('bg-gray-300');
+                        sensorStatus.classList.add('bg-green-500');
+                    }
+                    
+                    // 启用下一步按钮
+                    if (connectionNextBtn) {
+                        connectionNextBtn.disabled = false;
+                        connectionNextBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                        connectionNextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        connectionNextBtn.textContent = '检查完成，下一步';
+                        
+                        connectionNextBtn.addEventListener('click', function() {
+                            showPage('map-naming');
+                        });
+                    }
+                }, 1500);
+            }, 2000);
+        }
+        
+        // 开始实时建图
+        function startRealTimeMapping() {
+            const progressBar = document.getElementById('mapping-progress-bar');
+            const progressText = document.getElementById('mapping-progress-text');
+            const elapsedTime = document.getElementById('elapsed-time');
+            const remainingTime = document.getElementById('remaining-time');
+            const scannedArea = document.getElementById('scanned-area');
+            const detectedRooms = document.getElementById('detected-rooms');
+            const obstaclesCount = document.getElementById('obstacles-count');
+            
+            let progress = 15;
+            let elapsed = 155; // 秒
+            
+            const mappingInterval = setInterval(() => {
+                progress += Math.random() * 3;
+                elapsed += 5;
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(mappingInterval);
+                }
+                
+                // 更新进度条
+                if (progressBar) progressBar.style.width = progress + '%';
+                if (progressText) progressText.textContent = Math.round(progress) + '%';
+                
+                // 更新时间
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                if (elapsedTime) elapsedTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const remaining = Math.max(0, 900 - elapsed);
+                const remainingMinutes = Math.floor(remaining / 60);
+                const remainingSeconds = remaining % 60;
+                if (remainingTime) remainingTime.textContent = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                
+                // 更新扫描数据
+                if (scannedArea) scannedArea.textContent = Math.round(progress * 1.25) + '㎡';
+                if (detectedRooms) detectedRooms.textContent = Math.min(5, Math.round(progress / 20));
+                if (obstaclesCount) obstaclesCount.textContent = Math.round(progress / 12);
+                
+            }, 2000);
+        }
+        
+        // 停止建图
+        function stopMapping() {
+            // 这里可以添加停止建图的逻辑
+            console.log('建图已停止');
+        }
+        
+        // 初始化充电桩设置页面
+        function initChargingStationPage() {
+            const backBtn = document.getElementById('charging-station-back-btn');
+            const nextBtn = document.getElementById('charging-station-next-btn');
+            const canvas = document.getElementById('charging-map-canvas');
+            const marker = document.getElementById('charging-station-marker');
+            const preview = document.getElementById('charging-station-preview');
+            const positionInfo = document.getElementById('charging-position-info');
+            const scheduleCheckbox = document.getElementById('auto-charge-schedule');
+            const scheduleTime = document.getElementById('schedule-time');
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => showPage('real-time-mapping'));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => showPage('set-waypoints'));
+            }
+            
+            // 定时充电设置
+            if (scheduleCheckbox && scheduleTime) {
+                scheduleCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        scheduleTime.classList.remove('hidden');
+                    } else {
+                        scheduleTime.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // 模拟地图点击
+            if (canvas) {
+                canvas.addEventListener('click', function(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // 显示充电桩标记
+                    if (marker) {
+                        marker.style.left = x + 'px';
+                        marker.style.top = y + 'px';
+                        marker.classList.remove('hidden');
+                    }
+                    
+                    // 显示预览信息
+                    if (preview && positionInfo) {
+                        preview.classList.remove('hidden');
+                        positionInfo.textContent = `位置: (${Math.round(x)}, ${Math.round(y)})`;
+                    }
+                    
+                    // 启用下一步按钮
+                    if (nextBtn) {
+                        nextBtn.disabled = false;
+                        nextBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                        nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        nextBtn.textContent = '设置定位点';
+                    }
+                });
+            }
+        }
+        
+        // 初始化定位点设置页面
+        function initWaypointsPage() {
+            const backBtn = document.getElementById('waypoints-back-btn');
+            const nextBtn = document.getElementById('waypoints-next-btn');
+            const canvas = document.getElementById('waypoints-map-canvas');
+            const waypointsList = document.getElementById('waypoints-list');
+            const waypointsCount = document.getElementById('waypoints-count');
+            const quickBtns = document.querySelectorAll('.quick-waypoint-btn');
+            
+            let waypoints = [];
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => showPage('set-charging-station'));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => showPage('set-parking-spots'));
+            }
+            
+            // 快速添加按钮
+            quickBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const name = this.dataset.name;
+                    addWaypoint(name, Math.random() * 200 + 25, Math.random() * 150 + 25);
+                });
+            });
+            
+            // 地图点击添加定位点
+            if (canvas) {
+                canvas.addEventListener('click', function(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const name = prompt('请输入定位点名称:');
+                    if (name) {
+                        addWaypoint(name, x, y);
+                    }
+                });
+            }
+            
+            function addWaypoint(name, x, y) {
+                if (waypoints.length >= 8) {
+                    alert('最多只能设置8个定位点');
+                    return;
+                }
+                
+                waypoints.push({name, x, y});
+                updateWaypointsList();
+            }
+            
+            function updateWaypointsList() {
+                if (waypointsList && waypointsCount) {
+                    waypointsCount.textContent = `${waypoints.length}/8`;
+                    
+                    waypointsList.innerHTML = waypoints.map((wp, index) => `
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs mr-2">
+                                    ${index + 1}
+                                </div>
+                                <span class="text-sm">${wp.name}</span>
+                            </div>
+                            <button class="text-red-500 text-sm" onclick="removeWaypoint(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            // 全局删除函数
+            window.removeWaypoint = function(index) {
+                waypoints.splice(index, 1);
+                updateWaypointsList();
+            };
+        }
+        
+        // 初始化停靠点设置页面
+        function initParkingSpotsPage() {
+            const backBtn = document.getElementById('parking-spots-back-btn');
+            const nextBtn = document.getElementById('parking-spots-next-btn');
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => showPage('set-waypoints'));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => showPage('set-safety-zones'));
+            }
+            
+            // 停靠点类型按钮
+            const parkingTypeBtns = document.querySelectorAll('.parking-type-btn');
+            parkingTypeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    parkingTypeBtns.forEach(b => b.classList.remove('border-purple-500', 'bg-purple-50'));
+                    this.classList.add('border-purple-500', 'bg-purple-50');
+                });
+            });
+        }
+        
+        // 初始化安全区域设置页面
+        function initSafetyZonesPage() {
+            const backBtn = document.getElementById('safety-zones-back-btn');
+            const nextBtn = document.getElementById('safety-zones-next-btn');
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => showPage('set-parking-spots'));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => showPage('set-restricted-zones'));
+            }
+            
+            // 绘制工具
+            const drawRectBtn = document.getElementById('draw-rectangle');
+            const drawCircleBtn = document.getElementById('draw-circle');
+            const clearZonesBtn = document.getElementById('clear-zones');
+            
+            if (drawRectBtn) {
+                drawRectBtn.addEventListener('click', function() {
+                    this.classList.add('bg-green-500');
+                    drawCircleBtn?.classList.remove('bg-green-500');
+                    drawCircleBtn?.classList.add('bg-gray-500');
+                });
+            }
+            
+            if (drawCircleBtn) {
+                drawCircleBtn.addEventListener('click', function() {
+                    this.classList.add('bg-green-500');
+                    drawRectBtn?.classList.remove('bg-green-500');
+                    drawRectBtn?.classList.add('bg-gray-500');
+                });
+            }
+            
+            if (clearZonesBtn) {
+                clearZonesBtn.addEventListener('click', function() {
+                    if (confirm('确定要清除所有安全区域吗？')) {
+                        // 清除安全区域逻辑
+                        const zonesList = document.getElementById('safety-zones-list');
+                        const zonesCount = document.getElementById('safety-zones-count');
+                        if (zonesList) zonesList.innerHTML = '';
+                        if (zonesCount) zonesCount.textContent = '0个';
+                    }
+                });
+            }
+        }
+        
+        // 初始化禁行区设置页面
+        function initRestrictedZonesPage() {
+            const backBtn = document.getElementById('restricted-zones-back-btn');
+            const nextBtn = document.getElementById('restricted-zones-next-btn');
+            
+            if (backBtn) {
+                backBtn.addEventListener('click', () => showPage('set-safety-zones'));
+            }
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    showPage('mapping-complete');
+                    completeMappingProcess();
+                });
+            }
+            
+            // 快速添加禁行区按钮
+            const restrictedZoneBtns = document.querySelectorAll('.restricted-zone-btn');
+            restrictedZoneBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    addRestrictedZone(type);
+                });
+            });
+            
+            function addRestrictedZone(type) {
+                const zonesList = document.getElementById('restricted-zones-list');
+                const zonesCount = document.getElementById('restricted-zones-count');
+                
+                if (zonesList) {
+                    const zoneElement = document.createElement('div');
+                    zoneElement.className = 'flex items-center justify-between p-2 bg-red-50 rounded-lg border border-red-200';
+                    zoneElement.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-ban text-red-600 mr-2"></i>
+                            <span class="text-sm">${getZoneTypeName(type)}</span>
+                        </div>
+                        <button class="text-red-500 text-sm" onclick="this.parentElement.remove(); updateRestrictedZonesCount();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    zonesList.appendChild(zoneElement);
+                    updateRestrictedZonesCount();
+                }
+            }
+            
+            function getZoneTypeName(type) {
+                const names = {
+                    'stairs': '楼梯区域',
+                    'kitchen': '厨房操作台',
+                    'balcony': '阳台边缘',
+                    'bathroom': '浴室淋浴区'
+                };
+                return names[type] || type;
+            }
+            
+            window.updateRestrictedZonesCount = function() {
+                const zonesList = document.getElementById('restricted-zones-list');
+                const zonesCount = document.getElementById('restricted-zones-count');
+                if (zonesList && zonesCount) {
+                    const count = zonesList.children.length;
+                    zonesCount.textContent = count + '个';
+                }
+            };
+        }
+        
+        // 初始化建图完成页面
+        function initMappingCompletePage() {
+            const startNavigationBtn = document.getElementById('start-navigation-btn');
+            const viewMapDetailsBtn = document.getElementById('view-map-details-btn');
+            const backToManagementBtn = document.getElementById('back-to-management-btn');
+            
+            if (startNavigationBtn) {
+                startNavigationBtn.addEventListener('click', () => {
+                    showPage('control');
+                    // 激活导航栏"控制"选项
+                    updateNavigation('control');
+                });
+            }
+            
+            if (viewMapDetailsBtn) {
+                viewMapDetailsBtn.addEventListener('click', () => {
+                    alert('地图详情功能开发中...');
+                });
+            }
+            
+            if (backToManagementBtn) {
+                backToManagementBtn.addEventListener('click', () => {
+                    showPage('map-management');
+                });
+            }
+        }
+        
+        // 完成建图过程
+        function completeMappingProcess() {
+            // 模拟云端同步过程
+            setTimeout(() => {
+                const syncStatus = document.querySelector('#mapping-complete .bg-blue-50');
+                if (syncStatus) {
+                    syncStatus.innerHTML = `
+                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-check text-white text-sm"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="font-medium text-green-800">同步完成</p>
+                            <p class="text-sm text-green-600">地图数据已成功同步到云端</p>
+                        </div>
+                    `;
+                    syncStatus.classList.remove('bg-blue-50');
+                    syncStatus.classList.add('bg-green-50');
+                }
+            }, 3000);
+        }
+        
+        // 更新导航栏状态
+        function updateNavigation(activeTab) {
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.classList.remove('text-blue-500');
+                link.classList.add('text-gray-400');
+            });
+            
+            const activeLink = document.querySelector(`nav a[href="#${activeTab}"]`);
+            if (activeLink) {
+                activeLink.classList.remove('text-gray-400');
+                activeLink.classList.add('text-blue-500');
+            }
+        }
     </script>
 </body>
 </html> 
