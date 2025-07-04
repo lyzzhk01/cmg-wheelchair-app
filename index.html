@@ -486,8 +486,8 @@
                         正常
                     </div>
                     <div>
-                        <i class="fas fa-battery-three-quarters text-green-500 mb-1 block"></i>
-                        85%
+                        <i class="fas fa-battery-three-quarters text-green-500 mb-1 block" id="battery-icon"></i>
+                        <span id="battery-percentage">85%</span>
                     </div>
                 </div>
                 
@@ -756,7 +756,7 @@
                                 <i class="fas fa-robot text-blue-600"></i>
                             </div>
                             <div class="bg-gray-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
-                                <p class="text-sm">您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。</p>
+                                <p class="text-sm" id="battery-status-text">您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。</p>
                             </div>
                         </div>
                     </div>
@@ -883,7 +883,7 @@
                                 <p class="text-sm font-medium truncate">轮椅电量查询</p>
                                 <span class="text-xs text-gray-500">14:30</span>
                             </div>
-                            <p class="text-xs text-gray-500 truncate">您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。</p>
+                            <p class="text-xs text-gray-500 truncate" id="battery-history-text">您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。</p>
                         </div>
                         
                         <div class="bg-gray-50 hover:bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer">
@@ -1007,7 +1007,7 @@
                     <div>
                         <h4 class="font-medium text-blue-800 mb-1">建图小贴士</h4>
                         <p class="text-sm text-blue-700">
-                            建图前请确保轮椅电量充足（>50%），在室内环境进行，避免阳光直射和反光镜面，建议建图时间不超过30分钟。
+                            建图需在室内环境进行，避免阳光直射和反光镜面。建议建图时间控制在30分钟内完成，确保传感器能够准确扫描环境。
                         </p>
                     </div>
                 </div>
@@ -1152,40 +1152,7 @@
                     <p class="text-xs text-gray-500 mt-1">建议使用具有标识性的名称，方便后续管理</p>
                 </div>
                 
-                <!-- 地图类型选择 -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-3">地图类型</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="home">
-                            <div class="text-center">
-                                <i class="fas fa-home text-2xl text-blue-600 mb-2"></i>
-                                <p class="font-medium">家庭环境</p>
-                                <p class="text-xs text-gray-500">客厅、卧室、厨房等</p>
-                            </div>
-                        </div>
-                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="office">
-                            <div class="text-center">
-                                <i class="fas fa-building text-2xl text-green-600 mb-2"></i>
-                                <p class="font-medium">办公环境</p>
-                                <p class="text-xs text-gray-500">办公室、会议室等</p>
-                            </div>
-                        </div>
-                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="hospital">
-                            <div class="text-center">
-                                <i class="fas fa-hospital text-2xl text-red-600 mb-2"></i>
-                                <p class="font-medium">医疗环境</p>
-                                <p class="text-xs text-gray-500">医院、诊所等</p>
-                            </div>
-                        </div>
-                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer hover:border-blue-500 map-type-option" data-type="other">
-                            <div class="text-center">
-                                <i class="fas fa-map text-2xl text-gray-600 mb-2"></i>
-                                <p class="font-medium">其他环境</p>
-                                <p class="text-xs text-gray-500">自定义环境</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
                 
                 <!-- 预估面积 -->
                 <!-- <div class="mb-6">
@@ -1243,64 +1210,92 @@
             </div>
             
             <div class="bg-white rounded-xl shadow-md p-6 mb-4">
-                <h3 class="text-lg font-semibold mb-4 text-center">环境适应性检测</h3>
+                <h3 class="text-lg font-semibold mb-6 text-center">请确认建图环境条件</h3>
                 
-                <!-- 环境检测结果 -->
-                <div class="space-y-4 mb-6">
-                    <div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fas fa-home text-green-600 text-xl mr-3"></i>
-                            <div>
-                                <h4 class="font-medium text-green-800">室内环境</h4>
-                                <p class="text-sm text-green-600">检测到适合建图的室内环境</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-check text-green-600"></i>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fas fa-sun text-green-600 text-xl mr-3"></i>
-                            <div>
-                                <h4 class="font-medium text-green-800">光线条件</h4>
-                                <p class="text-sm text-green-600">光线适中，无强烈反射</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-check text-green-600"></i>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fas fa-volume-down text-yellow-600 text-xl mr-3"></i>
-                            <div>
-                                <h4 class="font-medium text-yellow-800">环境噪音</h4>
-                                <p class="text-sm text-yellow-600">环境较为安静，建议降低行驶速度</p>
-                            </div>
-                        </div>
-                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                <!-- 手动确认（主要部分） -->
+                <div class="border border-blue-200 rounded-lg p-5 mb-6 bg-blue-50">
+                    <h4 class="font-semibold text-blue-800 mb-4 flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        环境确认清单
+                    </h4>
+                    <div class="space-y-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" id="indoor-confirm">
+                            <span class="ml-3 text-sm font-medium">我确认当前处于室内环境</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" id="space-confirm">
+                            <span class="ml-3 text-sm font-medium">确认轮椅有足够的活动空间</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" id="obstacle-confirm">
+                            <span class="ml-3 text-sm font-medium">已清理主要通道上的障碍物</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded" id="safety-confirm">
+                            <span class="ml-3 text-sm font-medium">环境安全，无危险区域</span>
+                        </label>
                     </div>
                 </div>
                 
-                <!-- 手动确认 -->
-                <div class="border border-gray-200 rounded-lg p-4 mb-4">
-                    <h4 class="font-medium text-gray-800 mb-3">请手动确认环境条件</h4>
-                    <div class="space-y-3">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="indoor-confirm">
-                            <span class="ml-2 text-sm">我确认当前处于室内环境</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="space-confirm">
-                            <span class="ml-2 text-sm">确认轮椅有足够的活动空间</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="obstacle-confirm">
-                            <span class="ml-2 text-sm">已清理主要通道上的障碍物</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="safety-confirm">
-                            <span class="ml-2 text-sm">环境安全，无危险区域</span>
-                        </label>
+                <!-- 环境检测结果（辅助信息） -->
+                <div class="mb-4">
+                    <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                        <i class="fas fa-robot mr-2"></i>
+                        系统自动检测（参考）
+                    </h4>
+                    <div class="space-y-3" id="environment-detection-results">
+                        <!-- 默认显示室内环境良好 -->
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-home text-green-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-green-800">室内环境</h5>
+                                    <p class="text-xs text-green-600">检测到适合建图的室内环境</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-sun text-green-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-green-800">光线条件</h5>
+                                    <p class="text-xs text-green-600">光线适中，无强烈反射</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-volume-down text-yellow-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-yellow-800">环境噪音</h5>
+                                    <p class="text-xs text-yellow-600">环境较为安静，建议降低行驶速度</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 非室内环境警告（默认隐藏，检测到时显示） -->
+                    <div id="outdoor-warning" class="hidden mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3 mt-1"></i>
+                            <div>
+                                <h5 class="font-semibold text-red-800 mb-2">⚠️ 检测到可能的非室内环境</h5>
+                                <p class="text-sm text-red-700 mb-2">
+                                    系统检测到当前环境可能不适合建图，请确认您是否在室内环境中。
+                                </p>
+                                <div class="text-xs text-red-600 space-y-1">
+                                    <p>• 建图功能设计用于室内环境</p>
+                                    <p>• 室外环境可能影响传感器精度</p>
+                                    <p>• 强烈建议在室内进行建图操作</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -2301,8 +2296,183 @@
     </div>
 
     <script>
+        // 显示电量不足警告模态框
+        function showBatteryWarningModal(currentBattery) {
+            // 创建模态框HTML
+            const modalHTML = `
+                <div id="battery-warning-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-battery-quarter text-red-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">⚠️ 轮椅电量不足</h3>
+                        </div>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span class="text-sm text-gray-700">当前电量</span>
+                                <span class="text-sm font-bold text-red-600">${currentBattery}%</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-sm text-gray-700">建图所需电量</span>
+                                <span class="text-sm font-bold text-green-600">≥50%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-start">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-2"></i>
+                                <div class="text-sm text-yellow-800">
+                                    <p class="font-medium mb-1">温馨提示</p>
+                                    <p>建图过程耗电较大，电量不足可能导致建图失败。请为轮椅充电至50%以上再进行建图操作。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button onclick="closeBatteryWarningModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium transition">
+                                取消
+                            </button>
+                            <button onclick="closeBatteryWarningModal()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition">
+                                我知道了
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // 添加点击外部关闭功能
+            const modal = document.getElementById('battery-warning-modal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeBatteryWarningModal();
+                }
+            });
+        }
+        
+        // 关闭电量警告模态框
+        function closeBatteryWarningModal() {
+            const modal = document.getElementById('battery-warning-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
         // 切换页面的简单实现
         document.addEventListener('DOMContentLoaded', function() {
+            
+            // 电量随机更新系统
+            let currentBatteryLevel = 85; // 当前电量百分比
+            
+            // 生成30%-85%之间的随机电量
+            function generateRandomBattery() {
+                return Math.floor(Math.random() * (85 - 30 + 1)) + 30;
+            }
+            
+            // 根据电量级别获取电池图标和颜色
+            function getBatteryIcon(level) {
+                if (level >= 75) return { icon: 'fas fa-battery-full', color: 'text-green-500' };
+                if (level >= 50) return { icon: 'fas fa-battery-three-quarters', color: 'text-green-500' };
+                if (level >= 25) return { icon: 'fas fa-battery-half', color: 'text-yellow-500' };
+                return { icon: 'fas fa-battery-quarter', color: 'text-red-500' };
+            }
+            
+            // 根据电量计算预计时间和里程
+            function calculateBatteryInfo(level) {
+                const baseHours = 8; // 100%电量的基准使用时间
+                const baseKm = 35; // 100%电量的基准里程
+                
+                const hours = Math.floor((level / 100) * baseHours);
+                const minutes = Math.floor(((level / 100) * baseHours - hours) * 60);
+                const km = Math.floor((level / 100) * baseKm);
+                
+                return {
+                    timeText: `${hours}小时${minutes}分钟`,
+                    distance: km
+                };
+            }
+            
+            // 更新所有电量显示
+            function updateBatteryDisplay() {
+                currentBatteryLevel = generateRandomBattery();
+                const batteryInfo = calculateBatteryInfo(currentBatteryLevel);
+                const batteryIcon = getBatteryIcon(currentBatteryLevel);
+                
+                // 更新主界面电量显示
+                const batteryPercentage = document.getElementById('battery-percentage');
+                if (batteryPercentage) {
+                    batteryPercentage.textContent = `${currentBatteryLevel}%`;
+                }
+                
+                // 更新电池图标
+                const batteryIconElement = document.getElementById('battery-icon');
+                if (batteryIconElement) {
+                    batteryIconElement.className = `${batteryIcon.icon} ${batteryIcon.color} mb-1 block`;
+                }
+                
+                // 更新语音助手对话中的电量信息
+                const batteryStatusText = document.getElementById('battery-status-text');
+                if (batteryStatusText) {
+                    batteryStatusText.textContent = `您的轮椅当前电量为${currentBatteryLevel}%，预计可以使用${batteryInfo.timeText}，行驶距离约${batteryInfo.distance}公里。`;
+                }
+                
+                // 更新历史对话中的电量信息
+                const batteryHistoryText = document.getElementById('battery-history-text');
+                if (batteryHistoryText) {
+                    batteryHistoryText.textContent = `您的轮椅当前电量为${currentBatteryLevel}%，预计可以使用${batteryInfo.timeText}，行驶距离约${batteryInfo.distance}公里。`;
+                }
+                
+                // 建图小贴士保持静态内容，电量状态由按钮显示
+                
+                // 更新新建地图按钮状态
+                const createNewMapBtn = document.getElementById('create-new-map-btn');
+                if (createNewMapBtn) {
+                    if (currentBatteryLevel < 50) {
+                        // 电量不足时禁用按钮
+                        createNewMapBtn.disabled = true;
+                        createNewMapBtn.className = 'w-full bg-gray-400 text-gray-600 py-3 rounded-xl font-medium flex items-center justify-center mb-4 cursor-not-allowed';
+                        createNewMapBtn.innerHTML = `
+                            <i class="fas fa-battery-quarter mr-2"></i>
+                            电量不足，无法建图 (${currentBatteryLevel}%)
+                        `;
+                    } else {
+                        // 电量充足时恢复按钮
+                        createNewMapBtn.disabled = false;
+                        createNewMapBtn.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium flex items-center justify-center mb-4';
+                        createNewMapBtn.innerHTML = `
+                            <i class="fas fa-plus mr-2"></i>
+                            新建地图
+                        `;
+                    }
+                }
+                
+                // 更新全局电量状态（用于动态生成的内容）
+                window.currentBatteryStatus = {
+                    level: currentBatteryLevel,
+                    timeText: batteryInfo.timeText,
+                    distance: batteryInfo.distance,
+                    fullText: `您的轮椅当前电量为${currentBatteryLevel}%，预计可以使用${batteryInfo.timeText}，行驶距离约${batteryInfo.distance}公里。轮椅整体状态良好，无异常故障。`
+                };
+                
+                console.log(`🔋 电量已更新: ${currentBatteryLevel}% (${batteryInfo.timeText}, ${batteryInfo.distance}km)`);
+            }
+            
+            // 启动电量随机更新定时器
+            function startBatteryUpdater() {
+                // 立即执行一次
+                updateBatteryDisplay();
+                
+                // 每10秒更新一次
+                setInterval(updateBatteryDisplay, 10000);
+            }
+            
+            // 启动电量更新系统
+            startBatteryUpdater();
+            
             // 登录注册表单切换
             const showLoginBtn = document.getElementById('show-login-btn');
             const showRegisterBtn = document.getElementById('show-register-btn');
@@ -2898,7 +3068,8 @@
                     
                     // 增强的回复逻辑
                     if (message.includes('电量') || message.includes('轮椅状态')) {
-                        response = "您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。轮椅整体状态良好，无异常故障。";
+                        // 使用动态电量信息
+                        response = window.currentBatteryStatus ? window.currentBatteryStatus.fullText : "您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。轮椅整体状态良好，无异常故障。";
                     } else if (message.includes('速度') || message.includes('档位')) {
                         const level = message.match(/\d+/);
                         const speedLevel = level ? level[0] : 3;
@@ -3208,6 +3379,16 @@
             const createNewMapBtn = document.getElementById('create-new-map-btn');
             if (createNewMapBtn) {
                 createNewMapBtn.addEventListener('click', function() {
+                    // 检查电量是否充足
+                    const currentBattery = window.currentBatteryStatus ? window.currentBatteryStatus.level : 85;
+                    
+                    if (currentBattery < 50) {
+                        // 电量不足，显示优雅的提示
+                        showBatteryWarningModal(currentBattery);
+                        return;
+                    }
+                    
+                    // 电量充足，进入建图流程
                     showPage('create-map-check');
                     startConnectionCheck();
                 });
@@ -3248,22 +3429,17 @@
                 namingNextBtn.addEventListener('click', function() {
                     if (!this.disabled) {
                         showPage('environment-check');
+                        // 延迟执行环境检测，模拟检测过程
+                        setTimeout(() => {
+                            if (window.simulateEnvironmentDetection) {
+                                window.simulateEnvironmentDetection();
+                            }
+                        }, 800);
                     }
                 });
             }
             
-            // 地图类型选择
-            const mapTypeOptions = document.querySelectorAll('.map-type-option');
-            mapTypeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    mapTypeOptions.forEach(opt => {
-                        opt.classList.remove('border-blue-500', 'bg-blue-50');
-                        opt.classList.add('border-gray-300');
-                    });
-                    this.classList.remove('border-gray-300');
-                    this.classList.add('border-blue-500', 'bg-blue-50');
-                });
-            });
+
             
             // 面积滑块
             const areaSlider = document.getElementById('area-slider');
@@ -3282,6 +3458,140 @@
                     showPage('map-naming');
                 });
             }
+            
+            // 重置环境检测页面状态
+            function resetEnvironmentDetection() {
+                const indoorConfirm = document.getElementById('indoor-confirm');
+                if (indoorConfirm) {
+                    const label = indoorConfirm.closest('label');
+                    if (label) {
+                        // 重置样式
+                        label.classList.remove('bg-yellow-50', 'border', 'border-yellow-300', 'rounded-lg', 'p-2');
+                        const span = label.querySelector('span');
+                        if (span) {
+                            span.classList.remove('font-bold', 'text-blue-800');
+                            span.textContent = '我确认当前处于室内环境';
+                        }
+                    }
+                }
+                
+                // 重置检测结果为默认状态
+                const detectionResults = document.getElementById('environment-detection-results');
+                if (detectionResults) {
+                    detectionResults.innerHTML = `
+                        <!-- 默认显示室内环境良好 -->
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-home text-green-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-green-800">室内环境</h5>
+                                    <p class="text-xs text-green-600">检测到适合建图的室内环境</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-sun text-green-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-green-800">光线条件</h5>
+                                    <p class="text-xs text-green-600">光线适中，无强烈反射</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-volume-down text-yellow-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-yellow-800">环境噪音</h5>
+                                    <p class="text-xs text-yellow-600">环境较为安静，建议降低行驶速度</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                        </div>
+                    `;
+                }
+                
+                // 隐藏警告
+                const outdoorWarning = document.getElementById('outdoor-warning');
+                if (outdoorWarning) {
+                    outdoorWarning.classList.add('hidden');
+                }
+            }
+            
+            // 模拟环境检测 - 20%概率检测到非室内环境
+            function simulateEnvironmentDetection() {
+                // 先重置状态
+                resetEnvironmentDetection();
+                
+                const isOutdoorDetected = Math.random() < 0.2; // 20%概率
+                const detectionResults = document.getElementById('environment-detection-results');
+                const outdoorWarning = document.getElementById('outdoor-warning');
+                
+                if (isOutdoorDetected && detectionResults && outdoorWarning) {
+                    // 显示非室内环境检测结果
+                    detectionResults.innerHTML = `
+                        <div class="flex items-center justify-between p-3 bg-red-50 border-2 border-red-300 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-tree text-red-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-red-800">室外环境</h5>
+                                    <p class="text-xs text-red-600">检测到可能的室外环境特征</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-sun text-yellow-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-yellow-800">光线条件</h5>
+                                    <p class="text-xs text-yellow-600">光线强烈，可能有自然光干扰</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-volume-down text-green-600 text-lg mr-3"></i>
+                                <div>
+                                    <h5 class="font-medium text-green-800">环境噪音</h5>
+                                    <p class="text-xs text-green-600">环境噪音正常</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                    `;
+                    
+                    // 显示警告
+                    outdoorWarning.classList.remove('hidden');
+                    
+                    // 让第一个确认选项更加突出
+                    const indoorConfirm = document.getElementById('indoor-confirm');
+                    if (indoorConfirm) {
+                        const label = indoorConfirm.closest('label');
+                        if (label) {
+                            label.classList.add('bg-yellow-50', 'border', 'border-yellow-300', 'rounded-lg', 'p-2');
+                            const span = label.querySelector('span');
+                            if (span) {
+                                span.classList.add('font-bold', 'text-blue-800');
+                                span.textContent = '⚠️ 我确认当前处于室内环境（重要确认）';
+                            }
+                        }
+                    }
+                } else {
+                    // 显示正常的室内环境检测结果（已在HTML中默认设置）
+                    outdoorWarning.classList.add('hidden');
+                }
+            }
+            
+            // 保存模拟环境检测函数供页面切换时调用
+            window.simulateEnvironmentDetection = simulateEnvironmentDetection;
             
             // 环境确认复选框
             const environmentCheckboxes = ['indoor-confirm', 'space-confirm', 'obstacle-confirm', 'safety-confirm'];
