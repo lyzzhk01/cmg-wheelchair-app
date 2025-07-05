@@ -413,4 +413,49 @@ body {
 
 .navigate-btn:hover {
     background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* 重新定位动画样式 */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 轮椅和目标图标动画 */
+#wheelchair-icon, #target-icon {
+    transition: all 0.3s ease;
+}
+
+#move-arrow {
+    animation: fadeInOut 1.5s infinite;
+}
+
+/* 步骤高亮动画 */
+.step-highlight {
+    transition: all 0.3s ease;
+    transform: scale(1.02);
+}
+
+/* 定位点指示器脉冲动画 */
+.pulse-animation {
+    animation: pulse 2s infinite;
 } 

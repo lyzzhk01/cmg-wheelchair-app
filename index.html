@@ -540,7 +540,81 @@
                     </div>
                 </div>
                 
+                <!-- 室内地图和定位状态 -->
+                <div class="border border-gray-600 rounded-lg p-3 bg-gray-700 mb-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-map text-blue-400 mr-2"></i>
+                            <span class="text-sm text-white">室内地图</span>
+                        </div>
+                        <div class="flex items-center" id="indoor-position-status">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-green-400">定位正常</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative rounded-lg overflow-hidden" style="height: 200px;" id="indoor-map">
+                        <!-- 室内地图背景 -->
+                        <div class="absolute inset-0 bg-gray-800 flex justify-center items-center">
+                            <canvas id="indoor-map-canvas" class="w-full h-full rounded-lg"></canvas>
+                            
+                            <!-- 轮椅位置标记 -->
+                            <div id="indoor-wheelchair-position" class="absolute" style="left: 40%; top: 60%; transform: translate(-50%, -50%);">
+                                <div class="w-4 h-4 bg-blue-500 rounded-full relative">
+                                    <div class="absolute inset-0 bg-blue-400 rounded-full animate-ping"></div>
+                                    <!-- 轮椅方向指示 -->
+                                    <div class="absolute top-0 left-1/2 w-0.5 h-3 bg-blue-300 transform -translate-x-1/2 -translate-y-full"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 充电桩位置 -->
+                            <div id="charging-home-marker" class="absolute" style="left: 20%; top: 20%; transform: translate(-50%, -50%);">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <div class="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></div>
+                            </div>
+                            
+                            <!-- 导航路径 -->
+                            <svg class="absolute inset-0 w-full h-full" id="indoor-path-svg">
+                                <!-- 导航路径将通过JS动态绘制 -->
+                            </svg>
+                        </div>
+                        
+                        <!-- 室内定位信息 -->
+                        <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2">
+                            <div class="text-xs text-white">
+                                <div class="mb-1">
+                                    <span class="text-gray-400">当前位置:</span>
+                                    <span class="text-white" id="indoor-current-location">客厅区域</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">精度:</span>
+                                    <span class="text-green-400" id="indoor-accuracy">±0.5米</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 地图控制按钮 -->
+                        <div class="absolute bottom-2 right-2 flex flex-col space-y-1">
+                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="indoor-zoom-in">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="indoor-zoom-out">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 控制按钮 -->
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <button id="go-charging-btn" class="bg-green-600 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+                        <i class="fas fa-charging-station mr-2"></i> 去充电
+                    </button>
+                    <button id="summon-wheelchair-btn" class="bg-purple-600 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+                        <i class="fas fa-hand-paper mr-2"></i> 召唤
+                    </button>
+                </div>
+                
                 <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mb-2 flex items-center justify-center">
                     <i class="fas fa-gamepad mr-2"></i> 远程控制
                 </button>
@@ -622,6 +696,151 @@
                         <div>
                             <p class="text-xs text-gray-500 mb-1">上次连接</p>
                             <p class="font-medium">刚刚</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 去充电弹窗 -->
+            <div id="charging-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-charging-station text-green-600 text-3xl" id="charging-icon"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2" id="charging-title">正在前往充电桩</h3>
+                        <p class="text-gray-600 mb-4" id="charging-message">轮椅正在自动导航至充电桩位置...</p>
+                        
+                        <!-- 进度条 -->
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                            <div id="charging-progress" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        
+                        <!-- 状态信息 -->
+                        <div class="text-sm text-gray-500 mb-4">
+                            <div class="flex justify-between">
+                                <span>距离充电桩:</span>
+                                <span id="charging-distance">15米</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>预计时间:</span>
+                                <span id="charging-eta">30秒</span>
+                            </div>
+                        </div>
+                        
+                        <button id="cancel-charging-btn" class="w-full bg-red-500 text-white py-2 rounded-lg font-medium">
+                            取消充电
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 召唤弹窗 -->
+            <div id="summon-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-hand-paper text-purple-600 text-3xl" id="summon-icon"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2" id="summon-title">选择目的地</h3>
+                        <p class="text-gray-600 mb-4" id="summon-message">请选择您希望轮椅前往的位置</p>
+                        
+                        <!-- 目的地选择 -->
+                        <div id="destination-selection" class="space-y-2 mb-4">
+                            <button class="destination-btn w-full bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left transition" data-destination="客厅">
+                                <div class="flex items-center">
+                                    <i class="fas fa-couch text-blue-600 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium">客厅</div>
+                                        <div class="text-sm text-gray-500">距离约8米</div>
+                                    </div>
+                                </div>
+                            </button>
+                            <button class="destination-btn w-full bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left transition" data-destination="卧室">
+                                <div class="flex items-center">
+                                    <i class="fas fa-bed text-green-600 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium">卧室</div>
+                                        <div class="text-sm text-gray-500">距离约12米</div>
+                                    </div>
+                                </div>
+                            </button>
+                            <button class="destination-btn w-full bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left transition" data-destination="书房">
+                                <div class="flex items-center">
+                                    <i class="fas fa-book text-purple-600 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium">书房</div>
+                                        <div class="text-sm text-gray-500">距离约15米</div>
+                                    </div>
+                                </div>
+                            </button>
+                            <button class="destination-btn w-full bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left transition" data-destination="厨房">
+                                <div class="flex items-center">
+                                    <i class="fas fa-utensils text-orange-600 mr-3"></i>
+                                    <div>
+                                        <div class="font-medium">厨房</div>
+                                        <div class="text-sm text-gray-500">距离约10米</div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <!-- 导航进度 (隐藏) -->
+                        <div id="navigation-progress" class="hidden">
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                                <div id="navigation-progress-bar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="text-sm text-gray-500 mb-4">
+                                <div class="flex justify-between">
+                                    <span>距离目的地:</span>
+                                    <span id="navigation-distance">8米</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>预计时间:</span>
+                                    <span id="navigation-eta">20秒</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="cancel-summon-btn" class="w-full bg-gray-500 text-white py-2 rounded-lg font-medium">
+                            取消召唤
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 定位异常警告弹窗 -->
+            <div id="positioning-error-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 text-red-700">定位异常</h3>
+                        <p class="text-gray-600 mb-4" id="positioning-error-message">轮椅当前定位不准确或不在已知路径上，无法执行该操作。</p>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-info-circle text-yellow-600 mt-1 mr-2"></i>
+                                <div class="text-sm text-yellow-700">
+                                    <p class="font-medium mb-1">建议操作:</p>
+                                    <ul class="text-left space-y-1">
+                                        <li>• 确保轮椅在室内地图覆盖范围内</li>
+                                        <li>• 检查室内定位传感器是否正常</li>
+                                        <li>• 重新校准轮椅位置</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button id="recalibrate-btn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium">
+                                重新校准
+                            </button>
+                            <button id="close-positioning-error-btn" class="flex-1 bg-gray-500 text-white py-2 rounded-lg font-medium">
+                                关闭
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -933,62 +1152,95 @@
                 <h2 class="text-xl font-semibold">地图管理</h2>
             </div>
             
-            <!-- 已有地图列表 -->
-            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-gray-800">我的地图</h3>
-                    <span class="text-sm text-gray-500">共2个</span>
-                </div>
-                
-                <!-- 地图项目 -->
-                <div class="space-y-3">
-                    <div class="border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-home text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium">家庭地图</h4>
-                                    <p class="text-sm text-gray-500">创建于 2024-01-15</p>
-                                </div>
+            <!-- 当前使用的地图 -->
+            <div class="mb-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">当前使用</h3>
+                <div class="bg-white rounded-xl shadow-md border-2 border-blue-200 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-home text-blue-600"></i>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">已启用</span>
-                                <button class="text-gray-400">
-                                    <i class="fas fa-ellipsis-v"></i>
+                            <div>
+                                <h4 class="font-medium text-gray-800">家庭地图</h4>
+                                <p class="text-sm text-gray-500">最后编辑: 2024-01-15 14:30</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <button class="map-menu-btn text-gray-400 hover:text-gray-600" data-map-id="home-map">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="map-menu hidden absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-32">
+                                <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg" onclick="editMap('home-map')">
+                                    <i class="fas fa-edit mr-2"></i>编辑
+                                </button>
+                                <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg" onclick="deleteMap('home-map')">
+                                    <i class="fas fa-trash mr-2"></i>删除
                                 </button>
                             </div>
                         </div>
-                        <div class="text-xs text-gray-500 flex items-center justify-between">
-                            <span>面积: 120㎡</span>
-                            <span>充电桩: 1个</span>
-                            <span>停靠点: 3个</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">正在使用</span>
+                        </div>
+                        <div class="flex items-center" id="current-map-status">
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-red-600">定位异常</span>
                         </div>
                     </div>
                     
-                    <div class="border border-gray-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
+                    <!-- 定位异常时显示重新定位按钮 -->
+                    <div id="relocate-btn-container" class="mt-3">
+                        <button id="relocate-map-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center">
+                            <i class="fas fa-crosshairs mr-2"></i>重新定位
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 其他地图 -->
+            <div class="mb-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">其他地图</h3>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+                        <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center">
                                 <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
                                     <i class="fas fa-building text-gray-600"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-medium">办公室地图</h4>
-                                    <p class="text-sm text-gray-500">创建于 2024-01-10</p>
+                                    <h4 class="font-medium text-gray-800">家庭地图2</h4>
+                                    <p class="text-sm text-gray-500">最后编辑: 2024-01-10 09:15</p>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">未启用</span>
-                                <button class="text-gray-400">
+                            <div class="relative">
+                                <button class="map-menu-btn text-gray-400 hover:text-gray-600" data-map-id="office-map">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
+                                <div class="map-menu hidden absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-32">
+                                    <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg" onclick="editMap('office-map')">
+                                        <i class="fas fa-edit mr-2"></i>编辑
+                                    </button>
+                                    <button class="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-gray-100" onclick="switchToMap('office-map')">
+                                        <i class="fas fa-toggle-on mr-2"></i>切换使用
+                                    </button>
+                                    <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg" onclick="deleteMap('office-map')">
+                                        <i class="fas fa-trash mr-2"></i>删除
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-xs text-gray-500 flex items-center justify-between">
-                            <span>面积: 80㎡</span>
-                            <span>充电桩: 1个</span>
-                            <span>停靠点: 2个</span>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">未使用</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                                <span class="text-xs text-gray-500">未激活</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1009,6 +1261,146 @@
                         <p class="text-sm text-blue-700">
                             建图需在室内环境进行，避免阳光直射和反光镜面。建议建图时间控制在30分钟内完成，确保传感器能够准确扫描环境。
                         </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 地图编辑弹窗 -->
+            <div id="edit-map-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-edit text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">编辑地图</h3>
+                        <p class="text-sm text-gray-600 mt-1" id="edit-map-name">家庭地图</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">地图名称</label>
+                            <input type="text" id="edit-map-name-input" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="输入地图名称">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="cancel-edit-map" class="bg-gray-500 text-white py-2 rounded-lg font-medium">
+                                取消
+                            </button>
+                            <button id="save-edit-map" class="bg-blue-600 text-white py-2 rounded-lg font-medium">
+                                保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 删除地图确认弹窗 -->
+            <div id="delete-map-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-trash text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-red-700">删除地图</h3>
+                        <p class="text-sm text-gray-600 mt-2">确定要删除 "<span id="delete-map-name">家庭地图</span>" 吗？</p>
+                        <p class="text-xs text-red-500 mt-1">此操作不可撤销</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="cancel-delete-map" class="bg-gray-500 text-white py-2 rounded-lg font-medium">
+                            取消
+                        </button>
+                        <button id="confirm-delete-map" class="bg-red-600 text-white py-2 rounded-lg font-medium">
+                            删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 切换地图确认弹窗 -->
+            <div id="switch-map-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-toggle-on text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold">切换地图</h3>
+                        <p class="text-sm text-gray-600 mt-2">切换到 "<span id="switch-map-name">家庭地图2</span>" 作为当前使用的地图？</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="cancel-switch-map" class="bg-gray-500 text-white py-2 rounded-lg font-medium">
+                            取消
+                        </button>
+                        <button id="confirm-switch-map" class="bg-green-600 text-white py-2 rounded-lg font-medium">
+                            切换
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 重新定位弹窗 -->
+            <div id="relocate-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-crosshairs text-yellow-600 text-2xl" id="relocate-icon"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold" id="relocate-title">重新定位</h3>
+                        <p class="text-sm text-gray-600 mt-2" id="relocate-message">请将轮椅移动到定位点或充电桩位置</p>
+                    </div>
+                    
+                    <!-- 操作指导动画区域 -->
+                    <div id="relocate-guide" class="mb-4">
+                        <div class="bg-blue-50 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-center mb-3">
+                                <!-- 轮椅动画 -->
+                                <div class="relative">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4" id="wheelchair-icon">
+                                        <i class="fas fa-wheelchair text-white text-xl"></i>
+                                    </div>
+                                    <!-- 移动箭头动画 -->
+                                    <div class="absolute top-1/2 -right-2 transform -translate-y-1/2">
+                                        <div class="flex items-center" id="move-arrow">
+                                            <div class="w-8 h-0.5 bg-blue-400 mr-1"></div>
+                                            <div class="w-0 h-0 border-l-4 border-l-blue-400 border-t-2 border-t-transparent border-b-2 border-b-transparent"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 目标位置 -->
+                                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center ml-8" id="target-icon">
+                                    <i class="fas fa-charging-station text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm font-medium text-blue-800 mb-1">操作步骤</p>
+                                <div class="text-xs text-blue-700 space-y-1">
+                                    <p id="step-1" class="font-medium">• 1. 手动控制轮椅移动</p>
+                                    <p id="step-2" class="text-gray-500">• 2. 移动到充电桩前方1米处</p>
+                                    <p id="step-3" class="text-gray-500">• 3. 确保轮椅正对充电桩</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 进度条（校验阶段显示） -->
+                    <div id="relocate-progress-section" class="hidden mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                            <div id="relocate-progress" class="bg-yellow-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div class="text-sm text-gray-500 text-center">
+                            <span id="relocate-status">正在检测环境...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 按钮区域 -->
+                    <div id="relocate-buttons">
+                        <button id="confirm-position" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium mb-2">
+                            <i class="fas fa-check mr-2"></i>确认已在定位点
+                        </button>
+                        <button id="cancel-relocate" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-medium">
+                            取消定位
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1148,7 +1540,7 @@
                 <!-- 地图命名 -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">地图名称</label>
-                    <input type="text" id="map-name-input" class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入地图名称，如：家庭地图、办公室地图">
+                    <input type="text" id="map-name-input" class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入地图名称，如：家庭地图">
                     <p class="text-xs text-gray-500 mt-1">建议使用具有标识性的名称，方便后续管理</p>
                 </div>
                 
@@ -2858,6 +3250,875 @@
             const voiceCommandBtns = document.querySelectorAll('.voice-command-btn');
             const moreCommandsBtn = document.getElementById('more-commands-btn');
             const moreCommands = document.getElementById('more-commands');
+            
+            // 室内地图和定位功能
+            let indoorMapCanvas = null;
+            let indoorMapCtx = null;
+            let wheelchairPosition = { x: 40, y: 60 }; // 轮椅位置百分比
+            let chargingPosition = { x: 20, y: 20 }; // 充电桩位置百分比
+            let isPositioningNormal = true; // 定位是否正常
+            let isOnPath = true; // 是否在已知路径上
+            
+            // 初始化室内地图
+            function initIndoorMap() {
+                indoorMapCanvas = document.getElementById('indoor-map-canvas');
+                if (!indoorMapCanvas) return;
+                
+                const rect = indoorMapCanvas.getBoundingClientRect();
+                indoorMapCanvas.width = rect.width;
+                indoorMapCanvas.height = rect.height;
+                indoorMapCtx = indoorMapCanvas.getContext('2d');
+                
+                // 开始绘制地图
+                drawIndoorMap();
+                
+                // 定期更新轮椅位置
+                setInterval(updateWheelchairPosition, 2000);
+                
+                // 定期检查定位状态
+                setInterval(checkPositioningStatus, 5000);
+            }
+            
+            // 绘制室内地图
+            function drawIndoorMap() {
+                if (!indoorMapCtx) return;
+                
+                const width = indoorMapCanvas.width;
+                const height = indoorMapCanvas.height;
+                
+                // 清除画布
+                indoorMapCtx.clearRect(0, 0, width, height);
+                
+                // 绘制房间墙壁
+                indoorMapCtx.strokeStyle = '#6B7280';
+                indoorMapCtx.lineWidth = 2;
+                indoorMapCtx.strokeRect(20, 20, width - 40, height - 40);
+                
+                // 绘制房间分隔线
+                indoorMapCtx.strokeStyle = '#9CA3AF';
+                indoorMapCtx.lineWidth = 1;
+                indoorMapCtx.beginPath();
+                indoorMapCtx.moveTo(width * 0.6, 20);
+                indoorMapCtx.lineTo(width * 0.6, height - 20);
+                indoorMapCtx.stroke();
+                
+                // 绘制门
+                indoorMapCtx.strokeStyle = '#10B981';
+                indoorMapCtx.lineWidth = 3;
+                indoorMapCtx.beginPath();
+                indoorMapCtx.moveTo(width * 0.3, 20);
+                indoorMapCtx.lineTo(width * 0.4, 20);
+                indoorMapCtx.stroke();
+                
+                // 绘制导航路径
+                drawNavigationPath();
+                
+                // 请求下一帧
+                requestAnimationFrame(drawIndoorMap);
+            }
+            
+            // 绘制导航路径
+            function drawNavigationPath() {
+                if (!indoorMapCtx) return;
+                
+                const width = indoorMapCanvas.width;
+                const height = indoorMapCanvas.height;
+                
+                // 绘制路径线
+                indoorMapCtx.strokeStyle = '#3B82F6';
+                indoorMapCtx.lineWidth = 2;
+                indoorMapCtx.setLineDash([5, 5]);
+                indoorMapCtx.beginPath();
+                
+                // 从充电桩到轮椅的路径
+                const chargingX = (chargingPosition.x / 100) * width;
+                const chargingY = (chargingPosition.y / 100) * height;
+                const wheelchairX = (wheelchairPosition.x / 100) * width;
+                const wheelchairY = (wheelchairPosition.y / 100) * height;
+                
+                indoorMapCtx.moveTo(chargingX, chargingY);
+                indoorMapCtx.lineTo(wheelchairX, wheelchairY);
+                indoorMapCtx.stroke();
+                
+                // 重置线条样式
+                indoorMapCtx.setLineDash([]);
+            }
+            
+            // 更新轮椅位置
+            function updateWheelchairPosition() {
+                if (!isPositioningNormal) return;
+                
+                // 模拟轮椅移动
+                wheelchairPosition.x += (Math.random() - 0.5) * 5;
+                wheelchairPosition.y += (Math.random() - 0.5) * 5;
+                
+                // 确保位置在地图范围内
+                wheelchairPosition.x = Math.max(15, Math.min(85, wheelchairPosition.x));
+                wheelchairPosition.y = Math.max(15, Math.min(85, wheelchairPosition.y));
+                
+                // 更新DOM位置
+                const wheelchairElement = document.getElementById('indoor-wheelchair-position');
+                if (wheelchairElement) {
+                    wheelchairElement.style.left = wheelchairPosition.x + '%';
+                    wheelchairElement.style.top = wheelchairPosition.y + '%';
+                }
+                
+                // 更新位置描述
+                updateLocationDescription();
+            }
+            
+            // 更新位置描述
+            function updateLocationDescription() {
+                const locationElement = document.getElementById('indoor-current-location');
+                if (!locationElement) return;
+                
+                const locations = ['客厅区域', '卧室区域', '书房区域', '厨房区域', '走廊'];
+                const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+                locationElement.textContent = randomLocation;
+            }
+            
+            // 检查定位状态
+            function checkPositioningStatus() {
+                // 90% 概率定位正常
+                isPositioningNormal = Math.random() > 0.1;
+                isOnPath = Math.random() > 0.2;
+                
+                const statusElement = document.getElementById('indoor-position-status');
+                if (statusElement) {
+                    if (isPositioningNormal && isOnPath) {
+                        statusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-green-400">定位正常</span>
+                        `;
+                    } else {
+                        statusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-red-400">定位异常</span>
+                        `;
+                    }
+                }
+            }
+            
+            // 去充电功能
+            function initChargingFunction() {
+                const goChargingBtn = document.getElementById('go-charging-btn');
+                const chargingModal = document.getElementById('charging-modal');
+                const cancelChargingBtn = document.getElementById('cancel-charging-btn');
+                
+                if (goChargingBtn) {
+                    goChargingBtn.addEventListener('click', function() {
+                        if (!isPositioningNormal || !isOnPath) {
+                            showPositioningError('去充电');
+                            return;
+                        }
+                        
+                        // 显示充电弹窗
+                        chargingModal.classList.remove('hidden');
+                        startChargingAnimation();
+                    });
+                }
+                
+                if (cancelChargingBtn) {
+                    cancelChargingBtn.addEventListener('click', function() {
+                        chargingModal.classList.add('hidden');
+                        resetChargingAnimation();
+                    });
+                }
+            }
+            
+            // 开始充电动画
+            function startChargingAnimation() {
+                const chargingProgress = document.getElementById('charging-progress');
+                const chargingDistance = document.getElementById('charging-distance');
+                const chargingEta = document.getElementById('charging-eta');
+                const chargingTitle = document.getElementById('charging-title');
+                const chargingMessage = document.getElementById('charging-message');
+                const chargingIcon = document.getElementById('charging-icon');
+                
+                let progress = 0;
+                let distance = 15;
+                let eta = 30;
+                
+                const chargingInterval = setInterval(() => {
+                    progress += 5;
+                    distance = Math.max(0, distance - 0.8);
+                    eta = Math.max(0, eta - 1.5);
+                    
+                    if (chargingProgress) chargingProgress.style.width = progress + '%';
+                    if (chargingDistance) chargingDistance.textContent = distance.toFixed(1) + '米';
+                    if (chargingEta) chargingEta.textContent = Math.ceil(eta) + '秒';
+                    
+                    if (progress >= 100) {
+                        clearInterval(chargingInterval);
+                        
+                        // 显示充电成功
+                        if (chargingTitle) chargingTitle.textContent = '充电成功';
+                        if (chargingMessage) chargingMessage.textContent = '轮椅已到达充电桩，正在充电中...';
+                        if (chargingIcon) chargingIcon.className = 'fas fa-battery-full text-green-600 text-3xl';
+                        
+                        setTimeout(() => {
+                            document.getElementById('charging-modal').classList.add('hidden');
+                            resetChargingAnimation();
+                            
+                            // 更新轮椅状态为充电中
+                            updateWheelchairStatus('充电中');
+                        }, 2000);
+                    }
+                }, 200);
+            }
+            
+            // 重置充电动画
+            function resetChargingAnimation() {
+                const chargingProgress = document.getElementById('charging-progress');
+                const chargingDistance = document.getElementById('charging-distance');
+                const chargingEta = document.getElementById('charging-eta');
+                const chargingTitle = document.getElementById('charging-title');
+                const chargingMessage = document.getElementById('charging-message');
+                const chargingIcon = document.getElementById('charging-icon');
+                
+                if (chargingProgress) chargingProgress.style.width = '0%';
+                if (chargingDistance) chargingDistance.textContent = '15米';
+                if (chargingEta) chargingEta.textContent = '30秒';
+                if (chargingTitle) chargingTitle.textContent = '正在前往充电桩';
+                if (chargingMessage) chargingMessage.textContent = '轮椅正在自动导航至充电桩位置...';
+                if (chargingIcon) chargingIcon.className = 'fas fa-charging-station text-green-600 text-3xl';
+            }
+            
+            // 召唤功能
+            function initSummonFunction() {
+                const summonBtn = document.getElementById('summon-wheelchair-btn');
+                const summonModal = document.getElementById('summon-modal');
+                const cancelSummonBtn = document.getElementById('cancel-summon-btn');
+                const destinationBtns = document.querySelectorAll('.destination-btn');
+                
+                if (summonBtn) {
+                    summonBtn.addEventListener('click', function() {
+                        if (!isPositioningNormal || !isOnPath) {
+                            showPositioningError('召唤');
+                            return;
+                        }
+                        
+                        // 显示召唤弹窗
+                        summonModal.classList.remove('hidden');
+                        resetSummonModal();
+                    });
+                }
+                
+                if (cancelSummonBtn) {
+                    cancelSummonBtn.addEventListener('click', function() {
+                        summonModal.classList.add('hidden');
+                        resetSummonModal();
+                    });
+                }
+                
+                // 目的地选择
+                destinationBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const destination = this.dataset.destination;
+                        startNavigationToDestination(destination);
+                    });
+                });
+            }
+            
+            // 开始导航到目的地
+            function startNavigationToDestination(destination) {
+                const destinationSelection = document.getElementById('destination-selection');
+                const navigationProgress = document.getElementById('navigation-progress');
+                const summonTitle = document.getElementById('summon-title');
+                const summonMessage = document.getElementById('summon-message');
+                const summonIcon = document.getElementById('summon-icon');
+                
+                // 隐藏目的地选择，显示导航进度
+                destinationSelection.classList.add('hidden');
+                navigationProgress.classList.remove('hidden');
+                
+                if (summonTitle) summonTitle.textContent = `正在前往${destination}`;
+                if (summonMessage) summonMessage.textContent = `轮椅正在自动导航至${destination}...`;
+                if (summonIcon) summonIcon.className = 'fas fa-route text-purple-600 text-3xl';
+                
+                // 开始导航动画
+                startNavigationAnimation(destination);
+            }
+            
+            // 开始导航动画
+            function startNavigationAnimation(destination) {
+                const navigationProgressBar = document.getElementById('navigation-progress-bar');
+                const navigationDistance = document.getElementById('navigation-distance');
+                const navigationEta = document.getElementById('navigation-eta');
+                
+                let progress = 0;
+                let distance = parseInt(navigationDistance.textContent);
+                let eta = parseInt(navigationEta.textContent);
+                
+                const navigationInterval = setInterval(() => {
+                    progress += 5;
+                    distance = Math.max(0, distance - 0.6);
+                    eta = Math.max(0, eta - 1);
+                    
+                    if (navigationProgressBar) navigationProgressBar.style.width = progress + '%';
+                    if (navigationDistance) navigationDistance.textContent = distance.toFixed(1) + '米';
+                    if (navigationEta) navigationEta.textContent = Math.ceil(eta) + '秒';
+                    
+                    if (progress >= 100) {
+                        clearInterval(navigationInterval);
+                        
+                        // 显示到达成功
+                        const summonTitle = document.getElementById('summon-title');
+                        const summonMessage = document.getElementById('summon-message');
+                        const summonIcon = document.getElementById('summon-icon');
+                        
+                        if (summonTitle) summonTitle.textContent = '到达目的地';
+                        if (summonMessage) summonMessage.textContent = `轮椅已到达${destination}，召唤完成！`;
+                        if (summonIcon) summonIcon.className = 'fas fa-check-circle text-green-600 text-3xl';
+                        
+                        setTimeout(() => {
+                            document.getElementById('summon-modal').classList.add('hidden');
+                            resetSummonModal();
+                        }, 2000);
+                    }
+                }, 200);
+            }
+            
+            // 重置召唤弹窗
+            function resetSummonModal() {
+                const destinationSelection = document.getElementById('destination-selection');
+                const navigationProgress = document.getElementById('navigation-progress');
+                const summonTitle = document.getElementById('summon-title');
+                const summonMessage = document.getElementById('summon-message');
+                const summonIcon = document.getElementById('summon-icon');
+                const navigationProgressBar = document.getElementById('navigation-progress-bar');
+                
+                // 重置状态
+                destinationSelection.classList.remove('hidden');
+                navigationProgress.classList.add('hidden');
+                
+                if (summonTitle) summonTitle.textContent = '选择目的地';
+                if (summonMessage) summonMessage.textContent = '请选择您希望轮椅前往的位置';
+                if (summonIcon) summonIcon.className = 'fas fa-hand-paper text-purple-600 text-3xl';
+                if (navigationProgressBar) navigationProgressBar.style.width = '0%';
+            }
+            
+            // 显示定位异常错误
+            function showPositioningError(action) {
+                const errorModal = document.getElementById('positioning-error-modal');
+                const errorMessage = document.getElementById('positioning-error-message');
+                const closeErrorBtn = document.getElementById('close-positioning-error-btn');
+                const recalibrateBtn = document.getElementById('recalibrate-btn');
+                
+                if (errorMessage) {
+                    errorMessage.textContent = `无法执行${action}操作：轮椅当前定位不准确或不在已知路径上。`;
+                }
+                
+                errorModal.classList.remove('hidden');
+                
+                if (closeErrorBtn) {
+                    closeErrorBtn.addEventListener('click', function() {
+                        errorModal.classList.add('hidden');
+                    });
+                }
+                
+                if (recalibrateBtn) {
+                    recalibrateBtn.addEventListener('click', function() {
+                        // 模拟重新校准
+                        errorModal.classList.add('hidden');
+                        startRecalibration();
+                    });
+                }
+            }
+            
+            // 开始重新校准
+            function startRecalibration() {
+                // 模拟校准过程
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = '正在重新校准定位...';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.textContent = '校准完成，定位已恢复正常';
+                    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    
+                    // 恢复定位状态
+                    isPositioningNormal = true;
+                    isOnPath = true;
+                    checkPositioningStatus();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 2000);
+                }, 3000);
+            }
+            
+            // 更新轮椅状态
+            function updateWheelchairStatus(status) {
+                // 这里可以更新轮椅状态显示
+                console.log('轮椅状态更新:', status);
+            }
+            
+            // 初始化所有新功能
+            function initDeviceStatusFeatures() {
+                initIndoorMap();
+                initChargingFunction();
+                initSummonFunction();
+            }
+            
+            // 在页面加载完成后初始化
+            setTimeout(initDeviceStatusFeatures, 1000);
+            
+            // 地图管理功能
+            let currentMapId = 'home-map';
+            let currentEditingMapId = null;
+            let currentDeletingMapId = null;
+            let currentSwitchingMapId = null;
+            let mapPositioningStatus = { 'home-map': false, 'office-map': true }; // 模拟定位状态
+            
+            // 初始化地图管理功能
+            function initMapManagement() {
+                // 绑定菜单按钮事件
+                const mapMenuBtns = document.querySelectorAll('.map-menu-btn');
+                mapMenuBtns.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        // 关闭其他菜单
+                        document.querySelectorAll('.map-menu').forEach(menu => menu.classList.add('hidden'));
+                        // 显示当前菜单
+                        const menu = this.nextElementSibling;
+                        menu.classList.toggle('hidden');
+                    });
+                });
+                
+                // 点击外部关闭菜单
+                document.addEventListener('click', function() {
+                    document.querySelectorAll('.map-menu').forEach(menu => menu.classList.add('hidden'));
+                });
+                
+                // 初始化地图状态
+                updateMapPositioningStatus();
+                
+                // 定期更新定位状态
+                setInterval(updateMapPositioningStatus, 10000);
+                
+                // 重新定位按钮
+                const relocateBtn = document.getElementById('relocate-map-btn');
+                if (relocateBtn) {
+                    relocateBtn.addEventListener('click', function() {
+                        startMapRelocate();
+                    });
+                }
+                
+                // 编辑地图弹窗
+                initEditMapModal();
+                
+                // 删除地图弹窗
+                initDeleteMapModal();
+                
+                // 切换地图弹窗
+                initSwitchMapModal();
+                
+                // 重新定位弹窗
+                initRelocateModal();
+            }
+            
+            // 更新地图定位状态
+            function updateMapPositioningStatus() {
+                const currentMapStatusElement = document.getElementById('current-map-status');
+                const relocateBtnContainer = document.getElementById('relocate-btn-container');
+                
+                if (currentMapStatusElement && relocateBtnContainer) {
+                    const isPositioningNormal = mapPositioningStatus[currentMapId];
+                    
+                    if (isPositioningNormal) {
+                        currentMapStatusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-green-600">定位正常</span>
+                        `;
+                        relocateBtnContainer.style.display = 'none';
+                    } else {
+                        currentMapStatusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-red-600">定位异常</span>
+                        `;
+                        relocateBtnContainer.style.display = 'block';
+                    }
+                }
+                
+                // 模拟定位状态变化（80%概率正常）
+                if (Math.random() > 0.8) {
+                    mapPositioningStatus[currentMapId] = !mapPositioningStatus[currentMapId];
+                }
+            }
+            
+            // 编辑地图功能
+            function editMap(mapId) {
+                currentEditingMapId = mapId;
+                const modal = document.getElementById('edit-map-modal');
+                const mapName = getMapName(mapId);
+                
+                document.getElementById('edit-map-name').textContent = mapName;
+                document.getElementById('edit-map-name-input').value = mapName;
+                
+                modal.classList.remove('hidden');
+                
+                // 关闭菜单
+                document.querySelectorAll('.map-menu').forEach(menu => menu.classList.add('hidden'));
+            }
+            
+            // 删除地图功能
+            function deleteMap(mapId) {
+                if (mapId === currentMapId) {
+                    showToast('当前使用的地图无法删除', 'error');
+                    return;
+                }
+                
+                currentDeletingMapId = mapId;
+                const modal = document.getElementById('delete-map-modal');
+                const mapName = getMapName(mapId);
+                
+                document.getElementById('delete-map-name').textContent = mapName;
+                modal.classList.remove('hidden');
+                
+                // 关闭菜单
+                document.querySelectorAll('.map-menu').forEach(menu => menu.classList.add('hidden'));
+            }
+            
+            // 切换地图功能
+            function switchToMap(mapId) {
+                currentSwitchingMapId = mapId;
+                const modal = document.getElementById('switch-map-modal');
+                const mapName = getMapName(mapId);
+                
+                document.getElementById('switch-map-name').textContent = mapName;
+                modal.classList.remove('hidden');
+                
+                // 关闭菜单
+                document.querySelectorAll('.map-menu').forEach(menu => menu.classList.add('hidden'));
+            }
+            
+            // 获取地图名称
+            function getMapName(mapId) {
+                const mapNames = {
+                    'home-map': '家庭地图',
+                    'home-map': '家庭地图2'
+                };
+                return mapNames[mapId] || '未知地图';
+            }
+            
+            // 初始化编辑地图弹窗
+            function initEditMapModal() {
+                const modal = document.getElementById('edit-map-modal');
+                const cancelBtn = document.getElementById('cancel-edit-map');
+                const saveBtn = document.getElementById('save-edit-map');
+                const nameInput = document.getElementById('edit-map-name-input');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        modal.classList.add('hidden');
+                        currentEditingMapId = null;
+                    });
+                }
+                
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function() {
+                        const newName = nameInput.value.trim();
+                        if (!newName) {
+                            showToast('请输入地图名称', 'error');
+                            return;
+                        }
+                        
+                        // 模拟保存
+                        showToast(`地图名称已更新为"${newName}"`, 'success');
+                        modal.classList.add('hidden');
+                        currentEditingMapId = null;
+                        
+                        // 这里可以添加更新UI的逻辑
+                    });
+                }
+            }
+            
+            // 初始化删除地图弹窗
+            function initDeleteMapModal() {
+                const modal = document.getElementById('delete-map-modal');
+                const cancelBtn = document.getElementById('cancel-delete-map');
+                const confirmBtn = document.getElementById('confirm-delete-map');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        modal.classList.add('hidden');
+                        currentDeletingMapId = null;
+                    });
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        const mapName = getMapName(currentDeletingMapId);
+                        
+                        // 模拟删除
+                        showToast(`"${mapName}"已删除`, 'success');
+                        modal.classList.add('hidden');
+                        currentDeletingMapId = null;
+                        
+                        // 这里可以添加移除UI元素的逻辑
+                    });
+                }
+            }
+            
+            // 初始化切换地图弹窗
+            function initSwitchMapModal() {
+                const modal = document.getElementById('switch-map-modal');
+                const cancelBtn = document.getElementById('cancel-switch-map');
+                const confirmBtn = document.getElementById('confirm-switch-map');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        modal.classList.add('hidden');
+                        currentSwitchingMapId = null;
+                    });
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        const mapName = getMapName(currentSwitchingMapId);
+                        
+                        // 更新当前地图
+                        currentMapId = currentSwitchingMapId;
+                        
+                        showToast(`已切换到"${mapName}"`, 'success');
+                        modal.classList.add('hidden');
+                        currentSwitchingMapId = null;
+                        
+                        // 这里可以添加更新UI的逻辑，比如重新渲染地图列表
+                    });
+                }
+            }
+            
+            // 开始重新定位
+            function startMapRelocate() {
+                const modal = document.getElementById('relocate-modal');
+                modal.classList.remove('hidden');
+                
+                // 重置到初始状态
+                resetRelocateAnimation();
+                
+                // 开始指导动画
+                startGuideAnimation();
+            }
+            
+            // 初始化重新定位弹窗
+            function initRelocateModal() {
+                const modal = document.getElementById('relocate-modal');
+                const cancelBtn = document.getElementById('cancel-relocate');
+                const confirmBtn = document.getElementById('confirm-position');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        modal.classList.add('hidden');
+                        resetRelocateAnimation();
+                    });
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        // 用户确认已在定位点，开始校验过程
+                        startValidationProcess();
+                    });
+                }
+            }
+            
+            // 开始指导动画
+            function startGuideAnimation() {
+                const wheelchairIcon = document.getElementById('wheelchair-icon');
+                const moveArrow = document.getElementById('move-arrow');
+                const steps = ['step-1', 'step-2', 'step-3'];
+                let currentStep = 0;
+                
+                // 轮椅图标脉冲动画
+                if (wheelchairIcon) {
+                    wheelchairIcon.style.animation = 'pulse 2s infinite';
+                }
+                
+                // 箭头闪烁动画
+                if (moveArrow) {
+                    moveArrow.style.animation = 'pulse 1.5s infinite';
+                }
+                
+                // 步骤高亮循环
+                const stepInterval = setInterval(() => {
+                    // 重置所有步骤样式
+                    steps.forEach(stepId => {
+                        const stepElement = document.getElementById(stepId);
+                        if (stepElement) {
+                            stepElement.className = 'text-gray-500';
+                        }
+                    });
+                    
+                    // 高亮当前步骤
+                    const currentStepElement = document.getElementById(steps[currentStep]);
+                    if (currentStepElement) {
+                        currentStepElement.className = 'font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded transition-all duration-300';
+                    }
+                    
+                    currentStep = (currentStep + 1) % steps.length;
+                }, 2000);
+                
+                // 保存定时器引用以便清理
+                window.relocateStepInterval = stepInterval;
+            }
+            
+            // 开始校验过程
+            function startValidationProcess() {
+                // 清理指导动画
+                if (window.relocateStepInterval) {
+                    clearInterval(window.relocateStepInterval);
+                    window.relocateStepInterval = null;
+                }
+                
+                // 隐藏指导区域，显示进度区域
+                const guideSection = document.getElementById('relocate-guide');
+                const progressSection = document.getElementById('relocate-progress-section');
+                const buttonsSection = document.getElementById('relocate-buttons');
+                const titleElement = document.getElementById('relocate-title');
+                const messageElement = document.getElementById('relocate-message');
+                const iconElement = document.getElementById('relocate-icon');
+                
+                if (guideSection) guideSection.style.display = 'none';
+                if (progressSection) progressSection.classList.remove('hidden');
+                if (buttonsSection) buttonsSection.style.display = 'none';
+                
+                // 更新标题和消息
+                if (titleElement) titleElement.textContent = '正在校验定位';
+                if (messageElement) messageElement.textContent = '系统正在验证轮椅位置和地图匹配度';
+                if (iconElement) iconElement.className = 'fas fa-cog fa-spin text-yellow-600 text-2xl';
+                
+                // 开始校验动画
+                startValidationAnimation();
+            }
+            
+            // 开始校验动画
+            function startValidationAnimation() {
+                const progressBar = document.getElementById('relocate-progress');
+                const statusText = document.getElementById('relocate-status');
+                const titleElement = document.getElementById('relocate-title');
+                const messageElement = document.getElementById('relocate-message');
+                const iconElement = document.getElementById('relocate-icon');
+                
+                let progress = 0;
+                const statusMessages = [
+                    '正在检测环境...',
+                    '校准传感器...',
+                    '分析地图数据...',
+                    '匹配定位点...',
+                    '验证定位精度...'
+                ];
+                let currentStatusIndex = 0;
+                
+                const relocateInterval = setInterval(() => {
+                    progress += 20;
+                    
+                    if (progressBar) {
+                        progressBar.style.width = progress + '%';
+                    }
+                    
+                    if (statusText && currentStatusIndex < statusMessages.length) {
+                        statusText.textContent = statusMessages[currentStatusIndex];
+                        currentStatusIndex++;
+                    }
+                    
+                    if (progress >= 100) {
+                        clearInterval(relocateInterval);
+                        
+                        // 显示成功
+                        if (titleElement) titleElement.textContent = '定位成功';
+                        if (messageElement) messageElement.textContent = '地图定位系统已重新校准完成';
+                        if (iconElement) iconElement.className = 'fas fa-check-circle text-green-600 text-2xl';
+                        if (statusText) statusText.textContent = '定位校准完成';
+                        
+                        // 更新定位状态
+                        mapPositioningStatus[currentMapId] = true;
+                        updateMapPositioningStatus();
+                        
+                        setTimeout(() => {
+                            document.getElementById('relocate-modal').classList.add('hidden');
+                            resetRelocateAnimation();
+                            showToast('地图定位已恢复正常', 'success');
+                        }, 2000);
+                    }
+                }, 500);
+            }
+            
+            // 重置重新定位动画
+            function resetRelocateAnimation() {
+                // 清理定时器
+                if (window.relocateStepInterval) {
+                    clearInterval(window.relocateStepInterval);
+                    window.relocateStepInterval = null;
+                }
+                
+                // 重置UI元素
+                const progressBar = document.getElementById('relocate-progress');
+                const statusText = document.getElementById('relocate-status');
+                const titleElement = document.getElementById('relocate-title');
+                const messageElement = document.getElementById('relocate-message');
+                const iconElement = document.getElementById('relocate-icon');
+                const guideSection = document.getElementById('relocate-guide');
+                const progressSection = document.getElementById('relocate-progress-section');
+                const buttonsSection = document.getElementById('relocate-buttons');
+                const wheelchairIcon = document.getElementById('wheelchair-icon');
+                const moveArrow = document.getElementById('move-arrow');
+                
+                // 重置进度条
+                if (progressBar) progressBar.style.width = '0%';
+                if (statusText) statusText.textContent = '正在检测环境...';
+                
+                // 重置标题和消息
+                if (titleElement) titleElement.textContent = '重新定位';
+                if (messageElement) messageElement.textContent = '请将轮椅移动到定位点或充电桩位置';
+                if (iconElement) iconElement.className = 'fas fa-crosshairs text-yellow-600 text-2xl';
+                
+                // 重置显示状态
+                if (guideSection) guideSection.style.display = 'block';
+                if (progressSection) progressSection.classList.add('hidden');
+                if (buttonsSection) buttonsSection.style.display = 'block';
+                
+                // 清除动画
+                if (wheelchairIcon) wheelchairIcon.style.animation = '';
+                if (moveArrow) moveArrow.style.animation = '';
+                
+                // 重置步骤样式
+                const steps = ['step-1', 'step-2', 'step-3'];
+                steps.forEach((stepId, index) => {
+                    const stepElement = document.getElementById(stepId);
+                    if (stepElement) {
+                        if (index === 0) {
+                            stepElement.className = 'font-medium';
+                        } else {
+                            stepElement.className = 'text-gray-500';
+                        }
+                    }
+                });
+            }
+            
+            // 显示提示消息
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+                toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 3000);
+            }
+            
+            // 全局函数，供HTML调用
+            window.editMap = editMap;
+            window.deleteMap = deleteMap;
+            window.switchToMap = switchToMap;
+            
+            // 初始化地图管理
+            setTimeout(initMapManagement, 1000);
             
             let isListening = false;
             
