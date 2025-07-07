@@ -132,7 +132,108 @@
                 transform: translateY(0);
             }
         }
-    </style>
+        
+        /* 设备选择器样式 */
+        .device-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .device-card.selected {
+            border-color: #fbbf24 !important;
+            background-color: #fef3c7 !important;
+        }
+        
+        .device-card.selected::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .device-card .device-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .device-card:hover .device-icon {
+            transform: scale(1.1);
+        }
+        
+        .device-card.selected .device-icon {
+            transform: scale(1.05);
+        }
+        
+        .device-card .device-name {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .device-card .device-status {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .device-card .device-status.online {
+            color: #10b981;
+        }
+        
+        .device-card .device-status.offline {
+            color: #6b7280;
+        }
+        
+        .device-selector-btn {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background-color: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .device-selector-btn:hover {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        
+        .device-selector-btn.primary {
+            color: #3b82f6;
+        }
+        
+                    .device-selector-btn.primary:hover {
+                background-color: #eff6ff;
+                color: #2563eb;
+            }
+            
+            /* 弹窗动画增强 */
+            .modal-content {
+                animation: modalSlideIn 0.3s ease-out;
+            }
+            
+            @keyframes modalSlideIn {
+                from {
+                    transform: translateY(-30px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+        </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <!-- 页面导航栏 -->
@@ -424,7 +525,13 @@
         <!-- 状态查询页面 -->
         <div id="device-status" class="hidden p-4 max-w-md mx-auto">
             <div class="flex justify-between items-center mb-4 px-2">
-                <h2 class="text-xl font-semibold">智能轮椅</h2>
+                <button class="text-left" id="device-selector-btn">
+                    <div class="flex items-center">
+                        <h2 class="text-xl font-semibold mr-2">智能轮椅</h2>
+                        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1" id="current-device-name">A001</p>
+                </button>
                 <button class="text-blue-500" id="add-device-btn">
                     <i class="fas fa-plus"></i>
                 </button>
@@ -435,7 +542,7 @@
                 <div class="flex justify-between items-start mb-1">
                     <div>
                         <p class="text-xs text-gray-400">智能轮椅</p>
-                        <p class="font-semibold">A001</p>
+                        <p class="font-semibold" data-device-display>A001</p>
                     </div>
                     <!-- 添加查看设备详情按钮 -->
                     <button id="show-device-details-btn" class="text-gray-400 text-sm p-1">
@@ -683,7 +790,7 @@
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <p class="text-xs text-gray-500 mb-1">设备ID</p>
-                            <p class="font-medium">A001-28FC9D</p>
+                            <p class="font-medium" data-device-display>A001-28FC9D</p>
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 mb-1">电池健康度</p>
@@ -696,6 +803,119 @@
                         <div>
                             <p class="text-xs text-gray-500 mb-1">上次连接</p>
                             <p class="font-medium">刚刚</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 设备选择弹窗 -->
+            <div id="device-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-xl shadow-lg p-4 m-4 max-w-md w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">全部设备(4)</h3>
+                        <div class="flex items-center space-x-2">
+                            <button id="add-new-device-btn" class="text-blue-500">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button id="close-device-selector-btn" class="text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 设备列表 -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <!-- 当前选中设备 -->
+                        <div class="device-card selected border-2 border-yellow-400 bg-yellow-50 rounded-lg p-3 cursor-pointer relative" data-device-id="CM-6001">
+                            <div class="absolute top-2 left-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <div class="flex justify-center mb-2 mt-3">
+                                <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center">
+                                    <!-- 轮椅小图标 -->
+                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-pink-600">
+                                        <circle cx="20" cy="35" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="40" cy="35" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="25" y="20" width="10" height="15" rx="2" fill="currentColor"/>
+                                        <rect x="28" y="15" width="4" height="10" rx="1" fill="currentColor"/>
+                                        <circle cx="30" cy="25" r="2" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-medium text-sm text-gray-800">CM-6001</h4>
+                                <div class="flex items-center justify-center mt-1">
+                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
+                                    <span class="text-xs text-green-600">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 其他设备 -->
+                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition" data-device-id="CM-6001-Pro-123456">
+                            <div class="flex justify-center mb-2">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <!-- 轮椅专业版图标 -->
+                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-600">
+                                        <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
+                                        <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
+                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                        <rect x="35" y="30" width="6" height="8" rx="1" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-medium text-sm text-gray-800">CM-6001 Pro 123456</h4>
+                                <div class="flex items-center justify-center mt-1">
+                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
+                                    <span class="text-xs text-green-600">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition" data-device-id="CM-6001-Pro-12-2">
+                            <div class="flex justify-center mb-2">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-600">
+                                        <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
+                                        <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
+                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                        <rect x="35" y="30" width="6" height="8" rx="1" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-medium text-sm text-gray-800">CM-6001 Pro 12...(2)</h4>
+                                <div class="flex items-center justify-center mt-1">
+                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
+                                    <span class="text-xs text-green-600">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition opacity-50" data-device-id="CM-6001-Pro-12-3">
+                            <div class="flex justify-center mb-2">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-400">
+                                        <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
+                                        <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
+                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-medium text-sm text-gray-500">CM-6001 Pro 12...(3)</h4>
+                                <div class="flex items-center justify-center mt-1">
+                                    <i class="fas fa-wifi text-gray-400 text-xs mr-1"></i>
+                                    <span class="text-xs text-gray-500">Offline</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -844,9 +1064,51 @@
                         </div>
                     </div>
                 </div>
+                        </div>
+        </div>
+        
+        <!-- 通用APP风格弹窗 -->
+        <div id="app-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-xl m-4 max-w-sm w-full modal-content">
+                <!-- 弹窗头部 -->
+                <div class="p-6 pb-2">
+                    <h3 class="text-lg font-semibold text-gray-900 text-center" id="modal-title">提示</h3>
+                </div>
+                
+                <!-- 弹窗内容 -->
+                <div class="px-6 pb-4">
+                    <p class="text-gray-600 text-center leading-relaxed" id="modal-message"></p>
+                    
+                    <!-- 输入框 (prompt类型时显示) -->
+                    <div id="modal-input-container" class="hidden mt-4">
+                        <input type="text" id="modal-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入内容">
+                        
+                        <!-- 推荐选项 -->
+                        <div id="modal-suggestions" class="hidden mt-3">
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                    <span class="text-sm font-medium text-yellow-800">推荐位置</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="房门口">• 房门口、走廊入口等开阔地点</div>
+                                    <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="客厅中央">• 客厅中央、餐厅中央等空旷区域</div>
+                                    <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="各房间的连接通道处">• 各房间的连接通道处</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 弹窗按钮 -->
+                <div class="flex border-t border-gray-200">
+                    <button id="modal-cancel" class="flex-1 py-4 text-gray-600 font-medium hover:bg-gray-50 transition">取消</button>
+                    <div class="w-px bg-gray-200"></div>
+                    <button id="modal-confirm" class="flex-1 py-4 text-blue-600 font-medium hover:bg-blue-50 transition">确定</button>
+                </div>
             </div>
         </div>
-
+        
         <!-- 我的页面 -->
         <div id="profile" class="hidden p-4 max-w-md mx-auto">
             <div class="bg-white rounded-xl shadow-md p-6 mb-4">
@@ -2754,6 +3016,132 @@
             }
         }
 
+        // 全局弹窗函数 - 必须在页面加载前定义
+        let currentModalResolve = null;
+        
+        function showModal(config) {
+            const modal = document.getElementById('app-modal');
+            const title = document.getElementById('modal-title');
+            const message = document.getElementById('modal-message');
+            const inputContainer = document.getElementById('modal-input-container');
+            const input = document.getElementById('modal-input');
+            const suggestions = document.getElementById('modal-suggestions');
+            const cancelBtn = document.getElementById('modal-cancel');
+            const confirmBtn = document.getElementById('modal-confirm');
+            
+            // 设置内容
+            title.textContent = config.title || '提示';
+            message.textContent = config.message || '';
+            
+            // 根据类型显示不同UI
+            if (config.type === 'prompt') {
+                inputContainer.classList.remove('hidden');
+                input.value = config.defaultValue || '';
+                input.placeholder = config.placeholder || '请输入内容';
+                
+                // 如果是定位点名称输入，显示推荐选项
+                if (config.message.includes('定位点名称')) {
+                    suggestions.classList.remove('hidden');
+                } else {
+                    suggestions.classList.add('hidden');
+                }
+                
+                // 聚焦输入框
+                setTimeout(() => input.focus(), 100);
+            } else {
+                inputContainer.classList.add('hidden');
+                suggestions.classList.add('hidden');
+            }
+            
+            // 设置按钮文本
+            if (config.type === 'alert') {
+                cancelBtn.classList.add('hidden');
+                confirmBtn.textContent = config.confirmText || '确定';
+                confirmBtn.classList.remove('flex-1');
+                confirmBtn.classList.add('w-full');
+            } else {
+                cancelBtn.classList.remove('hidden');
+                confirmBtn.classList.add('flex-1');
+                confirmBtn.classList.remove('w-full');
+                cancelBtn.textContent = config.cancelText || '取消';
+                confirmBtn.textContent = config.confirmText || '确定';
+            }
+            
+            // 显示弹窗
+            modal.classList.remove('hidden');
+            
+            return new Promise((resolve) => {
+                currentModalResolve = resolve;
+            });
+        }
+        
+        function hideModal() {
+            const modal = document.getElementById('app-modal');
+            modal.classList.add('hidden');
+        }
+        
+        // 替换原生弹窗的函数
+        function appAlert(message, title = '提示') {
+            return showModal({
+                type: 'alert',
+                title: title,
+                message: message,
+                confirmText: '确定'
+            });
+        }
+        
+        function appConfirm(message, title = '确认') {
+            return showModal({
+                type: 'confirm',
+                title: title,
+                message: message,
+                cancelText: '取消',
+                confirmText: '确定'
+            });
+        }
+        
+        function appPrompt(message, defaultValue = '', placeholder = '请输入内容', title = '输入') {
+            return showModal({
+                type: 'prompt',
+                title: title,
+                message: message,
+                defaultValue: defaultValue,
+                placeholder: placeholder,
+                cancelText: '取消',
+                confirmText: '确定'
+            });
+        }
+        
+        // Toast提示功能
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg z-50 text-white font-medium`;
+            
+            switch (type) {
+                case 'success':
+                    toast.classList.add('bg-green-500');
+                    break;
+                case 'error':
+                    toast.classList.add('bg-red-500');
+                    break;
+                case 'warning':
+                    toast.classList.add('bg-yellow-500');
+                    break;
+                default:
+                    toast.classList.add('bg-blue-500');
+            }
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // 自动移除
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+
         // 切换页面的简单实现
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -2995,9 +3383,9 @@
                     const spinner = document.querySelector('#add-device .animate-spin');
                     if (spinner) {
                         spinner.style.display = 'block';
-                        setTimeout(function() {
+                        setTimeout(async function() {
                             spinner.style.display = 'none';
-                            alert('已刷新设备列表');
+                            await appAlert('已刷新设备列表', '设备刷新');
                         }, 1500);
                     }
                 });
@@ -4120,6 +4508,323 @@
             // 初始化地图管理
             setTimeout(initMapManagement, 1000);
             
+            // 设备管理功能
+            let currentSelectedDevice = 'CM-6001';
+            let availableDevices = {
+                'CM-6001': {
+                    name: 'CM-6001',
+                    displayName: 'A001',
+                    online: true,
+                    type: 'basic',
+                    color: 'pink'
+                },
+                'CM-6001-Pro-123456': {
+                    name: 'CM-6001 Pro 123456',
+                    displayName: 'A002',
+                    online: true,
+                    type: 'pro',
+                    color: 'gray'
+                },
+                'CM-6001-Pro-12-2': {
+                    name: 'CM-6001 Pro 12...(2)',
+                    displayName: 'A003',
+                    online: true,
+                    type: 'pro',
+                    color: 'gray'
+                },
+                'CM-6001-Pro-12-3': {
+                    name: 'CM-6001 Pro 12...(3)',
+                    displayName: 'A004',
+                    online: false,
+                    type: 'pro',
+                    color: 'gray'
+                }
+            };
+            
+            // 初始化设备选择功能
+            function initDeviceSelector() {
+                const deviceSelectorBtn = document.getElementById('device-selector-btn');
+                const deviceSelectorModal = document.getElementById('device-selector-modal');
+                const closeDeviceSelectorBtn = document.getElementById('close-device-selector-btn');
+                const addNewDeviceBtn = document.getElementById('add-new-device-btn');
+                const deviceCards = document.querySelectorAll('.device-card');
+                
+                // 设备选择按钮点击事件
+                if (deviceSelectorBtn) {
+                    deviceSelectorBtn.addEventListener('click', function() {
+                        deviceSelectorModal.classList.remove('hidden');
+                        updateDeviceList();
+                    });
+                }
+                
+                // 关闭弹窗
+                if (closeDeviceSelectorBtn) {
+                    closeDeviceSelectorBtn.addEventListener('click', function() {
+                        deviceSelectorModal.classList.add('hidden');
+                    });
+                }
+                
+                // 添加新设备
+                if (addNewDeviceBtn) {
+                    addNewDeviceBtn.addEventListener('click', function() {
+                        deviceSelectorModal.classList.add('hidden');
+                        // 跳转到添加设备页面
+                        showPage('add-device');
+                    });
+                }
+                
+                // 设备卡片点击事件
+                deviceCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        const deviceId = this.dataset.deviceId;
+                        const device = availableDevices[deviceId];
+                        
+                        if (device && device.online) {
+                            switchToDevice(deviceId);
+                            deviceSelectorModal.classList.add('hidden');
+                        } else {
+                            showToast('设备离线，无法切换', 'error');
+                        }
+                    });
+                });
+                
+                // 点击外部关闭弹窗
+                deviceSelectorModal.addEventListener('click', function(e) {
+                    if (e.target === deviceSelectorModal) {
+                        deviceSelectorModal.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // 切换到指定设备
+            function switchToDevice(deviceId) {
+                if (!availableDevices[deviceId] || !availableDevices[deviceId].online) {
+                    showToast('设备不可用', 'error');
+                    return;
+                }
+                
+                const oldDevice = availableDevices[currentSelectedDevice];
+                const newDevice = availableDevices[deviceId];
+                
+                // 更新当前选中设备
+                currentSelectedDevice = deviceId;
+                
+                // 更新标题显示
+                updateDeviceTitle(newDevice);
+                
+                // 更新设备信息卡片
+                updateDeviceInfo(newDevice);
+                
+                // 更新设备列表选中状态
+                updateDeviceListSelection();
+                
+                showToast(`已切换到 ${newDevice.name}`, 'success');
+                
+                // 模拟加载新设备数据
+                simulateDeviceDataLoading(newDevice);
+            }
+            
+            // 更新设备标题
+            function updateDeviceTitle(device) {
+                const currentDeviceName = document.getElementById('current-device-name');
+                if (currentDeviceName) {
+                    currentDeviceName.textContent = device.displayName;
+                }
+            }
+            
+            // 更新设备信息
+            function updateDeviceInfo(device) {
+                // 更新设备ID显示
+                const deviceIdElements = document.querySelectorAll('[data-device-display]');
+                deviceIdElements.forEach(element => {
+                    element.textContent = device.displayName;
+                });
+                
+                // 模拟不同设备的数据
+                const deviceData = generateDeviceData(device);
+                
+                // 更新电量信息
+                const batteryPercentage = document.getElementById('battery-percentage');
+                const batteryIcon = document.getElementById('battery-icon');
+                if (batteryPercentage && batteryIcon) {
+                    batteryPercentage.textContent = deviceData.battery + '%';
+                    const batteryIconInfo = getBatteryIcon(deviceData.battery);
+                    batteryIcon.className = `${batteryIconInfo.icon} ${batteryIconInfo.color} mb-1 block`;
+                }
+                
+                // 更新其他设备状态
+                // 这里可以添加更多设备特定的信息更新
+            }
+            
+            // 生成设备数据
+            function generateDeviceData(device) {
+                // 为不同设备生成不同的模拟数据
+                const baseData = {
+                    'CM-6001': { battery: 78, speed: '2.5 km/h', distance: '25 km' },
+                    'CM-6001-Pro-123456': { battery: 92, speed: '3.2 km/h', distance: '18 km' },
+                    'CM-6001-Pro-12-2': { battery: 65, speed: '1.8 km/h', distance: '32 km' },
+                    'CM-6001-Pro-12-3': { battery: 45, speed: '0 km/h', distance: '0 km' }
+                };
+                
+                return baseData[device.name] || baseData['CM-6001'];
+            }
+            
+            // 更新设备列表
+            function updateDeviceList() {
+                const deviceCards = document.querySelectorAll('.device-card');
+                
+                deviceCards.forEach(card => {
+                    const deviceId = card.dataset.deviceId;
+                    const device = availableDevices[deviceId];
+                    
+                    if (device) {
+                        // 移除所有选中状态
+                        card.classList.remove('selected', 'border-yellow-400', 'bg-yellow-50');
+                        card.classList.add('border-gray-200', 'bg-white');
+                        
+                        // 移除选中图标
+                        const checkIcon = card.querySelector('.absolute');
+                        if (checkIcon) {
+                            checkIcon.style.display = 'none';
+                        }
+                        
+                        // 如果是当前选中设备，添加选中样式
+                        if (deviceId === currentSelectedDevice) {
+                            card.classList.remove('border-gray-200', 'bg-white');
+                            card.classList.add('selected', 'border-yellow-400', 'bg-yellow-50');
+                            if (checkIcon) {
+                                checkIcon.style.display = 'block';
+                            }
+                        }
+                        
+                        // 更新在线状态
+                        const statusIcon = card.querySelector('.fa-wifi');
+                        const statusText = card.querySelector('.text-xs:last-child');
+                        
+                        if (device.online) {
+                            card.classList.remove('opacity-50');
+                            if (statusIcon) {
+                                statusIcon.className = 'fas fa-wifi text-green-500 text-xs mr-1';
+                            }
+                            if (statusText) {
+                                statusText.textContent = 'Online';
+                                statusText.className = 'text-xs text-green-600';
+                            }
+                        } else {
+                            card.classList.add('opacity-50');
+                            if (statusIcon) {
+                                statusIcon.className = 'fas fa-wifi text-gray-400 text-xs mr-1';
+                            }
+                            if (statusText) {
+                                statusText.textContent = 'Offline';
+                                statusText.className = 'text-xs text-gray-500';
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 更新设备列表选中状态
+            function updateDeviceListSelection() {
+                updateDeviceList();
+            }
+            
+            // 模拟设备数据加载
+            function simulateDeviceDataLoading(device) {
+                // 显示加载状态
+                const loadingToast = document.createElement('div');
+                loadingToast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                loadingToast.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        <span>正在连接 ${device.name}...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingToast);
+                
+                // 模拟加载延迟
+                setTimeout(() => {
+                    document.body.removeChild(loadingToast);
+                    
+                    // 更新全局电量状态
+                    const deviceData = generateDeviceData(device);
+                    window.currentBatteryStatus = {
+                        level: deviceData.battery,
+                        timeText: '4小时20分钟',
+                        distance: parseInt(deviceData.distance),
+                        fullText: `您的轮椅当前电量为${deviceData.battery}%，预计可以使用4小时20分钟，行驶距离约${parseInt(deviceData.distance)}公里。`
+                    };
+                    
+                    // 触发电量显示更新
+                    updateBatteryDisplay();
+                }, 1500);
+            }
+            
+            // 初始化设备选择器
+            setTimeout(initDeviceSelector, 1000);
+            
+
+            
+            // 初始化APP弹窗系统
+            function initAppModal() {
+                const modal = document.getElementById('app-modal');
+                const cancelBtn = document.getElementById('modal-cancel');
+                const confirmBtn = document.getElementById('modal-confirm');
+                const input = document.getElementById('modal-input');
+                const suggestions = document.querySelectorAll('.suggestion-item');
+                
+                // 取消按钮
+                cancelBtn.addEventListener('click', () => {
+                    hideModal();
+                    if (currentModalResolve) {
+                        currentModalResolve(null);
+                        currentModalResolve = null;
+                    }
+                });
+                
+                // 确定按钮
+                confirmBtn.addEventListener('click', () => {
+                    const inputContainer = document.getElementById('modal-input-container');
+                    const result = inputContainer.classList.contains('hidden') ? true : input.value.trim();
+                    
+                    hideModal();
+                    if (currentModalResolve) {
+                        currentModalResolve(result);
+                        currentModalResolve = null;
+                    }
+                });
+                
+                // 推荐选项点击
+                suggestions.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const value = item.getAttribute('data-value');
+                        input.value = value;
+                        input.focus();
+                    });
+                });
+                
+                // 点击背景关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        hideModal();
+                        if (currentModalResolve) {
+                            currentModalResolve(null);
+                            currentModalResolve = null;
+                        }
+                    }
+                });
+                
+                // 输入框回车确认
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        confirmBtn.click();
+                    }
+                });
+            }
+            
+            // 立即初始化APP弹窗
+            initAppModal();
+            
             let isListening = false;
             
             // 更多指令展开/收起功能
@@ -4488,7 +5193,7 @@
                 // 历史记录项点击事件
                 const historyItems = historyModal.querySelectorAll('.bg-gray-50');
                 historyItems.forEach(item => {
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', async function() {
                         // 获取对话内容
                         const dialogTitle = this.querySelector('.font-medium').textContent;
                         const dialogContent = this.querySelector('.text-gray-500.truncate').textContent;
@@ -4500,7 +5205,7 @@
                         historyModal.classList.add('hidden');
                         
                         // 可以添加一个提示，告知用户已加载历史对话
-                        alert('已加载历史对话: ' + dialogTitle);
+                        await appAlert('已加载历史对话: ' + dialogTitle, '历史对话');
                     });
                 });
             }
@@ -4602,10 +5307,10 @@
                 
                 // 导航按钮事件
                 if (navigateBtn) {
-                    navigateBtn.addEventListener('click', () => {
+                    navigateBtn.addEventListener('click', async () => {
                         const location = locationData[currentLocationIndex];
                         // 在实际应用中，这里可以打开地图应用进行导航
-                        alert(`已打开导航至: ${location.address}`);
+                        await appAlert(`已打开导航至: ${location.address}`, '导航');
                     });
                 }
             }
@@ -4937,8 +5642,9 @@
             const saveAndContinueBtn = document.getElementById('save-and-continue-btn');
             
             if (emergencyStopBtn) {
-                emergencyStopBtn.addEventListener('click', function() {
-                    if (confirm('确定要停止建图吗？已扫描的数据将会保存。')) {
+                emergencyStopBtn.addEventListener('click', async function() {
+                    const confirmed = await appConfirm('确定要停止建图吗？已扫描的数据将会保存。');
+                    if (confirmed) {
                         stopMapping();
                         showPage('set-charging-station');
                     }
@@ -5154,8 +5860,11 @@
                 });
             }
             
-            function addMappingWaypoint() {
-                const name = prompt('请输入定位点名称 (如：客厅入口、房门口等)：') || `定位点${mappingWaypoints.length + 1}`;
+            async function addMappingWaypoint() {
+                const name = await appPrompt('请输入定位点名称 (如：客厅入口、房门口等)：', '', '例如：客厅入口、房门口等', '添加定位点');
+                
+                if (!name) return; // 用户取消了输入
+                
                 const waypoint = {
                     id: Date.now(),
                     name: name,
@@ -5642,12 +6351,15 @@
             }
             
             // 添加停靠点
-            function addParkingSpot() {
-                const spotName = prompt('请输入停靠点名称 (如：床边、沙发边等)：') || `停靠点${parkingSpots.length + 1}`;
-                const isSafe = confirm('请确认：停靠点附近环境安全，无尖锐物体或跌落风险？');
+            async function addParkingSpot() {
+                const spotName = await appPrompt('请输入停靠点名称 (如：床边、沙发边等)：', '', '例如：床边、沙发边等', '添加停靠点');
+                
+                if (!spotName) return; // 用户取消了输入
+                
+                const isSafe = await appConfirm('请确认：停靠点附近环境安全，无尖锐物体或跌落风险？', '安全确认');
                 
                 if (!isSafe) {
-                    alert('请先确保停靠点附近环境安全后再设置');
+                    await appAlert('请先确保停靠点附近环境安全后再设置', '安全提示');
                     return;
                 }
                 
@@ -5930,21 +6642,21 @@
             
             // 地图点击添加定位点
             if (canvas) {
-                canvas.addEventListener('click', function(e) {
+                canvas.addEventListener('click', async function(e) {
                     const rect = canvas.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     
-                    const name = prompt('请输入定位点名称:');
+                    const name = await appPrompt('请输入定位点名称:', '', '例如：客厅入口、房门口等', '添加定位点');
                     if (name) {
                         addWaypoint(name, x, y);
                     }
                 });
             }
             
-            function addWaypoint(name, x, y) {
+            async function addWaypoint(name, x, y) {
                 if (waypoints.length >= 8) {
-                    alert('最多只能设置8个定位点');
+                    await appAlert('最多只能设置8个定位点');
                     return;
                 }
                 
@@ -6037,8 +6749,9 @@
             }
             
             if (clearZonesBtn) {
-                clearZonesBtn.addEventListener('click', function() {
-                    if (confirm('确定要清除所有安全区域吗？')) {
+                clearZonesBtn.addEventListener('click', async function() {
+                    const confirmed = await appConfirm('确定要清除所有安全区域吗？');
+                    if (confirmed) {
                         // 清除安全区域逻辑
                         const zonesList = document.getElementById('safety-zones-list');
                         const zonesCount = document.getElementById('safety-zones-count');
@@ -6130,8 +6843,8 @@
             }
             
             if (viewMapDetailsBtn) {
-                viewMapDetailsBtn.addEventListener('click', () => {
-                    alert('地图详情功能开发中...');
+                viewMapDetailsBtn.addEventListener('click', async () => {
+                    await appAlert('地图详情功能开发中...', '功能提示');
                 });
             }
             
