@@ -145,20 +145,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .device-card.selected {
-            border-color: #fbbf24 !important;
-            background-color: #fef3c7 !important;
-        }
-        
-        .device-card.selected::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #fbbf24, #f59e0b);
-        }
+
         
         .device-card .device-icon {
             transition: transform 0.3s ease;
@@ -168,9 +155,7 @@
             transform: scale(1.1);
         }
         
-        .device-card.selected .device-icon {
-            transform: scale(1.05);
-        }
+
         
         .device-card .device-name {
             font-weight: 600;
@@ -530,120 +515,92 @@
                         <h2 class="text-xl font-semibold mr-2">智能轮椅</h2>
                         <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
                     </div>
-                    <p class="text-sm text-gray-500 mt-1" id="current-device-name">A001</p>
+                    <p class="text-sm text-gray-500 mt-1" id="current-device-name">CM-6001</p>
                 </button>
-                <button class="text-blue-500" id="add-device-btn">
-                    <i class="fas fa-plus"></i>
+                <!-- 设备详情按钮 -->
+                <button id="show-device-details-btn" class="text-gray-400 text-sm p-1">
+                    <i class="fas fa-info-circle"></i>
                 </button>
             </div>
             
-            <!-- 整合后的轮椅图形和信息展示区域 -->
-            <div class="bg-gray-800 rounded-xl shadow-sm p-5 mb-4 text-white relative overflow-hidden">
-                <div class="flex justify-between items-start mb-1">
-                    <div>
-                        <p class="text-xs text-gray-400">智能轮椅</p>
-                        <p class="font-semibold" data-device-display>A001</p>
+            <!-- 核心状态信息展示区域 -->
+            <div class="bg-gray-800 rounded-xl shadow-sm p-5 mb-4 text-white relative overflow-hidden">                
+                <!-- 电量和运行状态大卡片 -->
+                <div class="mb-4">
+                    <!-- 电量显示 -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                                <i class="fas fa-wheelchair text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">电量</p>
+                                <div class="flex items-center">
+                                    <p class="text-3xl font-bold text-white mr-2" id="battery-percentage">85%</p>
+                                    <i class="fas fa-battery-three-quarters text-green-500 text-xl" id="battery-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-animation"></span>
+                            <span class="text-green-400 font-medium text-lg">运行中</span>
+                        </div>
                     </div>
-                    <!-- 添加查看设备详情按钮 -->
-                    <button id="show-device-details-btn" class="text-gray-400 text-sm p-1">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
-                </div>
-                
-                <div class="flex justify-center my-6">
-                    <!-- 轮椅SVG图形 -->
-                    <svg width="180" height="120" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" class="wheelchair-svg">
-                        <!-- 轮椅主体 -->
-                        <rect x="60" y="40" width="80" height="70" rx="5" fill="#444" />
-                        <rect x="70" y="30" width="60" height="20" rx="5" fill="#555" />
-                        
-                        <!-- 左轮 -->
-                        <circle cx="50" cy="100" r="30" fill="none" stroke="#777" stroke-width="8" />
-                        <circle cx="50" cy="100" r="5" fill="#999" />
-                        <line x1="50" y1="70" x2="50" y2="130" stroke="#777" stroke-width="2" />
-                        <line x1="20" y1="100" x2="80" y2="100" stroke="#777" stroke-width="2" />
-                        
-                        <!-- 右轮 -->
-                        <circle cx="150" cy="100" r="30" fill="none" stroke="#777" stroke-width="8" />
-                        <circle cx="150" cy="100" r="5" fill="#999" />
-                        <line x1="150" y1="70" x2="150" y2="130" stroke="#777" stroke-width="2" />
-                        <line x1="120" y1="100" x2="180" y2="100" stroke="#777" stroke-width="2" />
-                        
-                        <!-- 小轮 -->
-                        <circle cx="100" cy="40" r="10" fill="#666" />
-                    </svg>
+                    
+                    <!-- 主要指标 -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center bg-gray-700 rounded-lg p-3">
+                            <p class="text-sm text-gray-400 mb-2">当前速度</p>
+                            <div class="flex items-center justify-center">
+                                <i class="fas fa-tachometer-alt text-blue-400 mr-2"></i>
+                                <p class="text-xl font-bold text-white" id="current-speed-status">2.5 km/h</p>
+                            </div>
+                        </div>
+                        <div class="text-center bg-gray-700 rounded-lg p-3">
+                            <p class="text-sm text-gray-400 mb-2">今日里程</p>
+                            <div class="flex items-center justify-center">
+                                <i class="fas fa-road text-blue-400 mr-2"></i>
+                                <p class="text-xl font-bold text-white" id="today-distance">25 km</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 预计信息 -->
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-600">
+                        <div class="text-center">
+                            <p class="text-xs text-gray-400 mb-1">预计行驶</p>
+                            <div class="flex items-center justify-center">
+                                <i class="fas fa-route text-blue-400 mr-2 text-sm"></i>
+                                <p class="text-lg font-bold text-blue-400" id="estimated-distance">125 km</p>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-gray-400 mb-1">预计可用</p>
+                            <div class="flex items-center justify-center">
+                                <i class="fas fa-clock text-blue-400 mr-2 text-sm"></i>
+                                <p class="text-lg font-bold text-blue-400" id="estimated-usage-time">6小时30分钟</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 状态图标 -->
-                <div class="flex justify-around items-center text-center mb-3 text-xs">
+                <div class="flex justify-around items-center text-center mb-4 text-xs bg-gray-700 rounded-lg p-3">
                     <div>
                         <i class="fas fa-wifi text-green-500 mb-1 block"></i>
-                        设备在线
+                        <span class="text-green-400">在线</span>
                     </div>
                     <div>
                         <i class="fab fa-bluetooth-b text-green-500 mb-1 block"></i>
-                        已配对
+                        <span class="text-green-400">已配对</span>
                     </div>
                     <div>
                         <i class="fas fa-lock text-gray-400 mb-1 block"></i>
-                        未锁定
+                        <span class="text-gray-400">未锁定</span>
                     </div>
                     <div>
                         <i class="fas fa-thermometer-half text-gray-400 mb-1 block"></i>
-                        正常
-                    </div>
-                    <div>
-                        <i class="fas fa-battery-three-quarters text-green-500 mb-1 block" id="battery-icon"></i>
-                        <span id="battery-percentage">85%</span>
-                    </div>
-                </div>
-                
-                <!-- 运行状态和电量展示 -->
-                <div class="bg-gray-700 rounded-lg p-3 mb-3">
-                    <div class="flex items-center mb-2">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-wheelchair text-blue-600"></i>
-                        </div>
-                        <p class="text-sm flex items-center">
-                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                            运行中
-                        </p>
-                    </div>
-                    
-                    <!-- 当前速度和今日里程 -->
-                    <div class="flex justify-between items-center px-2 mb-2">
-                        <div class="flex items-center">
-                            <i class="fas fa-tachometer-alt text-blue-400 mr-2 text-sm"></i>
-                            <div>
-                                <p class="text-xs text-gray-400">当前速度</p>
-                                <p class="text-md font-bold text-white">2.5 km/h</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-road text-blue-400 mr-2 text-sm"></i>
-                            <div class="w-24 text-right">
-                                <p class="text-xs text-gray-400">今日里程</p>
-                                <p class="text-md font-bold text-white">25 km</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 预计行驶和预计可用 -->
-                    <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-600">
-                        <div class="flex items-center">
-                            <i class="fas fa-route text-blue-400 mr-2 text-sm"></i>
-                            <div>
-                                <p class="text-xs text-gray-400">预计行驶</p>
-                                <p class="text-md font-bold text-blue-400">125 km</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-clock text-blue-400 mr-2 text-sm"></i>
-                            <div class="w-24 text-right">
-                                <p class="text-xs text-gray-400">预计可用</p>
-                                <p class="text-md font-bold text-blue-400">6小时30分钟</p>
-                            </div>
-                        </div>
+                        <span class="text-gray-400">正常</span>
                     </div>
                 </div>
                 
@@ -809,31 +766,43 @@
             </div>
             
             <!-- 设备选择弹窗 -->
-            <div id="device-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div class="bg-white rounded-xl shadow-lg p-4 m-4 max-w-md w-full">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">全部设备(4)</h3>
-                        <div class="flex items-center space-x-2">
-                            <button id="add-new-device-btn" class="text-blue-500">
+            <div id="device-selector-modal" class="hidden fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-950 to-indigo-950 z-50">
+                <div class="p-6">
+                    <!-- 头部 -->
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-th text-white text-lg mr-3"></i>
+                            <h3 class="text-xl font-medium text-white">全部设备(4)</h3>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button id="add-new-device-btn" class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition">
                                 <i class="fas fa-plus"></i>
-                            </button>
-                            <button id="close-device-selector-btn" class="text-gray-500">
-                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     
                     <!-- 设备列表 -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="grid grid-cols-2 gap-4 mb-8">
                         <!-- 当前选中设备 -->
-                        <div class="device-card selected border-2 border-yellow-400 bg-yellow-50 rounded-lg p-3 cursor-pointer relative" data-device-id="CM-6001">
-                            <div class="absolute top-2 left-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div class="device-card bg-white bg-opacity-10 backdrop-blur rounded-2xl p-4 cursor-pointer relative border border-white border-opacity-20 hover:bg-opacity-20 transition" data-device-id="CM-6001">
+                            <!-- 选中标记 -->
+                            <div class="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                                 <i class="fas fa-check text-white text-xs"></i>
                             </div>
-                            <div class="flex justify-center mb-2 mt-3">
-                                <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center">
-                                    <!-- 轮椅小图标 -->
-                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-pink-600">
+                            
+                            <!-- 设备名称和状态 -->
+                            <div class="mb-4">
+                                <h4 class="font-medium text-white text-base mb-1">CM-6001</h4>
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                                    <span class="text-sm text-green-300">在线</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 设备图标 -->
+                            <div class="flex justify-center mb-3">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 60 60" class="text-white">
                                         <circle cx="20" cy="35" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <circle cx="40" cy="35" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <rect x="25" y="20" width="10" height="15" rx="2" fill="currentColor"/>
@@ -842,81 +811,117 @@
                                     </svg>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <h4 class="font-medium text-sm text-gray-800">CM-6001</h4>
-                                <div class="flex items-center justify-center mt-1">
-                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
-                                    <span class="text-xs text-green-600">Online</span>
-                                </div>
+                            
+                            <!-- 设置按钮 -->
+                            <div class="absolute bottom-3 right-3">
+                                <button class="w-6 h-6 text-white text-opacity-60 hover:text-opacity-100 transition">
+                                    <i class="fas fa-cog text-sm"></i>
+                                </button>
                             </div>
                         </div>
                         
                         <!-- 其他设备 -->
-                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition" data-device-id="CM-6001-Pro-123456">
-                            <div class="flex justify-center mb-2">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <!-- 轮椅专业版图标 -->
-                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-600">
+                        <div class="device-card bg-white bg-opacity-10 backdrop-blur rounded-2xl p-4 cursor-pointer relative border border-white border-opacity-20 hover:bg-opacity-20 transition" data-device-id="CM-6001-Pro-123456">
+                            <!-- 设备名称和状态 -->
+                            <div class="mb-4">
+                                <h4 class="font-medium text-white text-base mb-1">CM-6001 Pro</h4>
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                                    <span class="text-sm text-green-300">在线</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 设备图标 -->
+                            <div class="flex justify-center mb-3">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 60 60" class="text-white">
                                         <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
                                         <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
-                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                        <circle cx="30" cy="25" r="2" fill="currentColor"/>
                                         <rect x="35" y="30" width="6" height="8" rx="1" fill="currentColor"/>
                                     </svg>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <h4 class="font-medium text-sm text-gray-800">CM-6001 Pro 123456</h4>
-                                <div class="flex items-center justify-center mt-1">
-                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
-                                    <span class="text-xs text-green-600">Online</span>
-                                </div>
+                            
+                            <!-- 设置按钮 -->
+                            <div class="absolute bottom-3 right-3">
+                                <button class="w-6 h-6 text-white text-opacity-60 hover:text-opacity-100 transition">
+                                    <i class="fas fa-cog text-sm"></i>
+                                </button>
                             </div>
                         </div>
                         
-                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition" data-device-id="CM-6001-Pro-12-2">
-                            <div class="flex justify-center mb-2">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-600">
+                        <div class="device-card bg-white bg-opacity-10 backdrop-blur rounded-2xl p-4 cursor-pointer relative border border-white border-opacity-20 hover:bg-opacity-20 transition" data-device-id="CM-6001-Pro-12-2">
+                            <!-- 设备名称和状态 -->
+                            <div class="mb-4">
+                                <h4 class="font-medium text-white text-base mb-1">CM-6001 Pro 2</h4>
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                                    <span class="text-sm text-green-300">在线</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 设备图标 -->
+                            <div class="flex justify-center mb-3">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 60 60" class="text-white">
                                         <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
                                         <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
-                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                        <circle cx="30" cy="25" r="2" fill="currentColor"/>
                                         <rect x="35" y="30" width="6" height="8" rx="1" fill="currentColor"/>
                                     </svg>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <h4 class="font-medium text-sm text-gray-800">CM-6001 Pro 12...(2)</h4>
-                                <div class="flex items-center justify-center mt-1">
-                                    <i class="fas fa-wifi text-green-500 text-xs mr-1"></i>
-                                    <span class="text-xs text-green-600">Online</span>
-                                </div>
+                            
+                            <!-- 设置按钮 -->
+                            <div class="absolute bottom-3 right-3">
+                                <button class="w-6 h-6 text-white text-opacity-60 hover:text-opacity-100 transition">
+                                    <i class="fas fa-cog text-sm"></i>
+                                </button>
                             </div>
                         </div>
                         
-                        <div class="device-card border border-gray-200 bg-white rounded-lg p-3 cursor-pointer hover:border-blue-300 transition opacity-50" data-device-id="CM-6001-Pro-12-3">
-                            <div class="flex justify-center mb-2">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <svg width="40" height="40" viewBox="0 0 60 60" class="text-gray-400">
+                        <div class="device-card bg-white bg-opacity-10 backdrop-blur rounded-2xl p-4 cursor-pointer relative border border-white border-opacity-20 opacity-60" data-device-id="CM-6001-Pro-12-3">
+                            <!-- 设备名称和状态 -->
+                            <div class="mb-4">
+                                <h4 class="font-medium text-white text-base mb-1">CM-6001 Pro 3</h4>
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                                    <span class="text-sm text-gray-300">离线</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 设备图标 -->
+                            <div class="flex justify-center mb-3">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 60 60" class="text-white text-opacity-60">
                                         <circle cx="20" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <circle cx="40" cy="40" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                                         <rect x="22" y="20" width="16" height="20" rx="3" fill="currentColor"/>
                                         <rect x="26" y="12" width="8" height="15" rx="2" fill="currentColor"/>
-                                        <circle cx="30" cy="25" r="2" fill="white"/>
+                                        <circle cx="30" cy="25" r="2" fill="currentColor"/>
                                     </svg>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <h4 class="font-medium text-sm text-gray-500">CM-6001 Pro 12...(3)</h4>
-                                <div class="flex items-center justify-center mt-1">
-                                    <i class="fas fa-wifi text-gray-400 text-xs mr-1"></i>
-                                    <span class="text-xs text-gray-500">Offline</span>
-                                </div>
+                            
+                            <!-- 设置按钮 -->
+                            <div class="absolute bottom-3 right-3">
+                                <button class="w-6 h-6 text-white text-opacity-40 hover:text-opacity-60 transition">
+                                    <i class="fas fa-cog text-sm"></i>
+                                </button>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- 底部关闭按钮 -->
+                    <div class="flex justify-center">
+                        <button id="close-modal-bottom-btn" class="w-12 h-12 bg-black bg-opacity-30 rounded-full flex items-center justify-center text-white hover:bg-opacity-50 transition">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -3191,7 +3196,7 @@
                 // 更新电池图标
                 const batteryIconElement = document.getElementById('battery-icon');
                 if (batteryIconElement) {
-                    batteryIconElement.className = `${batteryIcon.icon} ${batteryIcon.color} mb-1 block`;
+                    batteryIconElement.className = `${batteryIcon.icon} ${batteryIcon.color} text-xl`;
                 }
                 
                 // 更新语音助手对话中的电量信息
@@ -3204,6 +3209,28 @@
                 const batteryHistoryText = document.getElementById('battery-history-text');
                 if (batteryHistoryText) {
                     batteryHistoryText.textContent = `您的轮椅当前电量为${currentBatteryLevel}%，预计可以使用${batteryInfo.timeText}，行驶距离约${batteryInfo.distance}公里。`;
+                }
+                
+                // 更新设备状态页面中的预计行驶和预计可用时间
+                const estimatedDistance = document.getElementById('estimated-distance');
+                const estimatedUsageTime = document.getElementById('estimated-usage-time');
+                const todayDistance = document.getElementById('today-distance');
+                const currentSpeedStatus = document.getElementById('current-speed-status');
+                if (estimatedDistance) {
+                    estimatedDistance.textContent = `${batteryInfo.distance} km`;
+                }
+                if (estimatedUsageTime) {
+                    estimatedUsageTime.textContent = batteryInfo.timeText;
+                }
+                // 今日里程和当前速度基于当前设备的基础数据，不随电量变化
+                if (todayDistance || currentSpeedStatus) {
+                    const currentDeviceData = generateDeviceData({name: 'CM-6001'}); // 获取当前设备数据
+                    if (todayDistance) {
+                        todayDistance.textContent = `${currentDeviceData.distance} km`;
+                    }
+                    if (currentSpeedStatus) {
+                        currentSpeedStatus.textContent = currentDeviceData.speed;
+                    }
                 }
                 
                 // 建图小贴士保持静态内容，电量状态由按钮显示
@@ -3319,16 +3346,7 @@
                 });
             });
             
-            // 添加设备按钮事件处理
-            const addDeviceBtn = document.getElementById('add-device-btn');
-            if (addDeviceBtn) {
-                addDeviceBtn.addEventListener('click', function() {
-                    // 隐藏设备状态页面
-                    document.getElementById('device-status').classList.add('hidden');
-                    // 显示添加设备页面
-                    document.getElementById('add-device').classList.remove('hidden');
-                });
-            }
+
 
             // 添加设备页面返回按钮
             const deviceBackBtn = document.createElement('button');
@@ -4545,7 +4563,7 @@
             function initDeviceSelector() {
                 const deviceSelectorBtn = document.getElementById('device-selector-btn');
                 const deviceSelectorModal = document.getElementById('device-selector-modal');
-                const closeDeviceSelectorBtn = document.getElementById('close-device-selector-btn');
+                const closeModalBottomBtn = document.getElementById('close-modal-bottom-btn');
                 const addNewDeviceBtn = document.getElementById('add-new-device-btn');
                 const deviceCards = document.querySelectorAll('.device-card');
                 
@@ -4557,9 +4575,9 @@
                     });
                 }
                 
-                // 关闭弹窗
-                if (closeDeviceSelectorBtn) {
-                    closeDeviceSelectorBtn.addEventListener('click', function() {
+                // 关闭弹窗（底部按钮）
+                if (closeModalBottomBtn) {
+                    closeModalBottomBtn.addEventListener('click', function() {
                         deviceSelectorModal.classList.add('hidden');
                     });
                 }
@@ -4628,7 +4646,7 @@
             function updateDeviceTitle(device) {
                 const currentDeviceName = document.getElementById('current-device-name');
                 if (currentDeviceName) {
-                    currentDeviceName.textContent = device.displayName;
+                    currentDeviceName.textContent = device.name;
                 }
             }
             
@@ -4649,7 +4667,26 @@
                 if (batteryPercentage && batteryIcon) {
                     batteryPercentage.textContent = deviceData.battery + '%';
                     const batteryIconInfo = getBatteryIcon(deviceData.battery);
-                    batteryIcon.className = `${batteryIconInfo.icon} ${batteryIconInfo.color} mb-1 block`;
+                    batteryIcon.className = `${batteryIconInfo.icon} ${batteryIconInfo.color} text-xl`;
+                }
+                
+                // 更新预计行驶和预计可用时间
+                const batteryInfo = calculateBatteryInfo(deviceData.battery);
+                const estimatedDistance = document.getElementById('estimated-distance');
+                const estimatedUsageTime = document.getElementById('estimated-usage-time');
+                const todayDistance = document.getElementById('today-distance');
+                const currentSpeedStatus = document.getElementById('current-speed-status');
+                if (estimatedDistance) {
+                    estimatedDistance.textContent = `${batteryInfo.distance} km`;
+                }
+                if (estimatedUsageTime) {
+                    estimatedUsageTime.textContent = batteryInfo.timeText;
+                }
+                if (todayDistance) {
+                    todayDistance.textContent = `${deviceData.distance} km`;
+                }
+                if (currentSpeedStatus) {
+                    currentSpeedStatus.textContent = deviceData.speed;
                 }
                 
                 // 更新其他设备状态
@@ -4660,10 +4697,10 @@
             function generateDeviceData(device) {
                 // 为不同设备生成不同的模拟数据
                 const baseData = {
-                    'CM-6001': { battery: 78, speed: '2.5 km/h', distance: '25 km' },
-                    'CM-6001-Pro-123456': { battery: 92, speed: '3.2 km/h', distance: '18 km' },
-                    'CM-6001-Pro-12-2': { battery: 65, speed: '1.8 km/h', distance: '32 km' },
-                    'CM-6001-Pro-12-3': { battery: 45, speed: '0 km/h', distance: '0 km' }
+                    'CM-6001': { battery: 78, speed: '2.5 km/h', distance: 25 },
+                    'CM-6001-Pro-123456': { battery: 92, speed: '3.2 km/h', distance: 18 },
+                    'CM-6001-Pro-12-2': { battery: 65, speed: '1.8 km/h', distance: 32 },
+                    'CM-6001-Pro-12-3': { battery: 45, speed: '0 km/h', distance: 0 }
                 };
                 
                 return baseData[device.name] || baseData['CM-6001'];
@@ -4678,46 +4715,48 @@
                     const device = availableDevices[deviceId];
                     
                     if (device) {
-                        // 移除所有选中状态
-                        card.classList.remove('selected', 'border-yellow-400', 'bg-yellow-50');
-                        card.classList.add('border-gray-200', 'bg-white');
+                        // 查找选中标记
+                        const checkIcon = card.querySelector('.absolute.top-3.right-3');
                         
-                        // 移除选中图标
-                        const checkIcon = card.querySelector('.absolute');
-                        if (checkIcon) {
-                            checkIcon.style.display = 'none';
-                        }
-                        
-                        // 如果是当前选中设备，添加选中样式
+                        // 更新选中状态
                         if (deviceId === currentSelectedDevice) {
-                            card.classList.remove('border-gray-200', 'bg-white');
-                            card.classList.add('selected', 'border-yellow-400', 'bg-yellow-50');
+                            // 显示蓝色勾选图标
+                            if (!checkIcon) {
+                                const newCheckIcon = document.createElement('div');
+                                newCheckIcon.className = 'absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center';
+                                newCheckIcon.innerHTML = '<i class="fas fa-check text-white text-xs"></i>';
+                                card.appendChild(newCheckIcon);
+                            } else {
+                                checkIcon.style.display = 'flex';
+                            }
+                        } else {
+                            // 隐藏勾选图标
                             if (checkIcon) {
-                                checkIcon.style.display = 'block';
+                                checkIcon.style.display = 'none';
                             }
                         }
                         
                         // 更新在线状态
-                        const statusIcon = card.querySelector('.fa-wifi');
-                        const statusText = card.querySelector('.text-xs:last-child');
+                        const statusDot = card.querySelector('.w-2.h-2');
+                        const statusTextSpan = card.querySelector('.flex.items-center span');
                         
                         if (device.online) {
-                            card.classList.remove('opacity-50');
-                            if (statusIcon) {
-                                statusIcon.className = 'fas fa-wifi text-green-500 text-xs mr-1';
+                            card.classList.remove('opacity-60');
+                            if (statusDot) {
+                                statusDot.className = 'w-2 h-2 bg-green-400 rounded-full mr-2';
                             }
-                            if (statusText) {
-                                statusText.textContent = 'Online';
-                                statusText.className = 'text-xs text-green-600';
+                            if (statusTextSpan) {
+                                statusTextSpan.textContent = '在线';
+                                statusTextSpan.className = 'text-sm text-green-300';
                             }
                         } else {
-                            card.classList.add('opacity-50');
-                            if (statusIcon) {
-                                statusIcon.className = 'fas fa-wifi text-gray-400 text-xs mr-1';
+                            card.classList.add('opacity-60');
+                            if (statusDot) {
+                                statusDot.className = 'w-2 h-2 bg-gray-400 rounded-full mr-2';
                             }
-                            if (statusText) {
-                                statusText.textContent = 'Offline';
-                                statusText.className = 'text-xs text-gray-500';
+                            if (statusTextSpan) {
+                                statusTextSpan.textContent = '离线';
+                                statusTextSpan.className = 'text-sm text-gray-300';
                             }
                         }
                     }
@@ -4748,20 +4787,33 @@
                     
                     // 更新全局电量状态
                     const deviceData = generateDeviceData(device);
+                    const batteryInfo = calculateBatteryInfo(deviceData.battery);
                     window.currentBatteryStatus = {
                         level: deviceData.battery,
-                        timeText: '4小时20分钟',
-                        distance: parseInt(deviceData.distance),
-                        fullText: `您的轮椅当前电量为${deviceData.battery}%，预计可以使用4小时20分钟，行驶距离约${parseInt(deviceData.distance)}公里。`
+                        timeText: batteryInfo.timeText,
+                        distance: batteryInfo.distance,
+                        fullText: `您的轮椅当前电量为${deviceData.battery}%，预计可以使用${batteryInfo.timeText}，行驶距离约${batteryInfo.distance}公里。`
                     };
                     
                     // 触发电量显示更新
+                    currentBatteryLevel = deviceData.battery;
                     updateBatteryDisplay();
                 }, 1500);
             }
             
             // 初始化设备选择器
             setTimeout(initDeviceSelector, 1000);
+            
+            // 初始化设备名称显示
+            function initDeviceNameDisplay() {
+                const currentDevice = availableDevices[currentSelectedDevice];
+                if (currentDevice) {
+                    updateDeviceTitle(currentDevice);
+                }
+            }
+            
+            // 页面加载时初始化设备名称
+            setTimeout(initDeviceNameDisplay, 100);
             
 
             
