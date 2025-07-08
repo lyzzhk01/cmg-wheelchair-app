@@ -1967,44 +1967,214 @@
                 </div>
                 
                 <!-- 核心风险提示 -->
-                <div class="space-y-4 mb-6">
-                    <div class="flex items-start p-5 border border-orange-200 rounded-xl bg-orange-50 shadow-sm">
-                        <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-broom text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-orange-800 text-lg mb-2">清理路径障碍物</h4>
-                            <p class="text-sm text-orange-700 leading-relaxed">建图前请清理轮椅行驶路径上的杂物（如小凳子、地垫、玩具等），确保路径畅通，避免轮椅碰撞或刮擦。</p>
+                <div class="space-y-6 mb-6">
+                    <!-- 1. 清理路径障碍物 -->
+                    <div class="border border-orange-200 rounded-xl bg-orange-50 shadow-sm overflow-hidden">
+                        <div class="p-5">
+                            <h4 class="font-bold text-orange-800 text-lg mb-4 text-center">1. 清理路径上的障碍物</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 pr-4">
+                                    <p class="text-sm text-orange-700 leading-relaxed">请先清理轮椅行驶路径上的杂物（比如小凳子、地垫、玩具等），清除障碍，避免行进中碰撞，也请保持路径畅通，避免轮椅刮擦或碰撞器具。</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 地面 -->
+                                        <rect x="0" y="75" width="120" height="15" fill="#fed7aa"/>
+                                        
+                                        <!-- 障碍物：小凳子 -->
+                                        <rect x="60" y="65" width="12" height="10" fill="#8b4513"/>
+                                        <rect x="62" y="55" width="8" height="10" fill="#a0522d"/>
+                                        
+                                        <!-- 障碍物：玩具车 -->
+                                        <rect x="80" y="68" width="15" height="7" rx="2" fill="#ef4444"/>
+                                        <circle cx="83" cy="73" r="2" fill="#374151"/>
+                                        <circle cx="92" cy="73" r="2" fill="#374151"/>
+                                        
+                                        <!-- 障碍物：地垫 -->
+                                        <ellipse cx="45" cy="73" rx="8" ry="3" fill="#7c3aed"/>
+                                        
+                                        <!-- 轮椅 -->
+                                        <circle cx="15" cy="70" r="8" fill="#4b5563" stroke="#374151" stroke-width="2"/>
+                                        <circle cx="15" cy="70" r="4" fill="#9ca3af"/>
+                                        <circle cx="35" cy="72" r="6" fill="#4b5563" stroke="#374151" stroke-width="2"/>
+                                        <rect x="10" y="45" width="25" height="25" rx="3" fill="#3b82f6"/>
+                                        <rect x="30" y="35" width="8" height="35" rx="2" fill="#2563eb"/>
+                                        
+                                        <!-- 人物 -->
+                                        <ellipse cx="22" cy="35" rx="6" ry="10" fill="#f59e0b"/>
+                                        <circle cx="22" cy="20" r="6" fill="#fbbf24"/>
+                                        
+                                        <!-- 警告标志 -->
+                                        <polygon points="50,25 55,35 45,35" fill="#ef4444"/>
+                                        <text x="50" y="32" font-family="Arial" font-size="8" fill="#ffffff" text-anchor="middle">!</text>
+                                        
+                                        <!-- 清理动作箭头 -->
+                                        <path d="M35 45 Q45 40 55 50" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                        <defs>
+                                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                                <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+                                            </marker>
+                                        </defs>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-start p-5 border border-purple-200 rounded-xl bg-purple-50 shadow-sm">
-                        <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-sync-alt text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-purple-800 text-lg mb-2">路线需形成闭环</h4>
-                            <p class="text-sm text-purple-700 leading-relaxed">建图必须从充电桩前出发，最后回到同一充电桩位置，形成完整的闭合路线才能成功建图。</p>
+                    <!-- 3. 路线需要走成一圈 -->
+                    <div class="border border-purple-200 rounded-xl bg-purple-50 shadow-sm overflow-hidden">
+                        <div class="p-5">
+                            <h4 class="font-bold text-purple-800 text-lg mb-4 text-center">2. 路线需要走成一圈</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 pr-4">
+                                    <p class="text-sm text-purple-700 leading-relaxed">建图时，请从充电桩前出发，遍历所有区域后回到同一充电桩位置，才能完成建图。路线需要形成一个闭合圆环。</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 地面 -->
+                                        <rect x="0" y="75" width="120" height="15" fill="#ede9fe"/>
+                                        
+                                        <!-- 充电桩 -->
+                                        <rect x="85" y="45" width="6" height="30" fill="#374151"/>
+                                        <rect x="82" y="42" width="12" height="6" rx="2" fill="#10b981"/>
+                                        <circle cx="88" cy="39" r="2" fill="#ef4444"/>
+                                        
+                                        <!-- 圆形路径 -->
+                                        <circle cx="60" cy="55" r="25" fill="none" stroke="#7c3aed" stroke-width="3" stroke-dasharray="5,3"/>
+                                        
+                                        <!-- 起点/终点标记 -->
+                                        <circle cx="85" cy="55" r="3" fill="#10b981"/>
+                                        <text x="90" y="58" font-family="Arial" font-size="8" fill="#10b981">起点/终点</text>
+                                        
+                                        <!-- 轮椅位置1 -->
+                                        <g transform="translate(45,40)">
+                                            <circle cx="0" cy="15" r="4" fill="#4b5563"/>
+                                            <circle cx="10" cy="17" r="3" fill="#4b5563"/>
+                                            <rect x="-3" y="5" width="12" height="10" rx="2" fill="#7c3aed"/>
+                                            <circle cx="3" cy="0" r="3" fill="#fbbf24"/>
+                                        </g>
+                                        
+                                        <!-- 轮椅位置2 -->
+                                        <g transform="translate(35,70)">
+                                            <circle cx="0" cy="0" r="4" fill="#4b5563"/>
+                                            <circle cx="10" cy="2" r="3" fill="#4b5563"/>
+                                            <rect x="-3" y="-10" width="12" height="10" rx="2" fill="#7c3aed"/>
+                                            <circle cx="3" cy="-15" r="3" fill="#fbbf24"/>
+                                        </g>
+                                        
+                                        <!-- 方向箭头 -->
+                                        <path d="M80 45 Q75 35 65 40" stroke="#7c3aed" stroke-width="2" fill="none" marker-end="url(#arrowhead2)"/>
+                                        <defs>
+                                            <marker id="arrowhead2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                                <polygon points="0 0, 8 3, 0 6" fill="#7c3aed"/>
+                                            </marker>
+                                        </defs>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-start p-5 border border-blue-200 rounded-xl bg-blue-50 shadow-sm">
-                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-route text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-blue-800 text-lg mb-2">只走常用路线</h4>
-                            <p class="text-sm text-blue-700 leading-relaxed">只需走一遍日常常用路线（如卧室到客厅、客厅到卫生间），这些路线将成为轮椅自动导航的基础。</p>
+                    <!-- 4. 只需走常用路线 -->
+                    <div class="border border-blue-200 rounded-xl bg-blue-50 shadow-sm overflow-hidden">
+                        <div class="p-5">
+                            <h4 class="font-bold text-blue-800 text-lg mb-4 text-center">3. 只需走常用路线</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 pr-4">
+                                    <p class="text-sm text-blue-700 leading-relaxed">只需让轮椅走一遍日常常用的路线（比如卧室到客厅、客厅到卫生间），这些路线会成为轮椅自动导航的基准路线。</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 地面 -->
+                                        <rect x="0" y="75" width="120" height="15" fill="#dbeafe"/>
+                                        
+                                        <!-- 房间区域 -->
+                                        <rect x="5" y="20" width="30" height="25" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+                                        <text x="20" y="35" font-family="Arial" font-size="8" fill="#6b7280" text-anchor="middle">卧室</text>
+                                        
+                                        <rect x="45" y="15" width="35" height="30" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+                                        <text x="62" y="32" font-family="Arial" font-size="8" fill="#6b7280" text-anchor="middle">客厅</text>
+                                        
+                                        <rect x="85" y="25" width="25" height="20" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+                                        <text x="97" y="37" font-family="Arial" font-size="8" fill="#6b7280" text-anchor="middle">卫生间</text>
+                                        
+                                        <!-- 常用路线 -->
+                                        <path d="M35 35 L45 30" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowhead3)"/>
+                                        <path d="M80 30 L85 35" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowhead3)"/>
+                                        
+                                        <!-- 轮椅 -->
+                                        <g transform="translate(60,50)">
+                                            <circle cx="-5" cy="10" r="5" fill="#4b5563"/>
+                                            <circle cx="8" cy="12" r="4" fill="#4b5563"/>
+                                            <rect x="-8" y="0" width="15" height="12" rx="2" fill="#3b82f6"/>
+                                            <circle cx="0" cy="-6" r="4" fill="#fbbf24"/>
+                                            <ellipse cx="0" cy="2" rx="4" ry="6" fill="#f59e0b"/>
+                                        </g>
+                                        
+                                        <defs>
+                                            <marker id="arrowhead3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                                <polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/>
+                                            </marker>
+                                        </defs>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-start p-5 border border-red-200 rounded-xl bg-red-50 shadow-sm">
-                        <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                            <i class="fas fa-arrow-up text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-red-800 text-lg mb-2">避免长时间倒车</h4>
-                            <p class="text-sm text-red-700 leading-relaxed">建图过程中请尽量保持向前行驶，避免长时间倒退，以确保轮椅导航系统的准确性。</p>
+                    <!-- 5. 避免长时间倒车 -->
+                    <div class="border border-red-200 rounded-xl bg-red-50 shadow-sm overflow-hidden">
+                        <div class="p-5">
+                            <h4 class="font-bold text-red-800 text-lg mb-4 text-center">4. 避免长时间倒车</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 pr-4">
+                                    <p class="text-sm text-red-700 leading-relaxed">建图过程中请尽量保持向前行驶，避免长时间倒退，以确保轮椅导航系统的准确性。</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 地面 -->
+                                        <rect x="0" y="75" width="120" height="15" fill="#fee2e2"/>
+                                        
+                                        <!-- 正确的前进轮椅 -->
+                                        <g transform="translate(20,45)">
+                                            <circle cx="0" cy="15" r="5" fill="#4b5563"/>
+                                            <circle cx="15" cy="17" r="4" fill="#4b5563"/>
+                                            <rect x="-3" y="5" width="18" height="12" rx="2" fill="#10b981"/>
+                                            <circle cx="7" cy="0" r="4" fill="#fbbf24"/>
+                                            <ellipse cx="7" cy="7" rx="5" ry="7" fill="#f59e0b"/>
+                                            <!-- 前进箭头 -->
+                                            <path d="M25 12 L35 12" stroke="#10b981" stroke-width="3" marker-end="url(#arrowhead4)"/>
+                                        </g>
+                                        
+                                        <!-- 错误的倒车轮椅 -->
+                                        <g transform="translate(75,45)">
+                                            <circle cx="15" cy="15" r="5" fill="#4b5563"/>
+                                            <circle cx="0" cy="17" r="4" fill="#4b5563"/>
+                                            <rect x="0" y="5" width="18" height="12" rx="2" fill="#ef4444"/>
+                                            <circle cx="10" cy="0" r="4" fill="#fbbf24"/>
+                                            <ellipse cx="10" cy="7" rx="5" ry="7" fill="#f59e0b"/>
+                                            <!-- 倒车箭头 -->
+                                            <path d="M-5 12 L-15 12" stroke="#ef4444" stroke-width="3" marker-end="url(#arrowhead5)"/>
+                                        </g>
+                                        
+                                        <!-- 检查和叉号 -->
+                                        <circle cx="40" cy="30" r="8" fill="#10b981"/>
+                                        <path d="M36 30 L39 33 L44 28" stroke="#ffffff" stroke-width="2" fill="none"/>
+                                        
+                                        <circle cx="85" cy="30" r="8" fill="#ef4444"/>
+                                        <path d="M81 26 L89 34 M89 26 L81 34" stroke="#ffffff" stroke-width="2"/>
+                                        
+                                        <defs>
+                                            <marker id="arrowhead4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                                <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+                                            </marker>
+                                            <marker id="arrowhead5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                                <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+                                            </marker>
+                                        </defs>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
