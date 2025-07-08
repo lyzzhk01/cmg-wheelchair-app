@@ -2287,78 +2287,7 @@
             </button>
         </div>
 
-        <!-- 设置建图定位点页面 -->
-        <div id="set-mapping-waypoints" class="hidden p-4 max-w-md mx-auto">
-            <div class="flex items-center mb-4">
-                <button id="mapping-waypoints-back-btn" class="mr-3 text-gray-600">
-                    <i class="fas fa-arrow-left text-lg"></i>
-                </button>
-                <h2 class="text-xl font-semibold">设置定位点</h2>
-            </div>
-            
-            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
-                <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-map-marker-alt text-blue-600 text-3xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800">设置室内定位点</h3>
-                    <p class="text-sm text-gray-600 mt-2">定位点帮助轮椅在室内准确定位和重定位</p>
-                </div>
-                
-                <!-- 建议位置 -->
-                <div class="space-y-4 mb-6">
-                    <div class="p-4 border border-orange-200 rounded-lg bg-orange-50">
-                        <h4 class="font-medium text-orange-800 mb-2">
-                            <i class="fas fa-lightbulb mr-2"></i>推荐位置
-                        </h4>
-                        <div class="text-sm text-orange-700 space-y-1">
-                            <p>• 房门口、走廊入口等开阔地点</p>
-                            <p>• 客厅中央、餐厅中央等空旷区域</p>
-                            <p>• 各房间的连接通道处</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 已设置的定位点列表 -->
-                <div class="mb-6">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-medium">已设置定位点</h4>
-                        <span class="text-sm text-gray-500" id="mapping-waypoints-count">0个</span>
-                    </div>
-                    
-                    <div id="mapping-waypoints-list" class="space-y-2 max-h-32 overflow-y-auto">
-                        <div class="text-center text-gray-400 text-sm py-4" id="no-mapping-waypoints-tip">
-                            请移动轮椅到合适位置后点击"设置定位点"
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 操作按钮 -->
-                <div class="flex space-x-3 mb-4">
-                    <button id="add-mapping-waypoint-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium">
-                        <i class="fas fa-plus mr-2"></i>设置定位点
-                    </button>
-                    <button id="remove-last-waypoint-btn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg" disabled>
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                
-                <!-- 提示信息 -->
-                <div class="bg-yellow-50 rounded-lg p-3">
-                    <div class="flex items-start">
-                        <i class="fas fa-info-circle text-yellow-600 mt-1 mr-2"></i>
-                        <div class="text-sm text-yellow-700">
-                            <p class="font-medium mb-1">设置提示</p>
-                            <p>建议至少设置3-5个定位点，确保轮椅在各个区域都能准确定位。设置完成后点击"完成"开始建图。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button id="mapping-waypoints-complete-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
-                完成定位点设置
-            </button>
-        </div>
+
 
         <!-- 实时建图页面 -->
         <div id="real-time-mapping" class="hidden p-4 max-w-md mx-auto">
@@ -2496,21 +2425,31 @@
                 </div>
             </div>
             
-            <!-- 停靠点设置 -->
+            <!-- 地点管理 -->
             <div class="bg-white rounded-xl shadow-md p-4 mb-4">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-semibold">停靠点管理</h3>
-                    <span class="text-sm text-gray-500" id="parking-spots-count">0个</span>
+                    <h3 class="font-semibold">地点管理</h3>
+                    <span class="text-sm text-gray-500" id="locations-count">0个地点</span>
                 </div>
                 
-                <div id="parking-spots-list" class="space-y-2 max-h-32 overflow-y-auto mb-4">
-                    <div class="text-center text-gray-400 text-sm py-4" id="no-parking-spots-tip">
-                        移动轮椅到需要停靠的位置，点击"设置停靠点"
+                <!-- 地点类型选择 -->
+                <div class="flex space-x-2 mb-4">
+                    <button id="location-type-waypoint" class="flex-1 py-2 px-3 text-xs rounded-lg bg-blue-100 text-blue-600 border border-blue-200 font-medium">
+                        <i class="fas fa-map-marker-alt mr-1"></i>定位点
+                    </button>
+                    <button id="location-type-parking" class="flex-1 py-2 px-3 text-xs rounded-lg bg-gray-100 text-gray-600 border border-gray-200 font-medium">
+                        <i class="fas fa-parking mr-1"></i>停靠点
+                    </button>
+                </div>
+                
+                <div id="locations-list" class="space-y-2 max-h-32 overflow-y-auto mb-4">
+                    <div class="text-center text-gray-400 text-sm py-4" id="no-locations-tip">
+                        移动轮椅到合适位置，选择地点类型后点击添加
                     </div>
                 </div>
                 
-                <button id="add-parking-spot-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium">
-                    <i class="fas fa-parking mr-2"></i>设置停靠点
+                <button id="add-location-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium">
+                    <i class="fas fa-plus mr-2"></i>添加定位点
                 </button>
             </div>
             
@@ -6125,6 +6064,54 @@
             showGuideSteps(guideSteps, 0);
         }
         
+        // 地点设置引导系统
+        function showLocationGuide(type = 'waypoint') {
+            const waypointGuideSteps = [
+                {
+                    title: "设置定位点",
+                    content: "定位点帮助轮椅在室内准确定位和重定位。建议在房门口、客厅中央等开阔地点设置。",
+                    icon: "fas fa-map-marker-alt",
+                    color: "bg-blue-500"
+                },
+                {
+                    title: "推荐位置",
+                    content: "• 房门口、走廊入口等开阔地点\n• 客厅中央、餐厅中央等空旷区域\n• 各房间的连接通道处",
+                    icon: "fas fa-lightbulb",
+                    color: "bg-orange-500"
+                },
+                {
+                    title: "设置建议",
+                    content: "建议至少设置3-5个定位点，确保轮椅在各个区域都能准确定位。可在建图过程中随时添加。",
+                    icon: "fas fa-info-circle",
+                    color: "bg-purple-500"
+                }
+            ];
+            
+            const parkingGuideSteps = [
+                {
+                    title: "设置停靠点",
+                    content: "停靠点是轮椅经常停留的位置，设置后可以快速导航到这些地点。",
+                    icon: "fas fa-parking",
+                    color: "bg-purple-500"
+                },
+                {
+                    title: "选择合适位置",
+                    content: "选择宽敞、安全的位置作为停靠点，确保轮椅能够安全停靠和离开。",
+                    icon: "fas fa-check-circle",
+                    color: "bg-green-500"
+                },
+                {
+                    title: "安全考虑",
+                    content: "停靠点应远离楼梯、台阶等危险区域，确保周围有足够的活动空间。",
+                    icon: "fas fa-shield-alt",
+                    color: "bg-red-500"
+                }
+            ];
+            
+            const steps = type === 'waypoint' ? waypointGuideSteps : parkingGuideSteps;
+            showGuideSteps(steps, 0);
+        }
+        
         function showGuideSteps(steps, currentStep) {
             if (currentStep >= steps.length) {
                 hideGuide();
@@ -6179,30 +6166,9 @@
             guideOverlay.classList.add('hidden');
         }
         
-        // 停靠点设置引导
+        // 停靠点设置引导（兼容性保持）
         function showParkingSpotGuide() {
-            const guideSteps = [
-                {
-                    title: "设置停靠点",
-                    content: "停靠点是轮椅自动停靠的固定位置，比如床边、沙发边等经常上下轮椅的地方。",
-                    icon: "fas fa-parking",
-                    color: "bg-purple-500"
-                },
-                {
-                    title: "选择合适位置",
-                    content: "请将轮椅移动到希望设置停靠点的位置，确保周围有足够的空间方便上下轮椅。",
-                    icon: "fas fa-map-marker-alt",
-                    color: "bg-indigo-500"
-                },
-                {
-                    title: "安全考虑",
-                    content: "停靠点周围应避免放置容易刮蹭的家具，也不要靠近楼梯、台阶等危险区域。",
-                    icon: "fas fa-shield-alt",
-                    color: "bg-yellow-500"
-                }
-            ];
-            
-            showGuideSteps(guideSteps, 0);
+            showLocationGuide('parking');
         }
         
         // 页面切换函数
@@ -6212,7 +6178,7 @@
                 'login', 'add-device', 'wifi-setup', 'device-success', 'control', 
                 'device-status', 'profile', 'voice', 'map-management', 'create-map-check',
                 'map-naming', 'environment-check', 'mapping-precautions', 'set-charging-home',
-                'set-mapping-waypoints', 'real-time-mapping', 'set-charging-station', 
+                'real-time-mapping', 'set-charging-station', 
                 'set-waypoints', 'set-parking-spots', 'set-safety-zones', 'set-restricted-zones', 
                 'mapping-complete'
             ];
@@ -6332,8 +6298,12 @@
                             detectBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                             
                             detectBtn.onclick = function() {
-                                showPage('set-mapping-waypoints');
-                                initMappingWaypointsPage();
+                                showPage('real-time-mapping');
+                                initRealTimeMappingPage();
+                                // 启动建图引导
+                                setTimeout(() => {
+                                    startMappingGuide();
+                                }, 500);
                             };
                         }, 1000);
                     }
@@ -6341,120 +6311,7 @@
             }
         }
         
-        // 初始化建图定位点设置页面
-        function initMappingWaypointsPage() {
-            const backBtn = document.getElementById('mapping-waypoints-back-btn');
-            const addBtn = document.getElementById('add-mapping-waypoint-btn');
-            const removeBtn = document.getElementById('remove-last-waypoint-btn');
-            const completeBtn = document.getElementById('mapping-waypoints-complete-btn');
-            const waypointsList = document.getElementById('mapping-waypoints-list');
-            const waypointsCount = document.getElementById('mapping-waypoints-count');
-            const noWaypointsTip = document.getElementById('no-mapping-waypoints-tip');
-            
-            let mappingWaypoints = [];
-            
-            if (backBtn) {
-                backBtn.addEventListener('click', () => showPage('set-charging-home'));
-            }
-            
-            if (addBtn) {
-                addBtn.addEventListener('click', function() {
-                    addMappingWaypoint();
-                });
-            }
-            
-            if (removeBtn) {
-                removeBtn.addEventListener('click', function() {
-                    removeMappingWaypoint();
-                });
-            }
-            
-            if (completeBtn) {
-                completeBtn.addEventListener('click', function() {
-                    showPage('real-time-mapping');
-                    initRealTimeMappingPage();
-                });
-            }
-            
-            async function addMappingWaypoint() {
-                const name = await appPrompt('请输入定位点名称 (如：客厅入口、房门口等)：', '', '例如：客厅入口、房门口等', '添加定位点');
-                
-                if (!name) return; // 用户取消了输入
-                
-                const waypoint = {
-                    id: Date.now(),
-                    name: name,
-                    position: `位置${mappingWaypoints.length + 1}`,
-                    timestamp: new Date().toLocaleTimeString()
-                };
-                
-                mappingWaypoints.push(waypoint);
-                updateMappingWaypointsList();
-                
-                // 模拟定位点设置成功提示
-                showSuccessMessage(`定位点"${name}"设置成功`);
-            }
-            
-            function removeMappingWaypoint() {
-                if (mappingWaypoints.length > 0) {
-                    mappingWaypoints.pop();
-                    updateMappingWaypointsList();
-                }
-            }
-            
-            function updateMappingWaypointsList() {
-                if (waypointsCount) waypointsCount.textContent = `${mappingWaypoints.length}个`;
-                
-                if (mappingWaypoints.length === 0) {
-                    if (noWaypointsTip) noWaypointsTip.classList.remove('hidden');
-                    if (removeBtn) removeBtn.disabled = true;
-                    if (completeBtn) {
-                        completeBtn.disabled = true;
-                        completeBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                        completeBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    }
-                } else {
-                    if (noWaypointsTip) noWaypointsTip.classList.add('hidden');
-                    if (removeBtn) removeBtn.disabled = false;
-                    
-                    if (mappingWaypoints.length >= 3) {
-                        if (completeBtn) {
-                            completeBtn.disabled = false;
-                            completeBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                            completeBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                        }
-                    }
-                    
-                    if (waypointsList) {
-                        waypointsList.innerHTML = mappingWaypoints.map((waypoint, index) => `
-                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
-                                        ${index + 1}
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-blue-800">${waypoint.name}</p>
-                                        <p class="text-xs text-blue-600">${waypoint.position} • ${waypoint.timestamp}</p>
-                                    </div>
-                                </div>
-                                <i class="fas fa-map-marker-alt text-blue-500"></i>
-                            </div>
-                        `).join('');
-                    }
-                }
-            }
-            
-            function showSuccessMessage(message) {
-                const successDiv = document.createElement('div');
-                successDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-                successDiv.textContent = message;
-                document.body.appendChild(successDiv);
-                
-                setTimeout(() => {
-                    document.body.removeChild(successDiv);
-                }, 2000);
-            }
-        }
+
         
         // 初始化实时建图页面
         function initRealTimeMappingPage() {
@@ -7037,31 +6894,202 @@
                 }
             }
             
-            // 停靠点设置按钮事件
-            const addParkingSpotBtn = document.getElementById('add-parking-spot-btn');
-            let isFirstParkingSpot = true;
-            if (addParkingSpotBtn) {
-                addParkingSpotBtn.addEventListener('click', function() {
-                    // 第一次设置停靠点时显示引导
-                    if (isFirstParkingSpot) {
-                        showParkingSpotGuide();
-                        isFirstParkingSpot = false;
+            // 地点管理系统
+            let currentLocationType = 'waypoint'; // 当前选中的地点类型
+            let allLocations = []; // 所有地点（包括定位点和停靠点）
+            let isFirstLocationAdd = true;
+            
+            // 地点类型切换按钮
+            const locationTypeWaypointBtn = document.getElementById('location-type-waypoint');
+            const locationTypeParkingBtn = document.getElementById('location-type-parking');
+            const addLocationBtn = document.getElementById('add-location-btn');
+            
+            if (locationTypeWaypointBtn) {
+                locationTypeWaypointBtn.addEventListener('click', function() {
+                    currentLocationType = 'waypoint';
+                    updateLocationTypeButtons();
+                });
+            }
+            
+            if (locationTypeParkingBtn) {
+                locationTypeParkingBtn.addEventListener('click', function() {
+                    currentLocationType = 'parking';
+                    updateLocationTypeButtons();
+                });
+            }
+            
+            // 添加地点按钮
+            if (addLocationBtn) {
+                addLocationBtn.addEventListener('click', function() {
+                    // 第一次添加地点时显示引导
+                    if (isFirstLocationAdd) {
+                        showLocationGuide(currentLocationType);
+                        isFirstLocationAdd = false;
                         
-                        // 引导结束后再执行添加停靠点操作
+                        // 引导结束后再执行添加地点操作
                         const guideOverlay = document.getElementById('guide-overlay');
                         const originalHideGuide = window.hideGuide || hideGuide;
                         window.hideGuide = function() {
                             originalHideGuide();
                             setTimeout(() => {
-                                addParkingSpot();
+                                addLocation();
                             }, 300);
                             window.hideGuide = originalHideGuide;
                         };
                     } else {
-                        addParkingSpot();
+                        addLocation();
                     }
                 });
             }
+            
+            // 更新地点类型按钮样式
+            function updateLocationTypeButtons() {
+                const waypointBtn = document.getElementById('location-type-waypoint');
+                const parkingBtn = document.getElementById('location-type-parking');
+                const addBtn = document.getElementById('add-location-btn');
+                
+                if (currentLocationType === 'waypoint') {
+                    waypointBtn?.classList.add('bg-blue-100', 'text-blue-600', 'border-blue-200');
+                    waypointBtn?.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                    parkingBtn?.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                    parkingBtn?.classList.remove('bg-purple-100', 'text-purple-600', 'border-purple-200');
+                    
+                    if (addBtn) {
+                        addBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>添加定位点';
+                        addBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        addBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                    }
+                } else {
+                    parkingBtn?.classList.add('bg-purple-100', 'text-purple-600', 'border-purple-200');
+                    parkingBtn?.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                    waypointBtn?.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                    waypointBtn?.classList.remove('bg-blue-100', 'text-blue-600', 'border-blue-200');
+                    
+                    if (addBtn) {
+                        addBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>添加停靠点';
+                        addBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                        addBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    }
+                }
+            }
+            
+            // 添加地点函数
+            async function addLocation() {
+                const isWaypoint = currentLocationType === 'waypoint';
+                const promptText = isWaypoint ? 
+                    '请输入定位点名称 (如：客厅入口、房门口等)：' : 
+                    '请输入停靠点名称 (如：阅读位置、休息区等)：';
+                const placeholder = isWaypoint ? '例如：客厅入口、房门口等' : '例如：阅读位置、休息区等';
+                const title = isWaypoint ? '添加定位点' : '添加停靠点';
+                
+                const name = await appPrompt(promptText, '', placeholder, title);
+                
+                if (!name) return; // 用户取消了输入
+                
+                const location = {
+                    id: Date.now(),
+                    name: name,
+                    type: currentLocationType,
+                    x: wheelchairX,
+                    y: wheelchairY,
+                    angle: wheelchairAngle,
+                    position: `位置${allLocations.length + 1}`,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                
+                allLocations.push(location);
+                
+                // 如果是停靠点，也添加到原来的停靠点列表中以保持兼容性
+                if (currentLocationType === 'parking') {
+                    parkingSpots.push(location);
+                }
+                
+                updateLocationsList();
+                
+                // 显示成功提示
+                const locationTypeText = isWaypoint ? '定位点' : '停靠点';
+                showSuccessMessage(`${locationTypeText}"${name}"设置成功`);
+            }
+            
+            // 更新地点列表
+            function updateLocationsList() {
+                const locationsList = document.getElementById('locations-list');
+                const locationsCount = document.getElementById('locations-count');
+                const noLocationsTip = document.getElementById('no-locations-tip');
+                
+                if (locationsCount) {
+                    const waypointCount = allLocations.filter(loc => loc.type === 'waypoint').length;
+                    const parkingCount = allLocations.filter(loc => loc.type === 'parking').length;
+                    locationsCount.textContent = `${waypointCount}个定位点 • ${parkingCount}个停靠点`;
+                }
+                
+                if (allLocations.length === 0) {
+                    if (noLocationsTip) noLocationsTip.style.display = 'block';
+                    if (locationsList) {
+                        locationsList.innerHTML = '';
+                        locationsList.appendChild(noLocationsTip);
+                    }
+                } else {
+                    if (noLocationsTip) noLocationsTip.style.display = 'none';
+                    if (locationsList) {
+                        locationsList.innerHTML = allLocations.map((location, index) => {
+                            const isWaypoint = location.type === 'waypoint';
+                            const bgColor = isWaypoint ? 'bg-blue-50' : 'bg-purple-50';
+                            const borderColor = isWaypoint ? 'border-blue-200' : 'border-purple-200';
+                            const circleColor = isWaypoint ? 'bg-blue-500' : 'bg-purple-500';
+                            const textColor = isWaypoint ? 'text-blue-800' : 'text-purple-800';
+                            const subtextColor = isWaypoint ? 'text-blue-600' : 'text-purple-600';
+                            const icon = isWaypoint ? 'fas fa-map-marker-alt' : 'fas fa-parking';
+                            
+                            return `
+                                <div class="flex items-center justify-between p-3 ${bgColor} rounded-lg border ${borderColor}">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 ${circleColor} text-white rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                                            ${index + 1}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium ${textColor}">${location.name}</p>
+                                            <p class="text-xs ${subtextColor}">
+                                                ${location.position} • ${location.timestamp}
+                                                ${isWaypoint ? ' • 定位点' : ' • 停靠点'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="${icon} ${isWaypoint ? 'text-blue-500' : 'text-purple-500'}"></i>
+                                        <button class="text-red-500 text-sm" onclick="removeLocation(${location.id})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+            }
+            
+            // 全局删除地点函数
+            window.removeLocation = function(id) {
+                allLocations = allLocations.filter(location => location.id !== id);
+                // 同时从停靠点列表中删除（保持兼容性）
+                parkingSpots = parkingSpots.filter(spot => spot.id !== id);
+                updateLocationsList();
+            };
+            
+            // 保持原有的停靠点函数兼容性
+            window.addParkingSpot = function() {
+                currentLocationType = 'parking';
+                updateLocationTypeButtons();
+                addLocation();
+            };
+            
+            // 保持原有的删除停靠点函数兼容性
+            window.removeParkingSpot = function(id) {
+                removeLocation(id);
+            };
+            
+            // 初始化地点管理
+            updateLocationTypeButtons();
             
             // 建图完成按钮事件
             const finishMappingBtn = document.getElementById('finish-mapping-btn');
