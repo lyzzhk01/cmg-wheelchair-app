@@ -2185,12 +2185,9 @@
                     <div class="space-y-3">
                         <label class="flex items-start">
                             <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="safety-risk-confirm">
-                            <span class="ml-2 text-sm">我已了解建图过程中的安全风险，并承诺在轮椅移动期间保持监督</span>
+                            <span class="ml-2 text-sm">我已了解建图过程中的安全风险，并确认建图环境安全，没有易碎物品或危险区域</span>
                         </label>
-                        <label class="flex items-start">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="environment-risk-confirm">
-                            <span class="ml-2 text-sm">我确认建图环境安全，没有易碎物品或危险区域</span>
-                        </label>
+                       
                         <label class="flex items-start">
                             <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="responsibility-confirm">
                             <span class="ml-2 text-sm">我了解并接受因违反操作指南可能造成的风险和责任</span>
@@ -2776,7 +2773,7 @@
                         <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
                     </div>
                     <h3 class="text-lg font-semibold">划定安全区域</h3>
-                    <p class="text-sm text-gray-600 mt-2">设置轮椅的安全活动范围</p>
+                    <p class="text-sm text-gray-600 mt-2">为轮椅划定可以自由移动和掉头的区域</p>
                 </div>
                 
                 <!-- 地图区域 -->
@@ -2814,28 +2811,11 @@
                     </div>
                 </div>
                 
-                <!-- 安全设置 -->
-                <div class="border border-gray-200 rounded-lg p-3">
-                    <h4 class="font-medium text-gray-800 mb-3">安全设置</h4>
-                    <div class="space-y-2">
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="zone-boundary-alert" checked>
-                            <span class="ml-2 text-sm">接近边界时警告提醒</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="auto-return-zone">
-                            <span class="ml-2 text-sm">超出安全区域时自动返回</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded" id="emergency-contact-alert">
-                            <span class="ml-2 text-sm">离开安全区域时通知紧急联系人</span>
-                        </label>
-                    </div>
-                </div>
+
             </div>
             
             <button id="safety-zones-next-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium">
-                设置禁行区
+                完成建图
             </button>
         </div>
 
@@ -7286,7 +7266,10 @@
             }
             
             if (nextBtn) {
-                nextBtn.addEventListener('click', () => showPage('set-restricted-zones'));
+                nextBtn.addEventListener('click', () => {
+                    showPage('mapping-complete');
+                    completeMappingProcess();
+                });
             }
             
             // 绘制工具
