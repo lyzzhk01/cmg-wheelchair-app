@@ -1900,50 +1900,15 @@
                     </div>
                 </div>
                 
-                <!-- 环境检测结果（辅助信息） -->
-                <div class="mb-4">
+                <!-- 环境检测结果（仅在检测到室外环境时显示） -->
+                <div id="environment-detection-section" class="mb-4 hidden">
                     <h4 class="font-medium text-gray-700 mb-3 flex items-center">
                         <i class="fas fa-robot mr-2"></i>
                         系统自动检测（参考）
                     </h4>
-                    <div class="space-y-3" id="environment-detection-results">
-                        <!-- 默认显示室内环境良好 -->
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-home text-green-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-green-800">室内环境</h5>
-                                    <p class="text-xs text-green-600">检测到适合建图的室内环境</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-check text-green-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-sun text-green-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-green-800">光线条件</h5>
-                                    <p class="text-xs text-green-600">光线适中，无强烈反射</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-check text-green-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-volume-down text-yellow-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-yellow-800">环境噪音</h5>
-                                    <p class="text-xs text-yellow-600">环境较为安静，建议降低行驶速度</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                        </div>
-                    </div>
                     
-                    <!-- 非室内环境警告（默认隐藏，检测到时显示） -->
-                    <div id="outdoor-warning" class="hidden mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                    <!-- 非室内环境警告 -->
+                    <div id="outdoor-warning" class="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
                         <div class="flex items-start">
                             <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3 mt-1"></i>
                             <div>
@@ -5789,50 +5754,10 @@
                     }
                 }
                 
-                // 重置检测结果为默认状态
-                const detectionResults = document.getElementById('environment-detection-results');
-                if (detectionResults) {
-                    detectionResults.innerHTML = `
-                        <!-- 默认显示室内环境良好 -->
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-home text-green-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-green-800">室内环境</h5>
-                                    <p class="text-xs text-green-600">检测到适合建图的室内环境</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-check text-green-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-sun text-green-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-green-800">光线条件</h5>
-                                    <p class="text-xs text-green-600">光线适中，无强烈反射</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-check text-green-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-volume-down text-yellow-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-yellow-800">环境噪音</h5>
-                                    <p class="text-xs text-yellow-600">环境较为安静，建议降低行驶速度</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                        </div>
-                    `;
-                }
-                
-                // 隐藏警告
-                const outdoorWarning = document.getElementById('outdoor-warning');
-                if (outdoorWarning) {
-                    outdoorWarning.classList.add('hidden');
+                // 默认隐藏整个检测部分
+                const detectionSection = document.getElementById('environment-detection-section');
+                if (detectionSection) {
+                    detectionSection.classList.add('hidden');
                 }
             }
             
@@ -5842,48 +5767,11 @@
                 resetEnvironmentDetection();
                 
                 const isOutdoorDetected = Math.random() < 0.2; // 20%概率
-                const detectionResults = document.getElementById('environment-detection-results');
-                const outdoorWarning = document.getElementById('outdoor-warning');
+                const detectionSection = document.getElementById('environment-detection-section');
                 
-                if (isOutdoorDetected && detectionResults && outdoorWarning) {
-                    // 显示非室内环境检测结果
-                    detectionResults.innerHTML = `
-                        <div class="flex items-center justify-between p-3 bg-red-50 border-2 border-red-300 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-tree text-red-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-red-800">室外环境</h5>
-                                    <p class="text-xs text-red-600">检测到可能的室外环境特征</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-sun text-yellow-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-yellow-800">光线条件</h5>
-                                    <p class="text-xs text-yellow-600">光线强烈，可能有自然光干扰</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center">
-                                <i class="fas fa-volume-down text-green-600 text-lg mr-3"></i>
-                                <div>
-                                    <h5 class="font-medium text-green-800">环境噪音</h5>
-                                    <p class="text-xs text-green-600">环境噪音正常</p>
-                                </div>
-                            </div>
-                            <i class="fas fa-check text-green-600"></i>
-                        </div>
-                    `;
-                    
-                    // 显示警告
-                    outdoorWarning.classList.remove('hidden');
+                if (isOutdoorDetected && detectionSection) {
+                    // 显示检测部分和警告
+                    detectionSection.classList.remove('hidden');
                     
                     // 让第一个确认选项更加突出
                     const indoorConfirm = document.getElementById('indoor-confirm');
@@ -5899,8 +5787,8 @@
                         }
                     }
                 } else {
-                    // 显示正常的室内环境检测结果（已在HTML中默认设置）
-                    outdoorWarning.classList.add('hidden');
+                    // 正常情况下，检测部分保持隐藏
+                    detectionSection.classList.add('hidden');
                 }
             }
             
