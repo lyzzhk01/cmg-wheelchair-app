@@ -1974,7 +1974,7 @@
                             <h4 class="font-bold text-orange-800 text-lg mb-4 text-center">1. 清理路径上的障碍物</h4>
                             <div class="flex items-center justify-between">
                                 <div class="flex-1 pr-4">
-                                    <p class="text-sm text-orange-700 leading-relaxed">请先清理轮椅行驶路径上的杂物（比如小凳子、地垫、玩具等），清除障碍，避免行进中碰撞，也请保持路径畅通，避免轮椅刮擦或碰撞器具。</p>
+                                    <p class="text-sm text-orange-700 leading-relaxed">请把轮椅行驶路径上的杂物（比如小凳子、地垫、玩具等）清理干净。建图过程中，也请保持路径畅通，避免轮椅刮擦或碰撞家具。</p>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
@@ -2027,7 +2027,7 @@
                             <h4 class="font-bold text-purple-800 text-lg mb-4 text-center">2. 路线需要走成一圈</h4>
                             <div class="flex items-center justify-between">
                                 <div class="flex-1 pr-4">
-                                    <p class="text-sm text-purple-700 leading-relaxed">建图时，请从充电桩前出发，遍历所有区域后回到同一充电桩位置，才能完成建图。路线需要形成一个闭合圆环。</p>
+                                    <p class="text-sm text-purple-700 leading-relaxed">建图开始请从充电桩前出发，走过所有区域最后回到同一个充电桩前位置，将路线闭合才能完成建图。</p>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
@@ -2081,7 +2081,7 @@
                             <h4 class="font-bold text-blue-800 text-lg mb-4 text-center">3. 只需走常用路线</h4>
                             <div class="flex items-center justify-between">
                                 <div class="flex-1 pr-4">
-                                    <p class="text-sm text-blue-700 leading-relaxed">只需让轮椅走一遍日常常用的路线（比如卧室到客厅、客厅到卫生间），这些路线会成为轮椅自动导航的基准路线。</p>
+                                    <p class="text-sm text-blue-700 leading-relaxed">您只需要让轮椅走一遍平时经常走的路线（比如卧室到客厅、客厅到卫生间）。这些路线会变成轮椅自动导航的基准路线。</p>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
@@ -2128,7 +2128,7 @@
                             <h4 class="font-bold text-red-800 text-lg mb-4 text-center">4. 避免长时间倒车</h4>
                             <div class="flex items-center justify-between">
                                 <div class="flex-1 pr-4">
-                                    <p class="text-sm text-red-700 leading-relaxed">建图过程中请尽量保持向前行驶，避免长时间倒退，以确保轮椅导航系统的准确性。</p>
+                                    <p class="text-sm text-red-700 leading-relaxed">建图过程中请尽量保持向前行驶，不要长时间倒着走。这样可以提高轮椅导航的准确性。</p>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <svg width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
@@ -2185,12 +2185,12 @@
                     <div class="space-y-3">
                         <label class="flex items-start">
                             <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="safety-risk-confirm">
-                            <span class="ml-2 text-sm">我已了解建图过程中的安全风险，并确认建图环境安全，没有易碎物品或危险区域</span>
+                            <span class="ml-2 text-sm">我已阅读建图须知，并确认建图环境安全，没有易碎物品或危险区域</span>
                         </label>
                        
                         <label class="flex items-start">
                             <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 rounded mt-0.5" id="responsibility-confirm">
-                            <span class="ml-2 text-sm">我了解并接受因违反操作指南可能造成的风险和责任</span>
+                            <span class="ml-2 text-sm">我已了解建图过程中的安全风险，并接受因违反操作指南可能造成的风险和责任</span>
                         </label>
                     </div>
                 </div>
@@ -2213,7 +2213,7 @@
             </div>
             
             <button id="precautions-next-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
-                我已阅读并同意，开始建图
+                我已确认，开始建图
             </button>
         </div>
 
@@ -2301,8 +2301,18 @@
             <!-- 新手引导弹窗 -->
             <div id="guide-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
                 <div class="flex items-center justify-center h-full p-4">
-                    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full">
-                        <div id="guide-content" class="p-6">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full relative">
+                        <!-- 左箭头按钮 -->
+                        <button id="guide-prev-btn" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors z-10">
+                            <i class="fas fa-chevron-left text-sm"></i>
+                        </button>
+                        
+                        <!-- 右箭头按钮 -->
+                        <button id="guide-next-arrow-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors z-10">
+                            <i class="fas fa-chevron-right text-sm"></i>
+                        </button>
+                        
+                        <div id="guide-content" class="p-6 px-12">
                             <!-- 引导内容动态插入 -->
                         </div>
                         <div class="px-6 pb-6 flex space-x-3">
@@ -6003,19 +6013,19 @@
             const guideSteps = [
                 {
                     title: "请坐在轮椅上操作",
-                    content: "建图时请坐在轮椅上，使用摇杆控制方向和移动。这样记录的路线更准确，也更符合您的使用习惯。",
+                    content: "请坐在轮椅上使用摇杆控制方向和移动，可以将手机放在支架中并保持手机APP一直处于打开状态。",
                     icon: "fas fa-wheelchair",
                     color: "bg-green-500"
                 },
                 {
-                    title: "电量充足，建图时长",
-                    content: "建图过程建议控制在30分钟以内。如果中途电量不足，可以暂停建图，待充电后继续。",
+                    title: "控制建图时长",
+                    content: "建图过程建议控制在30分钟以内。",
                     icon: "fas fa-battery-three-quarters",
                     color: "bg-blue-500"
                 },
                 {
                     title: "路径保持畅通",
-                    content: "建图过程中请保持路径畅通，遇到临时障碍物请及时清理，避免轮椅被卡住。",
+                    content: "建图过程中请保持路径畅通，结束建图需先返回到充电桩前再点击完成建图。",
                     icon: "fas fa-route",
                     color: "bg-orange-500"
                 }
@@ -6041,7 +6051,7 @@
                 },
                 {
                     title: "设置建议",
-                    content: "建议至少设置3-5个定位点，确保轮椅在各个区域都能准确定位。可在建图过程中随时添加。",
+                    content: "建议设置3-5个定位点，确保轮椅在各个区域都能准确定位。可在建图过程中随时添加。",
                     icon: "fas fa-info-circle",
                     color: "bg-purple-500"
                 }
@@ -6050,7 +6060,7 @@
             const parkingGuideSteps = [
                 {
                     title: "设置停靠点",
-                    content: "停靠点是轮椅经常停留的位置，设置后可以快速导航到这些地点。",
+                    content: "停靠点是您经常上下轮椅的位置，设置后可以召唤轮椅导航到这些地点。",
                     icon: "fas fa-parking",
                     color: "bg-purple-500"
                 },
@@ -6083,6 +6093,8 @@
             const guideOverlay = document.getElementById('guide-overlay');
             const guideNextBtn = document.getElementById('guide-next-btn');
             const guideSkipBtn = document.getElementById('guide-skip-btn');
+            const guidePrevBtn = document.getElementById('guide-prev-btn');
+            const guideNextArrowBtn = document.getElementById('guide-next-arrow-btn');
             
             guideContent.innerHTML = `
                 <div class="text-center mb-6">
@@ -6094,18 +6106,48 @@
                 </div>
                 <div class="flex justify-center space-x-2 mb-4">
                     ${steps.map((_, index) => 
-                        `<div class="w-2 h-2 rounded-full ${index <= currentStep ? 'bg-blue-500' : 'bg-gray-300'}"></div>`
+                        `<div class="w-2 h-2 rounded-full ${index === currentStep ? 'bg-blue-500' : 'bg-gray-300'}"></div>`
                     ).join('')}
                 </div>
             `;
             
             guideOverlay.classList.remove('hidden');
             
+            // 更新左右箭头按钮状态
+            if (guidePrevBtn) {
+                if (currentStep === 0) {
+                    guidePrevBtn.disabled = true;
+                    guidePrevBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                    guidePrevBtn.classList.remove('hover:text-gray-600');
+                } else {
+                    guidePrevBtn.disabled = false;
+                    guidePrevBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                    guidePrevBtn.classList.add('hover:text-gray-600');
+                }
+            }
+            
+            if (guideNextArrowBtn) {
+                if (currentStep === steps.length - 1) {
+                    guideNextArrowBtn.disabled = true;
+                    guideNextArrowBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                    guideNextArrowBtn.classList.remove('hover:text-gray-600');
+                } else {
+                    guideNextArrowBtn.disabled = false;
+                    guideNextArrowBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                    guideNextArrowBtn.classList.add('hover:text-gray-600');
+                }
+            }
+            
             // 移除之前的事件监听器
             const newNextBtn = guideNextBtn.cloneNode(true);
             const newSkipBtn = guideSkipBtn.cloneNode(true);
+            const newPrevBtn = guidePrevBtn.cloneNode(true);
+            const newNextArrowBtn = guideNextArrowBtn.cloneNode(true);
+            
             guideNextBtn.parentNode.replaceChild(newNextBtn, guideNextBtn);
             guideSkipBtn.parentNode.replaceChild(newSkipBtn, guideSkipBtn);
+            guidePrevBtn.parentNode.replaceChild(newPrevBtn, guidePrevBtn);
+            guideNextArrowBtn.parentNode.replaceChild(newNextArrowBtn, guideNextArrowBtn);
             
             // 添加新的事件监听器
             newNextBtn.addEventListener('click', () => {
@@ -6118,6 +6160,20 @@
             
             newSkipBtn.addEventListener('click', () => {
                 hideGuide();
+            });
+            
+            // 左箭头按钮事件
+            newPrevBtn.addEventListener('click', () => {
+                if (currentStep > 0) {
+                    showGuideSteps(steps, currentStep - 1);
+                }
+            });
+            
+            // 右箭头按钮事件
+            newNextArrowBtn.addEventListener('click', () => {
+                if (currentStep < steps.length - 1) {
+                    showGuideSteps(steps, currentStep + 1);
+                }
             });
         }
         
