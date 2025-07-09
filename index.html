@@ -2282,7 +2282,7 @@
                 <button id="charging-home-back-btn" class="mr-3 text-gray-600">
                     <i class="fas fa-arrow-left text-lg"></i>
                 </button>
-                <h2 class="text-xl font-semibold">设置回充点</h2>
+                <h2 class="text-xl font-semibold">设置充电桩</h2>
             </div>
             
             <div class="bg-white rounded-xl shadow-md p-6 mb-4">
@@ -2290,33 +2290,33 @@
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-charging-station text-green-600 text-3xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">请将轮椅移动到充电桩前</h3>
-                    <p class="text-sm text-gray-600 mt-2">这是建图的起始点，也是轮椅自动回充的位置</p>
+                    <h3 class="text-lg font-semibold text-gray-800">设置充电桩位置</h3>
+                    <p class="text-sm text-gray-600 mt-2">按照以下步骤完成充电桩的设置和定位</p>
                 </div>
                 
                 <!-- 操作指导 -->
                 <div class="space-y-4 mb-6">
                     <div class="flex items-start p-4 border border-blue-200 rounded-lg bg-blue-50">
-                        <i class="fas fa-ruler text-blue-600 text-lg mt-1 mr-3"></i>
+                        <i class="fas fa-home text-blue-600 text-lg mt-1 mr-3"></i>
                         <div>
-                            <h4 class="font-medium text-blue-800 mb-1">1. 距离要求</h4>
-                            <p class="text-sm text-blue-700">请将轮椅停在充电桩前约1米处，不要太远或太近</p>
+                            <h4 class="font-medium text-blue-800 mb-1">1. 充电桩摆放</h4>
+                            <p class="text-sm text-blue-700">充电桩贴墙固定摆放，前方2m范围内保持宽敞空旷</p>
                         </div>
                     </div>
                     
                     <div class="flex items-start p-4 border border-green-200 rounded-lg bg-green-50">
-                        <i class="fas fa-compass text-green-600 text-lg mt-1 mr-3"></i>
+                        <i class="fas fa-wheelchair text-green-600 text-lg mt-1 mr-3"></i>
                         <div>
-                            <h4 class="font-medium text-green-800 mb-1">2. 方向调整</h4>
-                            <p class="text-sm text-green-700">轮椅尾部要正对着充电桩中心，保持直线对准</p>
+                            <h4 class="font-medium text-green-800 mb-1">2. 轮椅定位</h4>
+                            <p class="text-sm text-green-700">将轮椅尾部正对充电桩中心，推到充电桩上</p>
                         </div>
                     </div>
                     
                     <div class="flex items-start p-4 border border-purple-200 rounded-lg bg-purple-50">
-                        <i class="fas fa-camera text-purple-600 text-lg mt-1 mr-3"></i>
+                        <i class="fas fa-mouse-pointer text-purple-600 text-lg mt-1 mr-3"></i>
                         <div>
-                            <h4 class="font-medium text-purple-800 mb-1">3. 位置检测</h4>
-                            <p class="text-sm text-purple-700">点击下方按钮，系统将通过红外摄像头检测位置是否合适</p>
+                            <h4 class="font-medium text-purple-800 mb-1">3. 确认设置</h4>
+                            <p class="text-sm text-purple-700">点击下方按钮，设置充电桩位置</p>
                         </div>
                     </div>
                 </div>
@@ -2339,7 +2339,7 @@
             </div>
             
             <button id="detect-charging-position-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium">
-                设置回充点
+                设置充电桩
             </button>
         </div>
 
@@ -6373,52 +6373,32 @@
                 });
             }
             
-            function detectChargingPosition() {
+            async function detectChargingPosition() {
                 detectBtn.disabled = true;
-                detectBtn.textContent = '检测中...';
-                positionStatus.textContent = '正在检测位置...';
+                detectBtn.textContent = '设置中...';
+                positionStatus.textContent = '正在设置充电桩...';
                 
-                // 模拟检测过程
+                // 模拟设置过程
                 let progress = 0;
                 const interval = setInterval(() => {
-                    progress += 10;
+                    progress += 20;
                     positionProgress.style.width = progress + '%';
                     
                     if (progress >= 100) {
                         clearInterval(interval);
                         
-                        // 模拟检测成功
-                        setTimeout(() => {
-                            positionStatus.textContent = '检测完成';
-                            detectionResult.classList.remove('hidden');
-                            detectionResult.innerHTML = `
-                                <div class="p-4 border border-green-200 rounded-lg bg-green-50">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-check-circle text-green-600 mr-3"></i>
-                                        <div>
-                                            <h4 class="font-medium text-green-800">位置检测成功</h4>
-                                            <p class="text-sm text-green-700 mt-1">
-                                                距离: 1.05m • 角度: 正对 • 红外信号: 强
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
+                        // 设置成功，显示弹窗
+                        setTimeout(async () => {
+                            await appAlert('充电桩设置成功！即将开始建图。', '设置成功');
                             
-                            detectBtn.disabled = false;
-                            detectBtn.textContent = '设置充电桩';
-                            detectBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                            detectBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                            
-                            detectBtn.onclick = function() {
-                                showPage('real-time-mapping');
-                                initRealTimeMappingPage();
-                                // 启动建图引导
-                                setTimeout(() => {
-                                    startMappingGuide();
-                                }, 500);
-                            };
-                        }, 1000);
+                            // 跳转到实时建图页面
+                            showPage('real-time-mapping');
+                            initRealTimeMappingPage();
+                            // 启动建图引导
+                            setTimeout(() => {
+                                startMappingGuide();
+                            }, 500);
+                        }, 500);
                     }
                 }, 200);
             }
