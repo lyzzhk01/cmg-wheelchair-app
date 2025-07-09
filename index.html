@@ -1094,9 +1094,9 @@
                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                                 <div class="flex items-center mb-2">
                                     <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
-                                    <span class="text-sm font-medium text-yellow-800">推荐位置</span>
+                                    <span class="text-sm font-medium text-yellow-800" id="suggestions-title">推荐位置</span>
                                 </div>
-                                <div class="space-y-2">
+                                <div class="space-y-2" id="suggestions-content">
                                     <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="房门口">• 房门口、走廊入口等开阔地点</div>
                                     <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="客厅中央">• 客厅中央、餐厅中央等空旷区域</div>
                                     <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="各房间的连接通道处">• 各房间的连接通道处</div>
@@ -3175,9 +3175,47 @@
                 input.value = config.defaultValue || '';
                 input.placeholder = config.placeholder || '请输入内容';
                 
-                // 如果是定位点名称输入，显示推荐选项
-                if (config.message.includes('定位点名称')) {
+                // 如果是定位点名称输入或停靠点名称输入，显示推荐选项
+                if (config.message.includes('定位点名称') || config.message.includes('停靠点名称')) {
                     suggestions.classList.remove('hidden');
+                    
+                    // 根据类型显示不同的建议选项
+                    const suggestionsTitle = document.getElementById('suggestions-title');
+                    const suggestionsContent = document.getElementById('suggestions-content');
+                    
+                    if (config.message.includes('停靠点名称')) {
+                        suggestionsTitle.textContent = '常用停靠点';
+                        suggestionsContent.innerHTML = `
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="suggestion-item cursor-pointer text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 text-center py-2 rounded-lg font-medium transition" data-value="沙发">沙发</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-green-50 hover:bg-green-100 text-green-700 text-center py-2 rounded-lg font-medium transition" data-value="床边">床边</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 text-center py-2 rounded-lg font-medium transition" data-value="卫生间">卫生间</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-orange-50 hover:bg-orange-100 text-orange-700 text-center py-2 rounded-lg font-medium transition" data-value="书房">书房</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 text-center py-2 rounded-lg font-medium transition" data-value="客厅">客厅</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-green-50 hover:bg-green-100 text-green-700 text-center py-2 rounded-lg font-medium transition" data-value="卧室">卧室</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 text-center py-2 rounded-lg font-medium transition" data-value="厨房">厨房</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-orange-50 hover:bg-orange-100 text-orange-700 text-center py-2 rounded-lg font-medium transition" data-value="餐厅">餐厅</div>
+                                <div class="suggestion-item cursor-pointer text-sm bg-red-50 hover:bg-red-100 text-red-700 text-center py-2 rounded-lg font-medium transition" data-value="阳台">阳台</div>
+                            </div>
+                        `;
+                    } else {
+                        suggestionsTitle.textContent = '推荐位置';
+                        suggestionsContent.innerHTML = `
+                            <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="房门口">• 房门口、走廊入口等开阔地点</div>
+                            <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="客厅中央">• 客厅中央、餐厅中央等空旷区域</div>
+                            <div class="suggestion-item cursor-pointer text-sm text-gray-700 hover:text-blue-600 transition" data-value="各房间的连接通道处">• 各房间的连接通道处</div>
+                        `;
+                    }
+                    
+                    // 添加点击事件
+                    const suggestionItems = suggestionsContent.querySelectorAll('.suggestion-item');
+                    suggestionItems.forEach(item => {
+                        item.addEventListener('click', function() {
+                            const value = this.getAttribute('data-value');
+                            input.value = value;
+                            input.focus();
+                        });
+                    });
                 } else {
                     suggestions.classList.add('hidden');
                 }
@@ -6730,7 +6768,7 @@
             
             // 添加停靠点
             async function addParkingSpot() {
-                const spotName = await appPrompt('请输入停靠点名称 (如：床边、沙发边等)：', '', '例如：床边、沙发边等', '添加停靠点');
+                const spotName = await appPrompt('请输入停靠点名称：', '', '例如：沙发、床边、卫生间等', '添加停靠点');
                 
                 if (!spotName) return; // 用户取消了输入
                 
@@ -6983,13 +7021,23 @@
                 const isWaypoint = currentLocationType === 'waypoint';
                 const promptText = isWaypoint ? 
                     '请输入定位点名称 (如：客厅入口、房门口等)：' : 
-                    '请输入停靠点名称 (如：阅读位置、休息区等)：';
-                const placeholder = isWaypoint ? '例如：客厅入口、房门口等' : '例如：阅读位置、休息区等';
+                    '请输入停靠点名称：';
+                const placeholder = isWaypoint ? '例如：客厅入口、房门口等' : '例如：沙发、床边、卫生间等';
                 const title = isWaypoint ? '添加定位点' : '添加停靠点';
                 
                 const name = await appPrompt(promptText, '', placeholder, title);
                 
                 if (!name) return; // 用户取消了输入
+                
+                // 如果是停靠点，需要进行安全确认
+                if (!isWaypoint) {
+                    const isSafe = await appConfirm('请确认：停靠点附近环境安全，无尖锐物体或跌落风险？', '安全确认');
+                    
+                    if (!isSafe) {
+                        await appAlert('请先确保停靠点附近环境安全后再设置', '安全提示');
+                        return;
+                    }
+                }
                 
                 const location = {
                     id: Date.now(),
@@ -6999,7 +7047,8 @@
                     y: wheelchairY,
                     angle: wheelchairAngle,
                     position: `位置${allLocations.length + 1}`,
-                    timestamp: new Date().toLocaleTimeString()
+                    timestamp: new Date().toLocaleTimeString(),
+                    isSafe: !isWaypoint ? true : undefined // 停靠点包含安全确认标识
                 };
                 
                 allLocations.push(location);
@@ -7057,6 +7106,7 @@
                                             <p class="text-xs ${subtextColor}">
                                                 ${location.position} • ${location.timestamp}
                                                 ${isWaypoint ? ' • 定位点' : ' • 停靠点'}
+                                                ${!isWaypoint ? ' • <span class="inline-flex items-center"><i class="fas fa-shield-check mr-1"></i>安全确认</span>' : ''}
                                             </p>
                                         </div>
                                     </div>
