@@ -1260,73 +1260,48 @@
                 <h2 class="text-xl font-semibold">轮椅固件更新</h2>
             </div>
             
-            <div class="bg-white rounded-xl shadow-md p-6 mb-4">
-                <div class="text-center mb-6">
-                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-microchip text-purple-600 text-3xl"></i>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800">检查固件更新</h3>
-                    <p class="text-sm text-gray-600 mt-2">检测轮椅固件版本和系统状态</p>
+            <!-- 设备概览 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">设备概览</h3>
+                    <button id="refresh-devices-btn" class="text-purple-600 hover:text-purple-700">
+                        <i class="fas fa-sync text-sm"></i>
+                    </button>
                 </div>
                 
-                <!-- 设备连接状态 -->
-                <div class="mb-4">
-                    <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                        <div class="flex items-center">
-                            <div id="device-connection-indicator" class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span class="text-sm text-gray-700">设备连接状态</span>
-                        </div>
-                        <span class="text-sm font-semibold text-green-600" id="device-connection-status">已连接</span>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-green-50 rounded-lg p-3">
+                        <div class="text-lg font-semibold text-green-700" id="connected-devices-count">3</div>
+                        <div class="text-xs text-green-600">在线数</div>
                     </div>
-                </div>
-                
-                <!-- 固件版本信息 -->
-                <div class="space-y-4 mb-6">
-                    <div class="flex justify-between items-center p-3 border border-gray-200 rounded-lg">
-                        <span class="text-sm text-gray-700">当前固件版本</span>
-                        <span class="text-sm font-semibold text-blue-600" id="current-firmware-version">v1.8.2</span>
+                    <div class="bg-orange-50 rounded-lg p-3">
+                        <div class="text-lg font-semibold text-orange-700" id="pending-updates-count">2</div>
+                        <div class="text-xs text-orange-600">待更新</div>
                     </div>
-                    
-                    <div class="flex justify-between items-center p-3 border border-gray-200 rounded-lg">
-                        <span class="text-sm text-gray-700">最新固件版本</span>
-                        <span class="text-sm font-semibold text-orange-600" id="latest-firmware-version">检测中...</span>
-                    </div>
-                    
-                    <div id="firmware-update-status" class="p-3 bg-gray-50 rounded-lg text-center">
-                        <p class="text-sm text-gray-600">正在检查固件更新...</p>
-                    </div>
-                </div>
-                
-                <!-- 固件更新内容（如果有新版本时显示） -->
-                <div id="firmware-update-content" class="hidden">
-                    <h4 class="font-medium text-gray-800 mb-3">固件更新内容</h4>
-                    <div class="bg-purple-50 rounded-lg p-4 mb-4">
-                        <ul class="text-sm text-purple-800 space-y-2" id="firmware-update-features">
-                            <!-- 动态添加更新内容 -->
-                        </ul>
-                    </div>
-                    
-                    <!-- 更新警告 -->
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                        <div class="flex items-start">
-                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-2"></i>
-                            <div class="text-sm text-yellow-800">
-                                <p class="font-medium mb-1">更新注意事项</p>
-                                <ul class="text-xs space-y-1">
-                                    <li>• 更新过程中请勿断开电源</li>
-                                    <li>• 确保轮椅电量充足（>50%）</li>
-                                    <li>• 更新过程约需5-10分钟</li>
-                                    <li>• 更新期间轮椅无法使用</li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="bg-blue-50 rounded-lg p-3">
+                        <div class="text-lg font-semibold text-blue-700" id="total-devices-count">3</div>
+                        <div class="text-xs text-blue-600">总设备</div>
                     </div>
                 </div>
             </div>
             
-            <button id="firmware-update-action-btn" class="w-full bg-gray-400 text-white py-3 rounded-xl font-medium cursor-not-allowed" disabled>
-                检查中...
-            </button>
+            <!-- 设备列表 -->
+            <div class="space-y-3" id="wheelchair-devices-list">
+                <!-- 设备项将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 批量操作 -->
+            <div class="bg-white rounded-xl shadow-md p-4 mt-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">批量操作</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="batch-update-btn" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium disabled:bg-gray-400" disabled>
+                        <i class="fas fa-download mr-2"></i>全部更新
+                    </button>
+                    <button id="check-all-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium">
+                        <i class="fas fa-search mr-2"></i>检查全部
+                    </button>
+                </div>
+            </div>
         </div>
         
         <!-- 固件更新进度弹窗 -->
@@ -7825,13 +7800,56 @@
         function initFirmwareUpdate() {
             const firmwareUpdateBtn = document.getElementById('firmware-update-btn');
             const firmwareBackBtn = document.getElementById('firmware-update-back-btn');
-            const firmwareActionBtn = document.getElementById('firmware-update-action-btn');
+            const refreshDevicesBtn = document.getElementById('refresh-devices-btn');
+            const checkAllBtn = document.getElementById('check-all-btn');
+            const batchUpdateBtn = document.getElementById('batch-update-btn');
+            
+            // 模拟轮椅设备数据
+            let wheelchairDevices = [
+                {
+                    id: 'wheelchair-001',
+                    name: '主轮椅',
+                    model: 'CMG-Pro-2024',
+                    currentVersion: 'v1.8.2',
+                    latestVersion: 'v1.9.5',
+                    batteryLevel: 85,
+                    isConnected: true,
+                    hasUpdate: true,
+                    isUpdating: false,
+                    lastConnected: '刚刚'
+                },
+                {
+                    id: 'wheelchair-002',
+                    name: '备用轮椅',
+                    model: 'CMG-Lite-2024',
+                    currentVersion: 'v1.9.5',
+                    latestVersion: 'v1.9.5',
+                    batteryLevel: 67,
+                    isConnected: true,
+                    hasUpdate: false,
+                    isUpdating: false,
+                    lastConnected: '2分钟前'
+                },
+                {
+                    id: 'wheelchair-003',
+                    name: '户外轮椅',
+                    model: 'CMG-Sport-2024',
+                    currentVersion: 'v1.7.8',
+                    latestVersion: 'v1.9.5',
+                    batteryLevel: 45,
+                    isConnected: true,
+                    hasUpdate: true,
+                    isUpdating: false,
+                    lastConnected: '5分钟前'
+                }
+            ];
             
             if (firmwareUpdateBtn) {
                 firmwareUpdateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     showPage('firmware-update');
-                    checkFirmwareUpdate();
+                    loadDevicesList();
+                    updateDevicesSummary();
                 });
             }
             
@@ -7841,107 +7859,290 @@
                 });
             }
             
-            async function checkFirmwareUpdate() {
-                const currentVersion = document.getElementById('current-firmware-version');
-                const latestVersion = document.getElementById('latest-firmware-version');
-                const updateStatus = document.getElementById('firmware-update-status');
-                const updateContent = document.getElementById('firmware-update-content');
-                const updateFeatures = document.getElementById('firmware-update-features');
-                const deviceStatus = document.getElementById('device-connection-status');
-                const deviceIndicator = document.getElementById('device-connection-indicator');
-                
-                // 模拟检查设备连接
-                setTimeout(() => {
-                    // 90%概率设备已连接
-                    const isConnected = Math.random() < 0.9;
-                    
-                    if (!isConnected) {
-                        deviceStatus.textContent = '设备未连接';
-                        deviceStatus.classList.remove('text-green-600');
-                        deviceStatus.classList.add('text-red-600');
-                        deviceIndicator.classList.remove('bg-green-500');
-                        deviceIndicator.classList.add('bg-red-500');
-                        
-                        updateStatus.innerHTML = '<p class="text-sm text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>请先连接轮椅设备</p>';
-                        firmwareActionBtn.textContent = '设备未连接';
-                        firmwareActionBtn.disabled = true;
-                        return;
-                    }
-                    
-                    // 检查固件更新
-                    setTimeout(() => {
-                        latestVersion.textContent = 'v1.9.5';
-                        latestVersion.classList.remove('text-orange-600');
-                        latestVersion.classList.add('text-green-600');
-                        
-                        updateStatus.innerHTML = '<p class="text-sm text-orange-600"><i class="fas fa-download mr-2"></i>发现固件更新</p>';
-                        
-                        updateContent.classList.remove('hidden');
-                        updateFeatures.innerHTML = `
-                            <li>• 优化电机控制算法，运行更平稳</li>
-                            <li>• 改进传感器精度，提升避障能力</li>
-                            <li>• 增强电池管理系统，延长使用寿命</li>
-                            <li>• 修复导航精度问题</li>
-                            <li>• 提升蓝牙连接稳定性</li>
-                        `;
-                        
-                        firmwareActionBtn.textContent = '开始更新固件';
-                        firmwareActionBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                        firmwareActionBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
-                        firmwareActionBtn.disabled = false;
-                        
-                        firmwareActionBtn.onclick = async function() {
-                            // 检查电量
-                            const currentBattery = window.currentBatteryStatus?.level || 85;
-                            if (currentBattery < 50) {
-                                await appAlert('轮椅电量不足50%，无法进行固件更新。请先充电后再试。', '电量不足');
-                                return;
-                            }
-                            
-                            const confirmed = await appConfirm('确定要更新轮椅固件吗？\n\n更新期间：\n• 轮椅将无法使用\n• 请勿断开电源\n• 更新约需5-10分钟', '确认更新');
-                            if (confirmed) {
-                                startFirmwareUpdate();
-                            }
-                        };
-                        
-                        // 更新个人资料页面的状态（保持"有新版本"）
-                        const firmwareVersionStatus = document.getElementById('firmware-version-status');
-                        if (firmwareVersionStatus) {
-                            firmwareVersionStatus.textContent = '有新版本';
-                            firmwareVersionStatus.classList.remove('text-green-500');
-                            firmwareVersionStatus.classList.add('text-red-500');
-                        }
-                    }, 1000);
-                }, 1500);
+            if (refreshDevicesBtn) {
+                refreshDevicesBtn.addEventListener('click', () => {
+                    refreshDevicesList();
+                });
             }
             
-            async function startFirmwareUpdate() {
-                firmwareActionBtn.disabled = true;
-                firmwareActionBtn.textContent = '正在更新固件...';
+            if (checkAllBtn) {
+                checkAllBtn.addEventListener('click', () => {
+                    checkAllDevices();
+                });
+            }
+            
+            if (batchUpdateBtn) {
+                batchUpdateBtn.addEventListener('click', () => {
+                    batchUpdateDevices();
+                });
+            }
+            
+            // 加载设备列表
+            function loadDevicesList() {
+                const devicesList = document.getElementById('wheelchair-devices-list');
+                if (!devicesList) return;
+                
+                devicesList.innerHTML = wheelchairDevices.map(device => createDeviceCard(device)).join('');
+                
+                // 为每个设备添加事件监听器
+                wheelchairDevices.forEach(device => {
+                    const updateBtn = document.getElementById(`update-${device.id}`);
+                    const checkBtn = document.getElementById(`check-${device.id}`);
+                    
+                    if (updateBtn) {
+                        updateBtn.addEventListener('click', () => updateSingleDevice(device.id));
+                    }
+                    
+                    if (checkBtn) {
+                        checkBtn.addEventListener('click', () => checkSingleDevice(device.id));
+                    }
+                });
+            }
+            
+            // 创建设备卡片
+            function createDeviceCard(device) {
+                const connectionStatus = device.isConnected ? 
+                    '<div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div><span class="text-sm text-green-600">在线</span>' :
+                    '<div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div><span class="text-sm text-red-600">离线</span>';
+                
+                const updateStatus = device.hasUpdate ? 
+                    '<span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">有更新</span>' :
+                    '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">已是最新</span>';
+                
+                const batteryColor = device.batteryLevel > 50 ? 'text-green-600' : 
+                                   device.batteryLevel > 20 ? 'text-yellow-600' : 'text-red-600';
+                
+                const updateBtnDisabled = !device.isConnected || !device.hasUpdate || device.isUpdating || device.batteryLevel < 50;
+                const updateBtnClass = updateBtnDisabled ? 
+                    'bg-gray-400 cursor-not-allowed' : 
+                    'bg-purple-600 hover:bg-purple-700';
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-md p-4 border ${device.isUpdating ? 'border-purple-200' : 'border-gray-200'}">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-wheelchair text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">${device.name}</h4>
+                                    <p class="text-xs text-gray-500">${device.model}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                ${updateStatus}
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">当前版本</span>
+                                <span class="text-sm font-medium">${device.currentVersion}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">最新版本</span>
+                                <span class="text-sm font-medium">${device.latestVersion}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">电量</span>
+                                <span class="text-sm font-medium ${batteryColor}">${device.batteryLevel}%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                ${connectionStatus}
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="check-${device.id}" class="text-blue-600 hover:text-blue-700 text-sm">
+                                    <i class="fas fa-search mr-1"></i>检查
+                                </button>
+                                <button id="update-${device.id}" class="text-white py-1 px-3 rounded-lg text-sm font-medium ${updateBtnClass}" ${updateBtnDisabled ? 'disabled' : ''}>
+                                    ${device.isUpdating ? '更新中...' : '更新'}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 更新进度条（更新时显示） -->
+                        <div id="progress-${device.id}" class="mt-3 ${device.isUpdating ? '' : 'hidden'}">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">正在更新固件...</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 更新设备概览
+            function updateDevicesSummary() {
+                const connectedCount = wheelchairDevices.filter(d => d.isConnected).length;
+                const pendingCount = wheelchairDevices.filter(d => d.hasUpdate).length;
+                const totalCount = wheelchairDevices.length;
+                
+                const connectedElement = document.getElementById('connected-devices-count');
+                const pendingElement = document.getElementById('pending-updates-count');
+                const totalElement = document.getElementById('total-devices-count');
+                
+                if (connectedElement) connectedElement.textContent = connectedCount;
+                if (pendingElement) pendingElement.textContent = pendingCount;
+                if (totalElement) totalElement.textContent = totalCount;
+                
+                // 更新批量更新按钮状态
+                const batchBtn = document.getElementById('batch-update-btn');
+                if (batchBtn) {
+                    const canBatchUpdate = wheelchairDevices.some(d => d.isConnected && d.hasUpdate && d.batteryLevel >= 50);
+                    batchBtn.disabled = !canBatchUpdate;
+                    
+                    if (canBatchUpdate) {
+                        batchBtn.classList.remove('bg-gray-400');
+                        batchBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                    } else {
+                        batchBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                        batchBtn.classList.add('bg-gray-400');
+                    }
+                }
+            }
+            
+            // 刷新设备列表
+            function refreshDevicesList() {
+                const refreshBtn = document.getElementById('refresh-devices-btn');
+                if (refreshBtn) {
+                    refreshBtn.innerHTML = '<i class="fas fa-sync fa-spin text-sm"></i>';
+                    
+                    setTimeout(() => {
+                                                 // 模拟刷新数据
+                         wheelchairDevices.forEach(device => {
+                             device.isConnected = Math.random() > 0.2; // 80%概率在线
+                             device.lastConnected = device.isConnected ? '刚刚' : '离线';
+                         });
+                        
+                        loadDevicesList();
+                        updateDevicesSummary();
+                        refreshBtn.innerHTML = '<i class="fas fa-sync text-sm"></i>';
+                    }, 1500);
+                }
+            }
+            
+            // 检查单个设备
+            function checkSingleDevice(deviceId) {
+                const device = wheelchairDevices.find(d => d.id === deviceId);
+                if (!device) return;
+                
+                const checkBtn = document.getElementById(`check-${deviceId}`);
+                if (checkBtn) {
+                    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>检查中';
+                    
+                    setTimeout(() => {
+                        // 模拟检查结果
+                        device.hasUpdate = Math.random() > 0.5;
+                        device.latestVersion = device.hasUpdate ? 'v1.9.5' : device.currentVersion;
+                        
+                        loadDevicesList();
+                        updateDevicesSummary();
+                        checkBtn.innerHTML = '<i class="fas fa-search mr-1"></i>检查';
+                    }, 2000);
+                }
+            }
+            
+            // 检查所有设备
+            function checkAllDevices() {
+                const checkBtn = document.getElementById('check-all-btn');
+                if (checkBtn) {
+                    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>检查中';
+                    
+                    setTimeout(() => {
+                        wheelchairDevices.forEach(device => {
+                            device.hasUpdate = Math.random() > 0.4;
+                            device.latestVersion = device.hasUpdate ? 'v1.9.5' : device.currentVersion;
+                        });
+                        
+                        loadDevicesList();
+                        updateDevicesSummary();
+                        checkBtn.innerHTML = '<i class="fas fa-search mr-2"></i>检查全部';
+                                         }, 3000);
+                 }
+             }
+            
+            // 更新单个设备
+            async function updateSingleDevice(deviceId) {
+                const device = wheelchairDevices.find(d => d.id === deviceId);
+                if (!device) return;
+                
+                // 检查电量
+                if (device.batteryLevel < 50) {
+                    await appAlert(`${device.name}电量不足50%，无法进行固件更新。请先充电后再试。`, '电量不足');
+                    return;
+                }
+                
+                const confirmed = await appConfirm(`确定要更新${device.name}的固件吗？\n\n更新期间：\n• 轮椅将无法使用\n• 请勿断开电源\n• 更新约需5-10分钟`, '确认更新');
+                if (!confirmed) return;
+                
+                startSingleDeviceUpdate(device);
+            }
+            
+            // 批量更新设备
+            async function batchUpdateDevices() {
+                const devicesToUpdate = wheelchairDevices.filter(d => d.isConnected && d.hasUpdate && d.batteryLevel >= 50);
+                
+                if (devicesToUpdate.length === 0) {
+                    await appAlert('没有可更新的设备', '提示');
+                    return;
+                }
+                
+                const deviceNames = devicesToUpdate.map(d => d.name).join('、');
+                const confirmed = await appConfirm(`确定要批量更新以下设备的固件吗？\n${deviceNames}\n\n更新期间：\n• 轮椅将无法使用\n• 请勿断开电源\n• 每台设备约需5-10分钟`, '确认批量更新');
+                if (!confirmed) return;
+                
+                // 逐个更新设备
+                for (const device of devicesToUpdate) {
+                    startSingleDeviceUpdate(device);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 错开更新时间
+                }
+            }
+            
+            // 开始单个设备更新
+            async function startSingleDeviceUpdate(device) {
+                device.isUpdating = true;
+                loadDevicesList();
+                updateDevicesSummary();
+                
+                const progressContainer = document.getElementById(`progress-${device.id}`);
+                const progressBar = progressContainer?.querySelector('.bg-purple-600');
+                const progressText = progressContainer?.querySelector('.text-xs');
                 
                 // 显示进度弹窗
                 const progressModal = document.getElementById('firmware-update-progress-modal');
-                const progressBar = document.getElementById('firmware-progress-bar');
-                const progressText = document.getElementById('firmware-progress-text');
-                const progressPercentage = document.getElementById('firmware-progress-percentage');
-                const currentStep = document.getElementById('firmware-current-step');
-                const remainingTime = document.getElementById('firmware-remaining-time');
-                const progressIcon = document.getElementById('firmware-progress-icon');
+                const modalProgressBar = document.getElementById('firmware-progress-bar');
+                const modalProgressText = document.getElementById('firmware-progress-text');
+                const modalProgressPercentage = document.getElementById('firmware-progress-percentage');
+                const modalCurrentStep = document.getElementById('firmware-current-step');
+                const modalRemainingTime = document.getElementById('firmware-remaining-time');
+                const modalProgressIcon = document.getElementById('firmware-progress-icon');
                 
-                progressModal.classList.remove('hidden');
+                // 更新弹窗标题
+                const modalTitle = progressModal?.querySelector('h3');
+                if (modalTitle) modalTitle.textContent = `${device.name} 固件更新中`;
                 
-                // 更新步骤和进度的函数
+                progressModal?.classList.remove('hidden');
+                
+                // 更新进度的函数
                 function updateProgress(percent, text, step, time, icon = 'fas fa-microchip') {
-                    progressBar.style.width = percent + '%';
-                    progressText.textContent = text;
-                    progressPercentage.textContent = percent + '%';
-                    currentStep.textContent = step;
-                    remainingTime.textContent = time;
-                    progressIcon.className = icon + ' text-purple-600 text-2xl';
+                    // 更新设备卡片进度
+                    if (progressBar) progressBar.style.width = percent + '%';
+                    if (progressText) progressText.textContent = text;
+                    
+                    // 更新弹窗进度
+                    if (modalProgressBar) modalProgressBar.style.width = percent + '%';
+                    if (modalProgressText) modalProgressText.textContent = text;
+                    if (modalProgressPercentage) modalProgressPercentage.textContent = percent + '%';
+                    if (modalCurrentStep) modalCurrentStep.textContent = step;
+                    if (modalRemainingTime) modalRemainingTime.textContent = time;
+                    if (modalProgressIcon) modalProgressIcon.className = icon + ' text-purple-600 text-2xl';
                 }
                 
-                // 模拟固件更新过程
-                updateProgress(0, '准备中...', '正在准备固件更新环境...', '8-10分钟', 'fas fa-cog');
+                // 模拟更新过程
+                updateProgress(0, '准备中...', `正在准备${device.name}固件更新环境...`, '8-10分钟', 'fas fa-cog');
                 
                 setTimeout(() => {
                     updateProgress(15, '下载中...', '正在从服务器下载固件包...', '7-8分钟', 'fas fa-download');
@@ -7962,26 +8163,27 @@
                                         updateProgress(100, '完成', '固件更新完成，正在进行最终检查...', '完成', 'fas fa-check');
                                         
                                         setTimeout(async () => {
-                                            progressModal.classList.add('hidden');
+                                            progressModal?.classList.add('hidden');
                                             
-                                            const updateStatus = document.getElementById('firmware-update-status');
-                                            updateStatus.innerHTML = '<p class="text-sm text-green-600"><i class="fas fa-check mr-2"></i>固件更新完成！</p>';
-                                            await appAlert('轮椅固件更新完成！系统性能已优化。', '更新成功');
+                                            // 更新设备状态
+                                            device.isUpdating = false;
+                                            device.currentVersion = device.latestVersion;
+                                            device.hasUpdate = false;
                                             
-                                            // 更新版本显示
-                                            document.getElementById('current-firmware-version').textContent = 'v1.9.5';
-                                            document.getElementById('latest-firmware-version').textContent = 'v1.9.5';
+                                            loadDevicesList();
+                                            updateDevicesSummary();
                                             
-                                            firmwareActionBtn.textContent = '已是最新版本';
-                                            firmwareActionBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-                                            firmwareActionBtn.classList.add('bg-green-600');
+                                            await appAlert(`${device.name}固件更新完成！系统性能已优化。`, '更新成功');
                                             
                                             // 更新个人资料页面的状态
                                             const firmwareVersionStatus = document.getElementById('firmware-version-status');
                                             if (firmwareVersionStatus) {
-                                                firmwareVersionStatus.textContent = 'v1.9.5';
-                                                firmwareVersionStatus.classList.remove('text-red-500');
-                                                firmwareVersionStatus.classList.add('text-green-500');
+                                                const stillHasUpdates = wheelchairDevices.some(d => d.hasUpdate);
+                                                if (!stillHasUpdates) {
+                                                    firmwareVersionStatus.textContent = 'v1.9.5';
+                                                    firmwareVersionStatus.classList.remove('text-red-500');
+                                                    firmwareVersionStatus.classList.add('text-green-500');
+                                                }
                                             }
                                         }, 1500);
                                     }, 1500);
@@ -7991,6 +8193,8 @@
                     }, 1500);
                 }, 1000);
             }
+            
+
         }
         
         // 初始化更新功能
