@@ -1053,7 +1053,7 @@
                                     <p class="font-medium mb-1">建议操作:</p>
                                     <ul class="text-left space-y-1" id="positioning-error-suggestions">
                                         <li>• 确保轮椅在室内地图覆盖范围内</li>
-                                        <li>• 将轮椅移动地图提示的路径上或将轮椅推到充电桩上</li>
+                                        <li>• 将轮椅推到充电桩上</li>
                                         <li>• 然后重新校准轮椅位置</li>
                                     </ul>
                                 </div>
@@ -4195,18 +4195,45 @@
             
             // 检查定位状态
             function checkPositioningStatus() {
-                // 90% 概率定位正常
-                isPositioningNormal = Math.random() > 0.1;
-                isOnPath = Math.random() > 0.2;
+                // 重新设计三种状态的随机生成逻辑
+                const randomValue = Math.random();
+                
+                if (randomValue < 0.6) {
+                    // 60% 概率定位正常
+                    isPositioningNormal = true;
+                    isOnPath = true;
+                } else if (randomValue < 0.8) {
+                    // 20% 概率定位异常
+                    isPositioningNormal = false;
+                    isOnPath = true;
+                } else {
+                    // 20% 概率超出规定路径
+                    isPositioningNormal = true;
+                    isOnPath = false;
+                }
                 
                 const statusElement = document.getElementById('indoor-position-status');
                 if (statusElement) {
                     if (isPositioningNormal && isOnPath) {
+                        // 状态1：定位正常
                         statusElement.innerHTML = `
                             <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
                             <span class="text-xs text-green-400">定位正常</span>
                         `;
+                    } else if (!isPositioningNormal && isOnPath) {
+                        // 状态2：定位异常
+                        statusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-red-400">定位异常</span>
+                        `;
+                    } else if (isPositioningNormal && !isOnPath) {
+                        // 状态3：超出规定路径
+                        statusElement.innerHTML = `
+                            <div class="w-2 h-2 bg-orange-500 rounded-full mr-2 pulse-animation"></div>
+                            <span class="text-xs text-orange-400">超出规定路径</span>
+                        `;
                     } else {
+                        // 状态4：两者都异常，优先显示定位异常
                         statusElement.innerHTML = `
                             <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-animation"></div>
                             <span class="text-xs text-red-400">定位异常</span>
@@ -4266,8 +4293,15 @@
                 if (goChargingBtn) {
                     goChargingBtn.addEventListener('click', function() {
                         if (!isPositioningNormal || !isOnPath) {
-                            // 根据不同条件显示不同类型的异常
-                            const errorType = !isOnPath ? 'out_of_path' : 'positioning';
+                            // 根据具体状态显示对应的异常类型，确保与地图显示一致
+                            let errorType;
+                            if (!isPositioningNormal && isOnPath) {
+                                errorType = 'positioning'; // 定位异常
+                            } else if (isPositioningNormal && !isOnPath) {
+                                errorType = 'out_of_path'; // 超出规定路径
+                            } else {
+                                errorType = 'positioning'; // 两者都异常，优先显示定位异常
+                            }
                             showPositioningError('去充电', errorType);
                             return;
                         }
@@ -4354,8 +4388,15 @@
                 if (summonBtn) {
                     summonBtn.addEventListener('click', function() {
                         if (!isPositioningNormal || !isOnPath) {
-                            // 根据不同条件显示不同类型的异常
-                            const errorType = !isOnPath ? 'out_of_path' : 'positioning';
+                            // 根据具体状态显示对应的异常类型，确保与地图显示一致
+                            let errorType;
+                            if (!isPositioningNormal && isOnPath) {
+                                errorType = 'positioning'; // 定位异常
+                            } else if (isPositioningNormal && !isOnPath) {
+                                errorType = 'out_of_path'; // 超出规定路径
+                            } else {
+                                errorType = 'positioning'; // 两者都异常，优先显示定位异常
+                            }
                             showPositioningError('召唤', errorType);
                             return;
                         }
@@ -4495,7 +4536,7 @@
                     if (errorSuggestions) {
                         errorSuggestions.innerHTML = `
                             <li>• 确保轮椅在室内地图覆盖范围内</li>
-                            <li>• 将轮椅移动地图提示的路径上或将轮椅推到充电桩上</li>
+                            <li>• 将轮椅推到充电桩上</li>
                             <li>• 然后重新校准轮椅位置</li>
                         `;
                     }
