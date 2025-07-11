@@ -599,9 +599,9 @@
                         <i class="fas fa-lock text-gray-400 mb-1 block"></i>
                         <span class="text-gray-400">未锁定</span>
                     </div>
-                    <div>
-                        <i class="fas fa-thermometer-half text-gray-400 mb-1 block"></i>
-                        <span class="text-gray-400">正常</span>
+                    <div id="mode-status">
+                        <i class="fas fa-cog text-blue-400 mb-1 block"></i>
+                        <span class="text-blue-400" id="current-mode">DM</span>
                     </div>
                 </div>
                 
@@ -4080,8 +4080,19 @@
                 // 定期更新轮椅位置
                 setInterval(updateWheelchairPosition, 2000);
                 
-                // 定期检查定位状态
-                setInterval(checkPositioningStatus, 5000);
+                            // 定期检查定位状态和模式状态
+            setInterval(checkPositioningStatus, 5000);
+            setInterval(updateModeStatus, 3000); // 每3秒检查一次模式变化
+            
+            // 初始化模式状态
+            updateModeStatus();
+            
+            // 添加模式切换点击事件
+            const modeStatusElement = document.getElementById('mode-status');
+            if (modeStatusElement) {
+                modeStatusElement.addEventListener('click', toggleMode);
+                modeStatusElement.style.cursor = 'pointer';
+            }
             }
             
             // 绘制室内地图
@@ -4202,6 +4213,48 @@
                         `;
                     }
                 }
+            }
+            
+            // 当前模式状态
+            let currentWheelchairMode = 'DM'; // DM: Direct Mode (直接模式), AIM: AI Mode (智能模式)
+            
+            // 更新模式状态
+            function updateModeStatus() {
+                // 随机切换模式 (5%概率切换，因为用户可以手动切换)
+                if (Math.random() < 0.05) {
+                    currentWheelchairMode = currentWheelchairMode === 'DM' ? 'AIM' : 'DM';
+                }
+                
+                const modeElement = document.getElementById('current-mode');
+                if (modeElement) {
+                    modeElement.textContent = currentWheelchairMode;
+                    
+                    // 根据模式设置不同的颜色
+                    if (currentWheelchairMode === 'DM') {
+                        modeElement.className = 'text-blue-400';
+                        modeElement.parentElement.querySelector('i').className = 'fas fa-cog text-blue-400 mb-1 block';
+                    } else {
+                        modeElement.className = 'text-purple-400';
+                        modeElement.parentElement.querySelector('i').className = 'fas fa-brain text-purple-400 mb-1 block';
+                    }
+                }
+            }
+            
+            // 手动切换模式
+            function toggleMode() {
+                currentWheelchairMode = currentWheelchairMode === 'DM' ? 'AIM' : 'DM';
+                updateModeStatus();
+                
+                // 显示切换提示
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                const modeText = currentWheelchairMode === 'DM' ? '直接控制模式' : '智能辅助模式';
+                toast.textContent = `已切换到${modeText}`;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 2000);
             }
             
             // 去充电功能
