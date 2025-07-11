@@ -1043,7 +1043,7 @@
                         <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
                         </div>
-                        <h3 class="text-lg font-semibold mb-2 text-red-700">定位异常</h3>
+                        <h3 class="text-lg font-semibold mb-2 text-red-700" id="positioning-error-title">定位异常</h3>
                         <p class="text-gray-600 mb-4" id="positioning-error-message">轮椅当前定位不准确或不在已知路径上，无法执行该操作。</p>
                         
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
@@ -1051,9 +1051,9 @@
                                 <i class="fas fa-info-circle text-yellow-600 mt-1 mr-2"></i>
                                 <div class="text-sm text-yellow-700">
                                     <p class="font-medium mb-1">建议操作:</p>
-                                    <ul class="text-left space-y-1">
+                                    <ul class="text-left space-y-1" id="positioning-error-suggestions">
                                         <li>• 确保轮椅在室内地图覆盖范围内</li>
-                                        <li>• 将轮椅推至充电桩上</li>
+                                        <li>• 将轮椅移动地图提示的路径上或将轮椅推到充电桩上</li>
                                         <li>• 然后重新校准轮椅位置</li>
                                     </ul>
                                 </div>
@@ -4213,7 +4213,9 @@
                 if (goChargingBtn) {
                     goChargingBtn.addEventListener('click', function() {
                         if (!isPositioningNormal || !isOnPath) {
-                            showPositioningError('去充电');
+                            // 根据不同条件显示不同类型的异常
+                            const errorType = !isOnPath ? 'out_of_path' : 'positioning';
+                            showPositioningError('去充电', errorType);
                             return;
                         }
                         
@@ -4299,7 +4301,9 @@
                 if (summonBtn) {
                     summonBtn.addEventListener('click', function() {
                         if (!isPositioningNormal || !isOnPath) {
-                            showPositioningError('召唤');
+                            // 根据不同条件显示不同类型的异常
+                            const errorType = !isOnPath ? 'out_of_path' : 'positioning';
+                            showPositioningError('召唤', errorType);
                             return;
                         }
                         
@@ -4404,14 +4408,44 @@
             }
             
             // 显示定位异常错误
-            function showPositioningError(action) {
+            function showPositioningError(action, errorType = 'positioning') {
                 const errorModal = document.getElementById('positioning-error-modal');
+                const errorTitle = document.getElementById('positioning-error-title');
                 const errorMessage = document.getElementById('positioning-error-message');
+                const errorSuggestions = document.getElementById('positioning-error-suggestions');
                 const closeErrorBtn = document.getElementById('close-positioning-error-btn');
                 const recalibrateBtn = document.getElementById('recalibrate-btn');
                 
-                if (errorMessage) {
-                    errorMessage.textContent = `无法执行${action}操作：轮椅当前定位不准确或不在已知路径上。`;
+                // 根据异常类型设置不同的内容
+                if (errorType === 'out_of_path') {
+                    if (errorTitle) {
+                        errorTitle.textContent = '超出规定路径';
+                    }
+                    if (errorMessage) {
+                        errorMessage.textContent = `无法执行${action}操作：轮椅当前不在允许的行驶路径上。`;
+                    }
+                    if (errorSuggestions) {
+                        errorSuggestions.innerHTML = `
+                            <li>• 确保轮椅在室内地图覆盖范围内</li>
+                            <li>• 将轮椅移动地图提示的路径上或将轮椅推到充电桩上</li>
+                            <li>• 然后重新校准轮椅位置</li>
+                        `;
+                    }
+                } else {
+                    // 默认的定位异常
+                    if (errorTitle) {
+                        errorTitle.textContent = '定位异常';
+                    }
+                    if (errorMessage) {
+                        errorMessage.textContent = `无法执行${action}操作：轮椅当前定位不准确或不在已知路径上。`;
+                    }
+                    if (errorSuggestions) {
+                        errorSuggestions.innerHTML = `
+                            <li>• 确保轮椅在室内地图覆盖范围内</li>
+                            <li>• 将轮椅移动地图提示的路径上或将轮椅推到充电桩上</li>
+                            <li>• 然后重新校准轮椅位置</li>
+                        `;
+                    }
                 }
                 
                 errorModal.classList.remove('hidden');
