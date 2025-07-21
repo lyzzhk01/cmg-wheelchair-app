@@ -1053,7 +1053,7 @@
                                     <p class="font-medium mb-1">建议操作:</p>
                                     <ul class="text-left space-y-1" id="positioning-error-suggestions">
                                         <li>• 确保轮椅在室内地图覆盖范围内</li>
-                                        <li>• 将轮椅推到充电桩上</li>
+                                        <li>• 将轮椅移动到充电桩上</li>
                                         <li>• 然后重新校准轮椅位置</li>
                                     </ul>
                                 </div>
@@ -1083,7 +1083,7 @@
                 
                 <!-- 弹窗内容 -->
                 <div class="px-6 pb-4">
-                    <p class="text-gray-600 text-center leading-relaxed" id="modal-message"></p>
+                                            <p class="text-gray-600 text-left leading-relaxed" id="modal-message"></p>
                     
                     <!-- 输入框 (prompt类型时显示) -->
                     <div id="modal-input-container" class="hidden mt-4">
@@ -1290,18 +1290,7 @@
                 <!-- 设备项将通过JavaScript动态生成 -->
             </div>
             
-            <!-- 批量操作 -->
-            <div class="bg-white rounded-xl shadow-md p-4 mt-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">批量操作</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <button id="batch-update-btn" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg text-sm font-medium disabled:bg-gray-400" disabled>
-                        <i class="fas fa-download mr-2"></i>全部更新
-                    </button>
-                    <button id="check-all-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium">
-                        <i class="fas fa-search mr-2"></i>检查全部
-                    </button>
-                </div>
-            </div>
+
         </div>
         
         <!-- 固件更新进度弹窗 -->
@@ -1340,6 +1329,30 @@
                     <p class="text-xs text-gray-500">预计剩余时间：<span id="firmware-remaining-time" class="font-medium">5-10分钟</span></p>
                 </div>
             </div>
+        </div>
+
+        <!-- 导航页面 -->
+        <div id="navigation" class="hidden p-4 max-w-md mx-auto pb-20 min-h-screen bg-gray-50">
+            <!-- 倒计时页面 -->
+            <div id="navigation-countdown" class="text-center">
+                <div class="bg-white rounded-xl shadow-md p-6 mt-8">
+                    <div class="mb-6">
+                        <i class="fas fa-route text-purple-600 text-4xl mb-4"></i>
+                        <h2 class="text-xl font-semibold mb-2" id="countdown-title">准备导航</h2>
+                        <p class="text-gray-600" id="countdown-message">即将开始前往目的地...</p>
+                    </div>
+                    
+                    <!-- 倒计时数字 -->
+                    <div class="mb-8">
+                        <div class="w-32 h-32 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <span id="countdown-number" class="text-6xl font-bold text-purple-600">5</span>
+                        </div>
+                        <p class="text-gray-500">秒后开始</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 导航进度页面和完成页面现在通过JavaScript动态创建 -->
         </div>
 
         <!-- 语音交互页面 -->
@@ -2457,7 +2470,7 @@
                         <i class="fas fa-wheelchair text-green-600 text-lg mt-1 mr-3"></i>
                         <div>
                             <h4 class="font-medium text-green-800 mb-1">2. 轮椅定位</h4>
-                            <p class="text-sm text-green-700">将轮椅尾部正对充电桩中心，推到充电桩上</p>
+                            <p class="text-sm text-green-700">将轮椅尾部正对充电桩中心，移动到充电桩上</p>
                         </div>
                     </div>
                     
@@ -3375,7 +3388,9 @@
             
             // 设置内容
             title.textContent = config.title || '提示';
-            message.textContent = config.message || '';
+            // 将换行符转换为HTML换行标签，以支持多行显示
+            const messageContent = (config.message || '').replace(/\n/g, '<br>');
+            message.innerHTML = messageContent;
             
             // 根据类型显示不同UI
             if (config.type === 'prompt') {
@@ -4064,7 +4079,946 @@
             let isPositioningNormal = true; // 定位是否正常
             let isOnPath = true; // 是否在已知路径上
             
-            // 初始化室内地图
+            // 显示定位异常错误 - 全局函数
+            window.showPositioningError = function(action, errorType = 'positioning') {
+                const errorModal = document.getElementById('positioning-error-modal');
+                const errorTitle = document.getElementById('positioning-error-title');
+                const errorMessage = document.getElementById('positioning-error-message');
+                const errorSuggestions = document.getElementById('positioning-error-suggestions');
+                const closeErrorBtn = document.getElementById('close-positioning-error-btn');
+                const recalibrateBtn = document.getElementById('recalibrate-btn');
+                
+                console.log('🚨 显示定位错误弹窗:', action, errorType);
+                
+                // 根据异常类型设置不同的内容
+                if (errorType === 'out_of_path') {
+                    if (errorTitle) {
+                        errorTitle.textContent = '超出规定路径';
+                    }
+                    if (errorMessage) {
+                        errorMessage.textContent = `无法执行${action}操作：轮椅当前不在允许的行驶路径上。`;
+                    }
+                    if (errorSuggestions) {
+                        errorSuggestions.innerHTML = `
+                            <li>• 确保轮椅在室内地图覆盖范围内</li>
+                            <li>• 将轮椅移动到充电桩上</li>
+                            <li>• 然后重新校准轮椅位置</li>
+                        `;
+                    }
+                } else {
+                    // 默认的定位异常
+                    if (errorTitle) {
+                        errorTitle.textContent = '定位异常';
+                    }
+                    if (errorMessage) {
+                        errorMessage.textContent = `无法执行${action}操作：轮椅当前定位不准确或不在已知路径上。`;
+                    }
+                    if (errorSuggestions) {
+                        errorSuggestions.innerHTML = `
+                            <li>• 确保轮椅在室内地图覆盖范围内</li>
+                            <li>• 将轮椅移动到充电桩上</li>
+                            <li>• 然后重新校准轮椅位置</li>
+                        `;
+                    }
+                }
+                
+                if (errorModal) {
+                    errorModal.classList.remove('hidden');
+                    console.log('✅ 定位错误弹窗已显示');
+                } else {
+                    console.error('❌ 未找到定位错误弹窗元素');
+                }
+                
+                if (closeErrorBtn) {
+                    closeErrorBtn.onclick = function() {
+                        errorModal.classList.add('hidden');
+                        console.log('❌ 定位错误弹窗已关闭');
+                    };
+                }
+                
+                if (recalibrateBtn) {
+                    recalibrateBtn.onclick = function() {
+                        errorModal.classList.add('hidden');
+                        window.startRecalibration();
+                        console.log('🔄 开始重新校准');
+                    };
+                }
+            };
+            
+            // 开始重新校准 - 全局函数
+            window.startRecalibration = function() {
+                console.log('🔄 开始校准过程');
+                
+                // 模拟校准过程
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = '正在重新校准定位...';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.textContent = '校准完成，定位已恢复正常';
+                    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    
+                    // 恢复定位状态
+                    isPositioningNormal = true;
+                    isOnPath = true;
+                    if (typeof checkPositioningStatus === 'function') {
+                        checkPositioningStatus();
+                    }
+                    
+                    setTimeout(() => {
+                        if (document.body.contains(toast)) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 2000);
+                }, 3000);
+            };
+            
+            // 确保函数在全局作用域可用
+            window.showPositioningError = window.showPositioningError;
+            window.startRecalibration = window.startRecalibration;
+            
+            // 确保导航函数全局可用
+            window.startNavigation = function(type, destination) {
+                console.log('🚀 全局导航函数被调用:', type, destination);
+                
+                // 记录当前页面作为来源页面
+                const currentPage = document.querySelector('div[id]:not(.hidden)');
+                navigationSourcePage = currentPage ? currentPage.id : 'device-status';
+                console.log('📍 导航来源页面:', navigationSourcePage);
+                
+                currentNavigationType = type;
+                currentDestination = destination;
+                
+                // 显示导航页面
+                showPage('navigation');
+                
+                // 显示倒计时页面
+                window.showNavigationCountdown(destination);
+                
+                // 开始倒计时
+                window.startCountdown();
+            };
+            
+            // 确保其他导航相关函数全局可用
+            window.showNavigationCountdown = function(destination) {
+                console.log('⏱️ 显示导航倒计时页面, 目的地:', destination);
+                console.log('📊 当前导航类型:', currentNavigationType);
+                
+                const countdownDiv = document.getElementById('navigation-countdown');
+                const progressDiv = document.getElementById('navigation-progress');
+                const completeDiv = document.getElementById('navigation-complete');
+                
+                console.log('🔍 查找页面元素:', {
+                    countdownDiv: !!countdownDiv,
+                    progressDiv: !!progressDiv,
+                    completeDiv: !!completeDiv
+                });
+                
+                // 确保在navigation页面内查找
+                const navigationPage = document.getElementById('navigation');
+                console.log('📄 导航页面:', !!navigationPage, navigationPage?.classList.contains('hidden'));
+                
+                // 隐藏其他状态，显示倒计时
+                if (progressDiv) {
+                    progressDiv.classList.add('hidden');
+                    console.log('❌ 进度页面已隐藏');
+                }
+                if (completeDiv) {
+                    completeDiv.classList.add('hidden');
+                    console.log('❌ 完成页面已隐藏');
+                }
+                
+                if (countdownDiv) {
+                    // 移除hidden类并重置display样式
+                    countdownDiv.classList.remove('hidden');
+                    countdownDiv.style.display = '';  // 重置display样式
+                    console.log('✅ 倒计时页面已显示');
+                    console.log('🎯 倒计时页面样式:', countdownDiv.style.display, countdownDiv.classList.toString());
+                } else {
+                    console.error('❌ 倒计时页面元素未找到');
+                }
+                
+                // 更新倒计时内容
+                const countdownTitle = document.getElementById('countdown-title');
+                const countdownMessage = document.getElementById('countdown-message');
+                
+                if (countdownTitle) {
+                    countdownTitle.textContent = currentNavigationType === 'charging' ? '准备去充电' : '准备召唤';
+                }
+                if (countdownMessage) {
+                    countdownMessage.textContent = `即将开始前往${destination}...`;
+                }
+            };
+            
+            window.startCountdown = function() {
+                let countdown = 5;
+                const countdownNumber = document.getElementById('countdown-number');
+                
+                console.log('⏰ 开始5秒倒计时');
+                
+                if (countdownNumber) countdownNumber.textContent = countdown;
+                
+                countdownTimer = setInterval(() => {
+                    countdown--;
+                    if (countdownNumber) countdownNumber.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(countdownTimer);
+                        console.log('⏰ 倒计时结束，开始导航进度');
+                        window.startNavigationProgress();
+                                         }
+                 }, 1000);
+             };
+             
+             window.startNavigationProgress = function() {
+                 console.log('🚀 开始导航进度页面');
+                 
+                 // 隐藏倒计时页面
+                 const countdownDiv = document.getElementById('navigation-countdown');
+                 if (countdownDiv) {
+                     countdownDiv.style.display = 'none';
+                     console.log('❌ 倒计时页面已隐藏');
+                 }
+                 
+                 // 隐藏完成页面
+                 const completeDiv = document.getElementById('navigation-complete');
+                 if (completeDiv) {
+                     completeDiv.style.display = 'none';
+                 }
+                 
+                 // 直接创建导航进度界面
+                 window.createNavigationProgressUI();
+             };
+             
+             // 全局导航进度UI创建函数
+             window.createNavigationProgressUI = function() {
+                 console.log('📱 创建导航进度界面');
+                 
+                 // 移除现有的进度页面
+                 const existingProgress = document.getElementById('navigation-progress');
+                 if (existingProgress) {
+                     existingProgress.remove();
+                 }
+                 
+                 // 创建新的导航进度界面
+                 const progressContainer = document.createElement('div');
+                 progressContainer.id = 'navigation-progress';
+                 progressContainer.style.cssText = `
+                     position: fixed !important;
+                     top: 0 !important;
+                     left: 0 !important;
+                     right: 0 !important;
+                     bottom: 0 !important;
+                     background: #f9fafb !important;
+                     z-index: 10000 !important;
+                     overflow-y: auto !important;
+                     padding: 20px !important;
+                 `;
+                 
+                 progressContainer.innerHTML = `
+                     <!-- 导航状态栏 -->
+                     <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px;">
+                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                             <h2 style="font-size: 18px; font-weight: 600; margin: 0;" id="dynamic-navigation-title">
+                                 ${currentNavigationType === 'charging' ? '正在前往充电桩' : `正在前往${currentDestination}`}
+                             </h2>
+                             <div style="display: flex; align-items: center; color: #10b981;">
+                                 <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></div>
+                                 <span style="font-size: 14px;">导航中</span>
+                             </div>
+                         </div>
+                         
+                         <!-- 导航信息 -->
+                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center;">
+                             <div>
+                                 <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">剩余距离</p>
+                                 <p style="font-size: 18px; font-weight: 600; color: #8b5cf6; margin: 0;" id="dynamic-remaining-distance">8.5m</p>
+                             </div>
+                             <div>
+                                 <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">预计时间</p>
+                                 <p style="font-size: 18px; font-weight: 600; color: #3b82f6; margin: 0;" id="dynamic-estimated-time">2分30秒</p>
+                             </div>
+                             <div>
+                                 <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">当前速度</p>
+                                 <p style="font-size: 18px; font-weight: 600; color: #10b981; margin: 0;" id="dynamic-current-speed">0.8m/s</p>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- 地图区域 -->
+                     <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px;">
+                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                             <h3 style="font-weight: 500; margin: 0;">实时位置</h3>
+                             <button id="dynamic-refresh-location-btn" style="color: #3b82f6; font-size: 14px; background: none; border: none; cursor: pointer;">
+                                 <i class="fas fa-sync" style="margin-right: 4px;"></i>刷新
+                             </button>
+                         </div>
+                         
+                         <!-- 简化地图视图 -->
+                         <div style="position: relative; background: #f3f4f6; border-radius: 8px; height: 192px; overflow: hidden;">
+                             <!-- 轮椅位置 -->
+                             <div id="dynamic-wheelchair-position" style="position: absolute; left: 80px; top: 80px; transition: all 1s ease;">
+                                 <div style="width: 24px; height: 24px; background: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                     <i class="fas fa-wheelchair" style="color: white; font-size: 12px;"></i>
+                                 </div>
+                                 <div style="position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: #8b5cf6; color: white; font-size: 12px; padding: 4px 8px; border-radius: 4px;">
+                                     轮椅
+                                 </div>
+                             </div>
+                             
+                             <!-- 目标位置 -->
+                             <div style="position: absolute; left: 250px; top: 75px;">
+                                 <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                                     <i class="fas fa-flag" style="color: white; font-size: 12px;"></i>
+                                 </div>
+                             </div>
+                             
+                             <!-- 路径指示 -->
+                             <div style="position: absolute; left: 100px; top: 85px; right: 50px; height: 4px; background: linear-gradient(90deg, #8b5cf6, #10b981); border-radius: 2px; opacity: 0.8;">
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- 导航进度 -->
+                     <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 100px;">
+                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                             <span style="font-size: 14px; font-weight: 500;">导航进度</span>
+                             <span style="font-size: 14px; color: #8b5cf6;" id="dynamic-navigation-percentage">15%</span>
+                         </div>
+                         <div style="width: 100%; background: #e5e7eb; border-radius: 9999px; height: 8px;">
+                             <div id="dynamic-navigation-progress-bar" style="background: #8b5cf6; height: 8px; border-radius: 9999px; transition: width 0.5s ease; width: 15%;"></div>
+                         </div>
+                     </div>
+
+                     <!-- 圆形取消按钮 -->
+                     <div style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);">
+                         <button id="dynamic-cancel-navigation-btn" style="
+                             width: 120px; 
+                             height: 120px; 
+                             background: linear-gradient(135deg, #ef4444, #dc2626); 
+                             color: white; 
+                             border-radius: 50%; 
+                             border: 4px solid white;
+                             box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1); 
+                             cursor: pointer;
+                             display: flex;
+                             flex-direction: column;
+                             align-items: center;
+                             justify-content: center;
+                             font-size: 16px;
+                             font-weight: 700;
+                             transition: all 0.2s ease;
+                             outline: none;
+                             -webkit-tap-highlight-color: transparent;
+                         " 
+                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 32px rgba(239, 68, 68, 0.5), 0 6px 16px rgba(0, 0, 0, 0.15)'" 
+                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 24px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)'" 
+                         onmousedown="this.style.transform='scale(0.95)'"
+                         onmouseup="this.style.transform='scale(1.05)'">
+                             <i class="fas fa-stop" style="font-size: 24px; margin-bottom: 8px;"></i>
+                             <span>取消导航</span>
+                         </button>
+                     </div>
+                 `;
+                 
+                 // 添加到导航页面
+                 const navigationPage = document.getElementById('navigation');
+                 if (navigationPage) {
+                     navigationPage.appendChild(progressContainer);
+                     console.log('✅ 导航进度界面已添加到页面');
+                     
+                     // 绑定取消按钮事件
+                     setTimeout(() => {
+                         const cancelBtn = document.getElementById('dynamic-cancel-navigation-btn');
+                         if (cancelBtn) {
+                             cancelBtn.onclick = async function(e) {
+                                 e.preventDefault();
+                                 e.stopPropagation();
+                                 console.log('🛑 取消按钮被点击！');
+                                 
+                                 const confirmed = await window.showMobileConfirm(
+                                     '导航将会停止，轮椅会停在当前位置',
+                                     '取消导航',
+                                     '确认取消',
+                                     '继续导航'
+                                 );
+                                 
+                                 if (confirmed) {
+                                     console.log('✅ 用户确认取消导航');
+                                     window.stopNavigation();
+                                     const targetPage = navigationSourcePage || 'device-status';
+                                     showPage(targetPage);
+                                     console.log('🏠 返回来源页面:', targetPage);
+                                 } else {
+                                     console.log('❌ 用户取消了取消操作');
+                                 }
+                             };
+                         }
+                     }, 200);
+                     
+                     // 绑定刷新按钮事件
+                     const refreshBtn = document.getElementById('dynamic-refresh-location-btn');
+                     if (refreshBtn) {
+                         refreshBtn.addEventListener('click', function() {
+                             this.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 4px;"></i>刷新中';
+                             setTimeout(() => {
+                                 this.innerHTML = '<i class="fas fa-sync" style="margin-right: 4px;"></i>刷新';
+                                 // showToast('位置已更新', 'success');
+                             }, 1000);
+                         });
+                     }
+                     
+                                           // 开始模拟导航进度
+                      window.simulateNavigationProgress();
+                  } else {
+                      console.error('❌ 导航页面未找到！');
+                  }
+              };
+              
+              // 全局模拟导航进度函数
+              window.simulateNavigationProgress = function() {
+                  console.log('🚀 开始模拟导航进度');
+                  let progress = 0;
+                  let distance = 8.5; // 初始距离
+                  let timeRemaining = 150; // 2分30秒
+                  
+                  progressTimer = setInterval(() => {
+                      progress += Math.random() * 3 + 1; // 随机增加1-4%
+                      distance = Math.max(0, distance - (Math.random() * 0.3 + 0.1)); // 减少距离
+                      timeRemaining = Math.max(0, timeRemaining - Math.random() * 4 - 2); // 减少时间
+                      
+                      // 限制进度最大值
+                      progress = Math.min(progress, 100);
+                      
+                      // 更新UI - 使用动态创建的元素ID
+                      const progressBar = document.getElementById('dynamic-navigation-progress-bar');
+                      const progressPercentage = document.getElementById('dynamic-navigation-percentage');
+                      const remainingDistance = document.getElementById('dynamic-remaining-distance');
+                      const estimatedTime = document.getElementById('dynamic-estimated-time');
+                      const currentSpeed = document.getElementById('dynamic-current-speed');
+                      const wheelchairPosition = document.getElementById('dynamic-wheelchair-position');
+                      
+                      if (progressBar) progressBar.style.width = progress + '%';
+                      if (progressPercentage) progressPercentage.textContent = Math.round(progress) + '%';
+                      if (remainingDistance) remainingDistance.textContent = distance.toFixed(1) + 'm';
+                      if (estimatedTime) {
+                          const minutes = Math.floor(timeRemaining / 60);
+                          const seconds = Math.round(timeRemaining % 60);
+                          estimatedTime.textContent = `${minutes}分${seconds}秒`;
+                      }
+                      if (currentSpeed) {
+                          const speed = (Math.random() * 0.4 + 0.6).toFixed(1); // 0.6-1.0 m/s
+                          currentSpeed.textContent = speed + 'm/s';
+                      }
+                      
+                      // 更新轮椅位置（模拟移动）
+                      if (wheelchairPosition) {
+                          const currentLeft = parseInt(wheelchairPosition.style.left) || 80;
+                          const targetLeft = 250; // 目标位置
+                          const newLeft = currentLeft + (targetLeft - currentLeft) * (progress / 100) * 0.05;
+                          wheelchairPosition.style.left = Math.min(newLeft, targetLeft - 10) + 'px';
+                      }
+                      
+                      // 导航完成
+                      if (progress >= 100) {
+                          clearInterval(progressTimer);
+                          setTimeout(() => {
+                              window.showNavigationComplete();
+                          }, 1000);
+                      }
+                  }, 1000);
+              };
+              
+              // 全局显示导航完成函数
+              window.showNavigationComplete = function() {
+                  console.log('🎯 显示导航完成页面');
+                  
+                  // 移除进度界面
+                  const progressDiv = document.getElementById('navigation-progress');
+                  if (progressDiv) {
+                      progressDiv.remove();
+                  }
+                  
+                  // 创建完成页面
+                  const completeContainer = document.createElement('div');
+                  completeContainer.id = 'navigation-complete';
+                  completeContainer.style.cssText = `
+                      position: fixed !important;
+                      top: 0 !important;
+                      left: 0 !important;
+                      right: 0 !important;
+                      bottom: 0 !important;
+                      background: #f9fafb !important;
+                      z-index: 10000 !important;
+                      display: flex !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      padding: 20px !important;
+                  `;
+                  
+                  const message = currentNavigationType === 'charging' ? 
+                      '轮椅已成功到达充电桩' : 
+                      `轮椅已成功到达${currentDestination}`;
+                  
+                  completeContainer.innerHTML = `
+                      <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 40px; text-align: center; max-width: 320px; width: 100%;">
+                          <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                              <i class="fas fa-check" style="color: #16a34a; font-size: 32px;"></i>
+                          </div>
+                          <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #111827;">导航完成</h2>
+                          <p style="color: #6b7280; margin-bottom: 32px; line-height: 1.5;">${message}</p>
+                          <button id="dynamic-return-home-btn" style="width: 100%; background: #8b5cf6; color: white; padding: 12px; border-radius: 8px; font-weight: 500; border: none; cursor: pointer;">
+                              返回主页
+                          </button>
+                      </div>
+                  `;
+                  
+                  const navigationPage = document.getElementById('navigation');
+                  if (navigationPage) {
+                      navigationPage.appendChild(completeContainer);
+                      
+                      // 绑定返回按钮事件
+                      const returnBtn = document.getElementById('dynamic-return-home-btn');
+                      if (returnBtn) {
+                          returnBtn.addEventListener('click', () => {
+                              window.stopNavigation();
+                              const targetPage = navigationSourcePage || 'device-status';
+                              showPage(targetPage);
+                              console.log('🏠 返回来源页面:', targetPage);
+                          });
+                      }
+                  }
+              };
+              
+                          // 全局停止导航函数
+            window.stopNavigation = function() {
+                console.log('🛑 停止导航');
+                
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                }
+                if (progressTimer) {
+                    clearInterval(progressTimer);
+                    progressTimer = null;
+                }
+                
+                // 重置状态
+                currentNavigationType = null;
+                currentDestination = null;
+                navigationSourcePage = null;
+                
+                // 移除动态创建的进度界面
+                const dynamicProgress = document.getElementById('navigation-progress');
+                if (dynamicProgress) {
+                    dynamicProgress.remove();
+                }
+                
+                const dynamicComplete = document.getElementById('navigation-complete');
+                if (dynamicComplete) {
+                    dynamicComplete.remove();
+                }
+            };
+            
+            // 移动端样式确认对话框
+            window.showMobileConfirm = function(message, title = '确认', confirmText = '确认', cancelText = '取消') {
+                return new Promise((resolve) => {
+                    // 移除可能存在的旧弹窗
+                    const existingModal = document.getElementById('mobile-confirm-modal');
+                    if (existingModal) {
+                        existingModal.remove();
+                    }
+                    
+                    // 创建弹窗容器
+                    const modal = document.createElement('div');
+                    modal.id = 'mobile-confirm-modal';
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 99999;
+                        display: flex;
+                        align-items: flex-end;
+                        justify-content: center;
+                        padding: 0;
+                        backdrop-filter: blur(4px);
+                        animation: fadeIn 0.3s ease-out;
+                    `;
+                    
+                                         // 创建弹窗内容
+                     modal.innerHTML = `
+                         <style>
+                             @keyframes fadeIn {
+                                 from { opacity: 0; }
+                                 to { opacity: 1; }
+                             }
+                             @keyframes slideUp {
+                                 from { transform: translateY(100%); }
+                                 to { transform: translateY(0); }
+                             }
+                             @keyframes slideDown {
+                                 from { transform: translateY(0); }
+                                 to { transform: translateY(100%); }
+                             }
+                             
+                             /* 移动端优化 */
+                             @media (max-width: 768px) {
+                                 #mobile-confirm-modal .mobile-confirm-content {
+                                     padding-bottom: env(safe-area-inset-bottom);
+                                 }
+                             }
+                             
+                             /* 触摸反馈动画 */
+                             .mobile-confirm-btn {
+                                 transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                             }
+                             
+                             .mobile-confirm-btn:active {
+                                 transform: scale(0.98);
+                             }
+                         </style>
+                                                 <div class="mobile-confirm-content" style="
+                             background: white;
+                             border-radius: 20px 20px 0 0;
+                             width: 100%;
+                             max-width: 400px;
+                             padding: 24px;
+                             animation: slideUp 0.3s ease-out;
+                             box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1);
+                         ">
+                            <!-- 顶部指示条 -->
+                            <div style="
+                                width: 40px;
+                                height: 4px;
+                                background: #e5e7eb;
+                                border-radius: 2px;
+                                margin: 0 auto 20px;
+                            "></div>
+                            
+                            <!-- 标题 -->
+                            <h3 style="
+                                font-size: 18px;
+                                font-weight: 600;
+                                text-align: center;
+                                margin: 0 0 8px 0;
+                                color: #111827;
+                            ">${title}</h3>
+                            
+                            <!-- 消息内容 -->
+                            <p style="
+                                font-size: 16px;
+                                color: #6b7280;
+                                text-align: center;
+                                margin: 0 0 32px 0;
+                                line-height: 1.5;
+                            ">${message}</p>
+                            
+                            <!-- 按钮组 -->
+                            <div style="display: flex; gap: 12px;">
+                                                                 <!-- 取消按钮 -->
+                                 <button id="mobile-confirm-cancel" class="mobile-confirm-btn" style="
+                                     flex: 1;
+                                     padding: 16px;
+                                     background: #f3f4f6;
+                                     color: #374151;
+                                     border: none;
+                                     border-radius: 12px;
+                                     font-size: 16px;
+                                     font-weight: 500;
+                                     cursor: pointer;
+                                     transition: all 0.2s ease;
+                                     outline: none;
+                                     -webkit-tap-highlight-color: transparent;
+                                     user-select: none;
+                                 " 
+                                 onmousedown="this.style.transform='scale(0.98)'; this.style.background='#e5e7eb'"
+                                 onmouseup="this.style.transform='scale(1)'; this.style.background='#f3f4f6'"
+                                 onmouseleave="this.style.transform='scale(1)'; this.style.background='#f3f4f6'"
+                                 ontouchstart="this.style.transform='scale(0.98)'; this.style.background='#e5e7eb'"
+                                 ontouchend="this.style.transform='scale(1)'; this.style.background='#f3f4f6'">
+                                     ${cancelText}
+                                 </button>
+                                 
+                                 <!-- 确认按钮 -->
+                                 <button id="mobile-confirm-ok" class="mobile-confirm-btn" style="
+                                     flex: 1;
+                                     padding: 16px;
+                                     background: #ef4444;
+                                     color: white;
+                                     border: none;
+                                     border-radius: 12px;
+                                     font-size: 16px;
+                                     font-weight: 500;
+                                     cursor: pointer;
+                                     transition: all 0.2s ease;
+                                     outline: none;
+                                     -webkit-tap-highlight-color: transparent;
+                                     user-select: none;
+                                     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+                                 " 
+                                 onmousedown="this.style.transform='scale(0.98)'; this.style.background='#dc2626'; this.style.boxShadow='0 1px 4px rgba(239, 68, 68, 0.4)'"
+                                 onmouseup="this.style.transform='scale(1)'; this.style.background='#ef4444'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'"
+                                 onmouseleave="this.style.transform='scale(1)'; this.style.background='#ef4444'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'"
+                                 ontouchstart="this.style.transform='scale(0.98)'; this.style.background='#dc2626'; this.style.boxShadow='0 1px 4px rgba(239, 68, 68, 0.4)'"
+                                 ontouchend="this.style.transform='scale(1)'; this.style.background='#ef4444'; this.style.boxShadow='0 2px 8px rgba(239, 68, 68, 0.3)'">
+                                     ${confirmText}
+                                 </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 添加到页面
+                    document.body.appendChild(modal);
+                    
+                    // 关闭弹窗的函数
+                    const closeModal = (result) => {
+                        const content = modal.querySelector('div');
+                        if (content) {
+                            content.style.animation = 'slideDown 0.3s ease-out';
+                        }
+                        modal.style.animation = 'fadeIn 0.3s ease-out reverse';
+                        
+                        setTimeout(() => {
+                            if (modal.parentNode) {
+                                modal.remove();
+                            }
+                            resolve(result);
+                        }, 300);
+                    };
+                    
+                    // 绑定事件
+                    const cancelBtn = modal.querySelector('#mobile-confirm-cancel');
+                    const okBtn = modal.querySelector('#mobile-confirm-ok');
+                    
+                    cancelBtn.onclick = () => closeModal(false);
+                    okBtn.onclick = () => closeModal(true);
+                    
+                    // 点击背景关闭
+                    modal.onclick = (e) => {
+                        if (e.target === modal) {
+                            closeModal(false);
+                        }
+                    };
+                    
+                    // 阻止内容区域点击事件冒泡
+                    modal.querySelector('div').onclick = (e) => {
+                        e.stopPropagation();
+                    };
+                });
+            };
+            
+            // 测试函数 - 可以在控制台调用
+            window.testPositioningError = function() {
+                console.log('🧪 测试定位异常弹窗');
+                window.showPositioningError('测试', 'positioning');
+            };
+            
+            window.testOutOfPathError = function() {
+                console.log('🧪 测试超出规定路径弹窗');
+                window.showPositioningError('测试', 'out_of_path');
+            };
+            
+            // 测试召唤功能
+            window.testSummonFunction = function() {
+                console.log('🧪 测试召唤功能');
+                const summonBtn = document.getElementById('summon-wheelchair-btn');
+                if (summonBtn) {
+                    console.log('✅ 召唤按钮存在，模拟点击');
+                    summonBtn.click();
+                } else {
+                    console.error('❌ 召唤按钮不存在');
+                }
+            };
+            
+            // 测试召唤导航流程
+            window.testSummonNavigation = function() {
+                console.log('🧪 测试召唤导航流程');
+                console.log('📍 当前页面:', document.querySelector('div[id]:not(.hidden)')?.id);
+                window.startNavigation('summon', '客厅');
+            };
+            
+            // 完整测试召唤流程
+            window.testFullSummonFlow = function() {
+                console.log('🧪 完整测试召唤流程');
+                
+                // 1. 显示设备状态页面
+                showPage('device-status');
+                
+                // 2. 模拟点击召唤按钮
+                setTimeout(() => {
+                    console.log('🎯 模拟点击召唤按钮');
+                    const summonBtn = document.getElementById('summon-wheelchair-btn');
+                    if (summonBtn) {
+                        summonBtn.click();
+                        
+                        // 3. 等待弹窗显示后点击目的地
+                        setTimeout(() => {
+                            console.log('🎯 模拟点击客厅目的地');
+                            const firstDestBtn = document.querySelector('.destination-btn[data-destination="客厅"]');
+                            if (firstDestBtn) {
+                                firstDestBtn.click();
+                            } else {
+                                console.error('❌ 未找到客厅目的地按钮');
+                            }
+                        }, 500);
+                    } else {
+                        console.error('❌ 未找到召唤按钮');
+                    }
+                                 }, 500);
+             };
+             
+             // 直接测试目的地选择 
+                         window.testDestinationClick = function() {
+                console.log('🧪 直接测试目的地点击');
+                const firstDestBtn = document.querySelector('.destination-btn[data-destination="客厅"]');
+                if (firstDestBtn) {
+                    console.log('✅ 找到客厅目的地按钮，模拟点击');
+                    firstDestBtn.click();
+                } else {
+                    console.error('❌ 未找到客厅目的地按钮');
+                    console.log('🔍 所有目的地按钮:', document.querySelectorAll('.destination-btn'));
+                }
+            };
+            
+            // 简化测试 - 直接调用导航
+            window.testSimpleNavigation = function() {
+                console.log('🧪 简化测试 - 直接调用导航');
+                showPage('device-status'); // 确保在正确页面
+                setTimeout(() => {
+                    console.log('🚀 直接调用 window.startNavigation');
+                    window.startNavigation('summon', '客厅');
+                }, 100);
+            };
+            
+            // 专门测试召唤倒计时
+            window.testSummonCountdown = function() {
+                console.log('🧪 专门测试召唤倒计时');
+                
+                // 1. 切换到导航页面
+                showPage('navigation');
+                
+                // 2. 设置导航状态
+                currentNavigationType = 'summon';
+                currentDestination = '客厅';
+                
+                // 3. 直接调用倒计时函数
+                setTimeout(() => {
+                    console.log('⏰ 直接调用倒计时函数');
+                    window.showNavigationCountdown('客厅');
+                    
+                    // 4. 检查倒计时页面状态
+                    setTimeout(() => {
+                        const countdownDiv = document.getElementById('navigation-countdown');
+                        console.log('🔍 倒计时页面检查:', {
+                            存在: !!countdownDiv,
+                            隐藏类: countdownDiv?.classList.contains('hidden'),
+                            显示样式: countdownDiv?.style.display,
+                            可见性: countdownDiv?.offsetHeight > 0
+                        });
+                                         }, 100);
+                }, 200);
+            };
+            
+            // 快速测试召唤完整流程（推荐使用）
+            window.testSummonQuick = function() {
+                console.log('🚀 快速测试召唤完整流程');
+                console.log('1️⃣ 切换到设备状态页面');
+                showPage('device-status');
+                
+                setTimeout(() => {
+                    console.log('2️⃣ 直接启动召唤导航');
+                    window.startNavigation('summon', '客厅');
+                }, 300);
+            };
+            
+                         // 测试移动端确认对话框
+             window.testMobileConfirm = function() {
+                 console.log('🧪 测试移动端确认对话框');
+                 
+                 window.showMobileConfirm(
+                     '导航将会停止，轮椅会停在当前位置',
+                     '取消导航',
+                     '确认取消',
+                     '继续导航'
+                 ).then(result => {
+                     console.log('用户选择:', result ? '确认取消' : '继续导航');
+                 });
+             };
+             
+             // 专门测试取消导航确认框
+             window.testCancelNavigation = function() {
+                 console.log('🧪 测试取消导航确认框');
+                 
+                 // 先启动一个模拟导航
+                 window.startNavigation('summon', '客厅');
+                 
+                 // 1秒后弹出取消确认框
+                 setTimeout(() => {
+                     window.showMobileConfirm(
+                         '导航将会停止，轮椅会停在当前位置',
+                         '取消导航',
+                         '确认取消',
+                         '继续导航'
+                     ).then(result => {
+                         if (result) {
+                             console.log('✅ 用户确认取消导航');
+                             window.stopNavigation();
+                             showPage('device-status');
+                         } else {
+                             console.log('❌ 用户选择继续导航');
+                         }
+                     });
+                 }, 1000);
+             };
+            
+            // 测试各种类型的移动端确认对话框
+            window.testMobileConfirmVariants = function() {
+                console.log('🧪 测试各种移动端对话框样式');
+                
+                // 测试1: 取消导航
+                setTimeout(() => {
+                    window.showMobileConfirm(
+                        '导航将会停止，轮椅会停在当前位置',
+                        '取消导航',
+                        '确认取消',
+                        '继续导航'
+                    );
+                }, 500);
+                
+                // 测试2: 删除确认
+                setTimeout(() => {
+                    window.showMobileConfirm(
+                        '此操作无法撤销，确定要删除吗？',
+                        '删除确认',
+                        '删除',
+                        '取消'
+                    );
+                }, 3000);
+                
+                // 测试3: 简单确认
+                setTimeout(() => {
+                    window.showMobileConfirm(
+                        '是否保存当前设置？',
+                        '保存设置'
+                    );
+                }, 5500);
+            };
+             
+             // 简化测试 - 直接调用导航
+             window.testSimpleNavigation = function() {
+                 console.log('🧪 简化测试 - 直接调用导航');
+                 showPage('device-status'); // 确保在正确页面
+                 setTimeout(() => {
+                     console.log('🚀 直接调用 window.startNavigation');
+                     window.startNavigation('summon', '客厅');
+                 }, 100);
+             };
+             
+             // 初始化室内地图
             function initIndoorMap() {
                 indoorMapCanvas = document.getElementById('indoor-map-canvas');
                 if (!indoorMapCanvas) return;
@@ -4302,7 +5256,12 @@
                             } else {
                                 errorType = 'positioning'; // 两者都异常，优先显示定位异常
                             }
-                            showPositioningError('去充电', errorType);
+                            try {
+                                console.log('⚡ 尝试显示去充电错误:', errorType);
+                                window.showPositioningError('去充电', errorType);
+                            } catch (error) {
+                                console.error('❌ 显示去充电错误失败:', error);
+                            }
                             return;
                         }
                         
@@ -4385,8 +5344,18 @@
                 const cancelSummonBtn = document.getElementById('cancel-summon-btn');
                 const destinationBtns = document.querySelectorAll('.destination-btn');
                 
+                console.log('🔍 召唤功能初始化:', {
+                    summonBtn: !!summonBtn,
+                    summonModal: !!summonModal,
+                    cancelSummonBtn: !!cancelSummonBtn,
+                    destinationBtns: destinationBtns.length
+                });
+                
                 if (summonBtn) {
+                    console.log('✅ 召唤按钮找到，绑定事件');
                     summonBtn.addEventListener('click', function() {
+                        console.log('📞 召唤按钮被点击！');
+                        console.log('当前状态:', { isPositioningNormal, isOnPath });
                         if (!isPositioningNormal || !isOnPath) {
                             // 根据具体状态显示对应的异常类型，确保与地图显示一致
                             let errorType;
@@ -4397,14 +5366,27 @@
                             } else {
                                 errorType = 'positioning'; // 两者都异常，优先显示定位异常
                             }
-                            showPositioningError('召唤', errorType);
+                            try {
+                                console.log('📞 尝试显示召唤错误:', errorType);
+                                window.showPositioningError('召唤', errorType);
+                            } catch (error) {
+                                console.error('❌ 显示召唤错误失败:', error);
+                            }
                             return;
                         }
                         
                         // 显示召唤弹窗
-                        summonModal.classList.remove('hidden');
+                        console.log('📞 显示召唤弹窗');
+                        if (summonModal) {
+                            summonModal.classList.remove('hidden');
+                            console.log('✅ 召唤弹窗已显示');
+                        } else {
+                            console.error('❌ 召唤弹窗元素未找到');
+                        }
                         resetSummonModal();
                     });
+                } else {
+                    console.error('❌ 召唤按钮未找到');
                 }
                 
                 if (cancelSummonBtn) {
@@ -4414,11 +5396,28 @@
                     });
                 }
                 
-                // 目的地选择
+                // 目的地选择 - 使用新的导航系统
                 destinationBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
                         const destination = this.dataset.destination;
-                        startNavigationToDestination(destination);
+                        console.log('📍 目的地按钮被点击:', destination);
+                        
+                        // 关闭召唤弹窗
+                        if (summonModal) {
+                            summonModal.classList.add('hidden');
+                            console.log('❌ 召唤弹窗已关闭');
+                        }
+                        
+                        // 使用新的导航系统
+                        try {
+                            console.log('🚀 启动新导航系统到:', destination);
+                            console.log('📍 当前页面:', document.querySelector('div[id]:not(.hidden)')?.id);
+                            window.startNavigation('summon', destination);
+                        } catch (error) {
+                            console.error('❌ 新导航系统启动失败:', error);
+                            console.log('🔄 使用旧导航系统');
+                            startNavigationToDestination(destination);
+                        }
                     });
                 });
             }
@@ -4501,86 +5500,7 @@
                 if (navigationProgressBar) navigationProgressBar.style.width = '0%';
             }
             
-            // 显示定位异常错误
-            function showPositioningError(action, errorType = 'positioning') {
-                const errorModal = document.getElementById('positioning-error-modal');
-                const errorTitle = document.getElementById('positioning-error-title');
-                const errorMessage = document.getElementById('positioning-error-message');
-                const errorSuggestions = document.getElementById('positioning-error-suggestions');
-                const closeErrorBtn = document.getElementById('close-positioning-error-btn');
-                const recalibrateBtn = document.getElementById('recalibrate-btn');
-                
-                // 根据异常类型设置不同的内容
-                if (errorType === 'out_of_path') {
-                    if (errorTitle) {
-                        errorTitle.textContent = '超出规定路径';
-                    }
-                    if (errorMessage) {
-                        errorMessage.textContent = `无法执行${action}操作：轮椅当前不在允许的行驶路径上。`;
-                    }
-                    if (errorSuggestions) {
-                        errorSuggestions.innerHTML = `
-                            <li>• 确保轮椅在室内地图覆盖范围内</li>
-                            <li>• 将轮椅推到充电桩上</li>
-                            <li>• 然后重新校准轮椅位置</li>
-                        `;
-                    }
-                } else {
-                    // 默认的定位异常
-                    if (errorTitle) {
-                        errorTitle.textContent = '定位异常';
-                    }
-                    if (errorMessage) {
-                        errorMessage.textContent = `无法执行${action}操作：轮椅当前定位不准确或不在已知路径上。`;
-                    }
-                    if (errorSuggestions) {
-                        errorSuggestions.innerHTML = `
-                            <li>• 确保轮椅在室内地图覆盖范围内</li>
-                            <li>• 将轮椅推到充电桩上</li>
-                            <li>• 然后重新校准轮椅位置</li>
-                        `;
-                    }
-                }
-                
-                errorModal.classList.remove('hidden');
-                
-                if (closeErrorBtn) {
-                    closeErrorBtn.addEventListener('click', function() {
-                        errorModal.classList.add('hidden');
-                    });
-                }
-                
-                if (recalibrateBtn) {
-                    recalibrateBtn.addEventListener('click', function() {
-                        // 模拟重新校准
-                        errorModal.classList.add('hidden');
-                        startRecalibration();
-                    });
-                }
-            }
-            
-            // 开始重新校准
-            function startRecalibration() {
-                // 模拟校准过程
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-                toast.textContent = '正在重新校准定位...';
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.textContent = '校准完成，定位已恢复正常';
-                    toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-                    
-                    // 恢复定位状态
-                    isPositioningNormal = true;
-                    isOnPath = true;
-                    checkPositioningStatus();
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(toast);
-                    }, 2000);
-                }, 3000);
-            }
+            // 旧的重复函数定义已移除，使用上面的全局函数
             
             // 更新轮椅状态
             function updateWheelchairStatus(status) {
@@ -4591,8 +5511,9 @@
             // 初始化所有新功能
             function initDeviceStatusFeatures() {
                 initIndoorMap();
-                initChargingFunction();
-                initSummonFunction();
+                // initChargingFunction(); // 已被新的导航功能替代
+                initSummonFunction(); // 恢复召唤功能，新导航功能需要它
+                console.log('✅ 召唤功能已初始化');
             }
             
             // 在页面加载完成后初始化
@@ -6563,10 +7484,12 @@
         
         // 页面切换函数
         function showPage(pageId) {
+            console.log('📄 切换到页面:', pageId);
+            
             // 隐藏所有页面
             const pages = [
                 'login', 'add-device', 'wifi-setup', 'device-success', 'control', 
-                'device-status', 'profile', 'voice', 'map-management', 'create-map-check',
+                'device-status', 'profile', 'voice', 'navigation', 'map-management', 'create-map-check',
                 'map-naming', 'environment-check', 'mapping-precautions', 'set-charging-home',
                 'real-time-mapping', 'set-charging-station', 
                 'set-waypoints', 'set-parking-spots', 'set-safety-zones', 'set-restricted-zones', 
@@ -6584,6 +7507,9 @@
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.remove('hidden');
+                console.log('✅ 成功显示页面:', pageId);
+            } else {
+                console.error('❌ 页面不存在:', pageId);
             }
         }
         
@@ -7929,8 +8855,7 @@
             const firmwareUpdateBtn = document.getElementById('firmware-update-btn');
             const firmwareBackBtn = document.getElementById('firmware-update-back-btn');
             const refreshDevicesBtn = document.getElementById('refresh-devices-btn');
-            const checkAllBtn = document.getElementById('check-all-btn');
-            const batchUpdateBtn = document.getElementById('batch-update-btn');
+
             
             // 模拟轮椅设备数据
             let wheelchairDevices = [
@@ -7993,17 +8918,7 @@
                 });
             }
             
-            if (checkAllBtn) {
-                checkAllBtn.addEventListener('click', () => {
-                    checkAllDevices();
-                });
-            }
-            
-            if (batchUpdateBtn) {
-                batchUpdateBtn.addEventListener('click', () => {
-                    batchUpdateDevices();
-                });
-            }
+
             
             // 加载设备列表
             function loadDevicesList() {
@@ -8116,20 +9031,7 @@
                 if (pendingElement) pendingElement.textContent = pendingCount;
                 if (totalElement) totalElement.textContent = totalCount;
                 
-                // 更新批量更新按钮状态
-                const batchBtn = document.getElementById('batch-update-btn');
-                if (batchBtn) {
-                    const canBatchUpdate = wheelchairDevices.some(d => d.isConnected && d.hasUpdate && d.batteryLevel >= 50);
-                    batchBtn.disabled = !canBatchUpdate;
-                    
-                    if (canBatchUpdate) {
-                        batchBtn.classList.remove('bg-gray-400');
-                        batchBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
-                    } else {
-                        batchBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-                        batchBtn.classList.add('bg-gray-400');
-                    }
-                }
+
             }
             
             // 刷新设备列表
@@ -8173,24 +9075,7 @@
                 }
             }
             
-            // 检查所有设备
-            function checkAllDevices() {
-                const checkBtn = document.getElementById('check-all-btn');
-                if (checkBtn) {
-                    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>检查中';
-                    
-                    setTimeout(() => {
-                        wheelchairDevices.forEach(device => {
-                            device.hasUpdate = Math.random() > 0.4;
-                            device.latestVersion = device.hasUpdate ? 'v1.9.5' : device.currentVersion;
-                        });
-                        
-                        loadDevicesList();
-                        updateDevicesSummary();
-                        checkBtn.innerHTML = '<i class="fas fa-search mr-2"></i>检查全部';
-                                         }, 3000);
-                 }
-             }
+
             
             // 更新单个设备
             async function updateSingleDevice(deviceId) {
@@ -8209,25 +9094,7 @@
                 startSingleDeviceUpdate(device);
             }
             
-            // 批量更新设备
-            async function batchUpdateDevices() {
-                const devicesToUpdate = wheelchairDevices.filter(d => d.isConnected && d.hasUpdate && d.batteryLevel >= 50);
-                
-                if (devicesToUpdate.length === 0) {
-                    await appAlert('没有可更新的设备', '提示');
-                    return;
-                }
-                
-                const deviceNames = devicesToUpdate.map(d => d.name).join('、');
-                const confirmed = await appConfirm(`确定要批量更新以下设备的固件吗？\n${deviceNames}\n\n更新期间：\n• 轮椅将无法使用\n• 请勿断开电源\n• 每台设备约需5-10分钟`, '确认批量更新');
-                if (!confirmed) return;
-                
-                // 逐个更新设备
-                for (const device of devicesToUpdate) {
-                    startSingleDeviceUpdate(device);
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // 错开更新时间
-                }
-            }
+
             
             // 开始单个设备更新
             async function startSingleDeviceUpdate(device) {
@@ -8328,6 +9195,538 @@
         // 初始化更新功能
         initAppUpdate();
         initFirmwareUpdate();
+        initNavigation();
+        
+        // 新导航功能
+        function initNavigation() {
+            // 导航状态变量
+            let navigationTimer = null;
+            let countdownTimer = null;
+            let progressTimer = null;
+            let currentNavigationType = null; // 'charging' 或 'summon'
+            let currentDestination = null;
+            let navigationSourcePage = null; // 记录导航来源页面
+            
+            // 辅助函数：获取定位状态
+            function getPositioningStatus() {
+                const statusElement = document.getElementById('indoor-position-status');
+                if (statusElement) {
+                    const statusText = statusElement.querySelector('span').textContent;
+                    return statusText === '定位正常';
+                }
+                return true; // 默认正常
+            }
+            
+            // 辅助函数：获取路径状态  
+            function getPathStatus() {
+                // 检查地图上的异常状态显示
+                const mapContainer = document.querySelector('.indoor-map-container');
+                if (mapContainer) {
+                    const hasError = mapContainer.querySelector('.error-indicator');
+                    return !hasError;
+                }
+                return true; // 默认正常
+            }
+            
+            // 修改原有的去充电功能，使用新的导航页面
+            const goChargingBtn = document.getElementById('go-charging-btn');
+            if (goChargingBtn) {
+                // 移除原有的事件监听器，添加新的
+                const newGoChargingBtn = goChargingBtn.cloneNode(true);
+                goChargingBtn.parentNode.replaceChild(newGoChargingBtn, goChargingBtn);
+                
+                newGoChargingBtn.addEventListener('click', function() {
+                    // 获取当前状态
+                    const positioningStatus = getPositioningStatus();
+                    const pathStatus = getPathStatus();
+                    
+                    if (!positioningStatus || !pathStatus) {
+                        let errorType;
+                        if (!positioningStatus && pathStatus) {
+                            errorType = 'positioning';
+                        } else if (positioningStatus && !pathStatus) {
+                            errorType = 'out_of_path';
+                        } else {
+                            errorType = 'positioning';
+                        }
+                        try {
+                            console.log('🔋 尝试显示导航去充电错误:', errorType);
+                            window.showPositioningError('去充电', errorType);
+                        } catch (error) {
+                            console.error('❌ 显示导航去充电错误失败:', error);
+                        }
+                        return;
+                    }
+                    
+                    window.startNavigation('charging', '充电桩');
+                });
+            }
+            
+            // 目的地按钮的绑定现在在initSummonFunction中处理
+            
+            // 取消导航按钮
+            const cancelNavigationBtn = document.getElementById('cancel-navigation-btn');
+            if (cancelNavigationBtn) {
+                cancelNavigationBtn.addEventListener('click', async function() {
+                    const confirmed = await window.showMobileConfirm(
+                        '导航将会停止，轮椅会停在当前位置',
+                        '取消导航',
+                        '确认取消',
+                        '继续导航'
+                    );
+                    if (confirmed) {
+                        window.stopNavigation();
+                        const targetPage = navigationSourcePage || 'device-status';
+                        showPage(targetPage);
+                        console.log('🏠 返回来源页面:', targetPage);
+                    }
+                });
+            }
+            
+            // 返回主页按钮
+            const returnHomeBtn = document.getElementById('return-home-btn');
+            if (returnHomeBtn) {
+                returnHomeBtn.addEventListener('click', function() {
+                    showPage('control');
+                });
+            }
+            
+            // 刷新位置按钮
+            const refreshLocationBtn = document.getElementById('refresh-location-btn');
+            if (refreshLocationBtn) {
+                refreshLocationBtn.addEventListener('click', function() {
+                    // 模拟刷新位置
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>刷新中';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-sync mr-1"></i>刷新';
+                        showToast('位置已更新', 'success');
+                    }, 1000);
+                });
+            }
+            
+            // 开始导航主函数
+            function startNavigation(type, destination) {
+                console.log('🚀 开始导航:', type, destination);
+                
+                // 记录当前页面作为来源页面
+                const currentPage = document.querySelector('div[id]:not(.hidden)');
+                navigationSourcePage = currentPage ? currentPage.id : 'device-status';
+                console.log('📍 导航来源页面:', navigationSourcePage);
+                
+                currentNavigationType = type;
+                currentDestination = destination;
+                
+                // 显示导航页面
+                showPage('navigation');
+                
+                // 显示倒计时页面
+                showNavigationCountdown(destination);
+                
+                // 开始倒计时
+                startCountdown();
+            }
+            
+            // 显示导航倒计时
+            function showNavigationCountdown(destination) {
+                const countdownDiv = document.getElementById('navigation-countdown');
+                const progressDiv = document.getElementById('navigation-progress');
+                const completeDiv = document.getElementById('navigation-complete');
+                
+                // 隐藏其他状态，显示倒计时
+                if (progressDiv) progressDiv.classList.add('hidden');
+                if (completeDiv) completeDiv.classList.add('hidden');
+                if (countdownDiv) countdownDiv.classList.remove('hidden');
+                
+                // 更新倒计时内容
+                const countdownTitle = document.getElementById('countdown-title');
+                const countdownMessage = document.getElementById('countdown-message');
+                
+                if (countdownTitle) {
+                    countdownTitle.textContent = currentNavigationType === 'charging' ? '准备去充电' : '准备召唤';
+                }
+                if (countdownMessage) {
+                    countdownMessage.textContent = `即将开始前往${destination}...`;
+                }
+            }
+            
+            // 开始倒计时
+            function startCountdown() {
+                let countdown = 5;
+                const countdownNumber = document.getElementById('countdown-number');
+                
+                if (countdownNumber) countdownNumber.textContent = countdown;
+                
+                countdownTimer = setInterval(() => {
+                    countdown--;
+                    if (countdownNumber) countdownNumber.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(countdownTimer);
+                        startNavigationProgress();
+                    }
+                }, 1000);
+            }
+            
+            // 开始导航进度
+            function startNavigationProgress() {
+                console.log('开始导航进度');
+                
+                // 隐藏倒计时页面
+                const countdownDiv = document.getElementById('navigation-countdown');
+                if (countdownDiv) {
+                    countdownDiv.style.display = 'none';
+                }
+                
+                // 隐藏完成页面
+                const completeDiv = document.getElementById('navigation-complete');
+                if (completeDiv) {
+                    completeDiv.style.display = 'none';
+                }
+                
+                // 直接创建导航进度界面
+                createNavigationProgressUI();
+            }
+            
+            // 模拟导航进度
+            function simulateNavigationProgress() {
+                let progress = 0;
+                let distance = 8.5; // 初始距离
+                let timeRemaining = 150; // 2分30秒
+                
+                progressTimer = setInterval(() => {
+                    progress += Math.random() * 3 + 1; // 随机增加1-4%
+                    distance = Math.max(0, distance - (Math.random() * 0.3 + 0.1)); // 减少距离
+                    timeRemaining = Math.max(0, timeRemaining - Math.random() * 4 - 2); // 减少时间
+                    
+                    // 限制进度最大值
+                    progress = Math.min(progress, 100);
+                    
+                    // 更新UI - 使用动态创建的元素ID
+                    const progressBar = document.getElementById('dynamic-navigation-progress-bar');
+                    const progressPercentage = document.getElementById('dynamic-navigation-percentage');
+                    const remainingDistance = document.getElementById('dynamic-remaining-distance');
+                    const estimatedTime = document.getElementById('dynamic-estimated-time');
+                    const currentSpeed = document.getElementById('dynamic-current-speed');
+                    const wheelchairPosition = document.getElementById('dynamic-wheelchair-position');
+                    
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressPercentage) progressPercentage.textContent = Math.round(progress) + '%';
+                    if (remainingDistance) remainingDistance.textContent = distance.toFixed(1) + 'm';
+                    if (estimatedTime) {
+                        const minutes = Math.floor(timeRemaining / 60);
+                        const seconds = Math.round(timeRemaining % 60);
+                        estimatedTime.textContent = `${minutes}分${seconds}秒`;
+                    }
+                    if (currentSpeed) {
+                        const speed = (Math.random() * 0.4 + 0.6).toFixed(1); // 0.6-1.0 m/s
+                        currentSpeed.textContent = speed + 'm/s';
+                    }
+                    
+                    // 更新轮椅位置（模拟移动）
+                    if (wheelchairPosition) {
+                        const currentLeft = parseInt(wheelchairPosition.style.left) || 80;
+                        const targetLeft = 250; // 目标位置
+                        const newLeft = currentLeft + (targetLeft - currentLeft) * (progress / 100) * 0.05;
+                        wheelchairPosition.style.left = Math.min(newLeft, targetLeft - 10) + 'px';
+                    }
+                    
+                    // 导航完成
+                    if (progress >= 100) {
+                        clearInterval(progressTimer);
+                        setTimeout(() => {
+                            showNavigationComplete();
+                        }, 1000);
+                    }
+                }, 1000);
+            }
+            
+            // 显示导航完成
+            function showNavigationComplete() {
+                // 移除进度界面
+                const progressDiv = document.getElementById('navigation-progress');
+                if (progressDiv) {
+                    progressDiv.remove();
+                }
+                
+                // 创建完成页面
+                const completeContainer = document.createElement('div');
+                completeContainer.id = 'navigation-complete';
+                completeContainer.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    background: #f9fafb !important;
+                    z-index: 10000 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: 20px !important;
+                `;
+                
+                const message = currentNavigationType === 'charging' ? 
+                    '轮椅已成功到达充电桩' : 
+                    `轮椅已成功到达${currentDestination}`;
+                
+                completeContainer.innerHTML = `
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 40px; text-align: center; max-width: 320px; width: 100%;">
+                        <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                            <i class="fas fa-check" style="color: #16a34a; font-size: 32px;"></i>
+                        </div>
+                        <h2 style="font-size: 24px; font-weight: 600; margin: 0 0 12px 0; color: #166534;">导航完成</h2>
+                        <p style="color: #6b7280; margin: 0 0 32px 0; font-size: 16px;">${message}</p>
+                        
+                        <button id="dynamic-return-home-btn" style="width: 100%; background: #8b5cf6; color: white; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 500; border: none; cursor: pointer;">
+                            返回主页
+                        </button>
+                    </div>
+                `;
+                
+                // 添加到导航页面
+                const navigationPage = document.getElementById('navigation');
+                if (navigationPage) {
+                    navigationPage.appendChild(completeContainer);
+                    
+                    // 绑定返回按钮事件
+                    const returnBtn = document.getElementById('dynamic-return-home-btn');
+                    if (returnBtn) {
+                        returnBtn.addEventListener('click', () => {
+                            stopNavigation();
+                            const targetPage = navigationSourcePage || 'device-status';
+                            showPage(targetPage);
+                            console.log('🏠 返回来源页面:', targetPage);
+                        });
+                    }
+                }
+                
+                // 播放成功提示音
+                showToast('导航完成！', 'success');
+            }
+            
+            // 创建导航进度界面
+            function createNavigationProgressUI() {
+                // 移除现有的进度页面
+                const existingProgress = document.getElementById('navigation-progress');
+                if (existingProgress) {
+                    existingProgress.remove();
+                }
+                
+                // 创建新的导航进度界面
+                const progressContainer = document.createElement('div');
+                progressContainer.id = 'navigation-progress';
+                progressContainer.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    background: #f9fafb !important;
+                    z-index: 10000 !important;
+                    overflow-y: auto !important;
+                    padding: 20px !important;
+                `;
+                
+                progressContainer.innerHTML = `
+                    <!-- 导航状态栏 -->
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                            <h2 style="font-size: 18px; font-weight: 600; margin: 0;" id="dynamic-navigation-title">
+                                ${currentNavigationType === 'charging' ? '正在前往充电桩' : `正在前往${currentDestination}`}
+                            </h2>
+                            <div style="display: flex; align-items: center; color: #10b981;">
+                                <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></div>
+                                <span style="font-size: 14px;">导航中</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 导航信息 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center;">
+                            <div>
+                                <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">剩余距离</p>
+                                <p style="font-size: 18px; font-weight: 600; color: #8b5cf6; margin: 0;" id="dynamic-remaining-distance">8.5m</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">预计时间</p>
+                                <p style="font-size: 18px; font-weight: 600; color: #3b82f6; margin: 0;" id="dynamic-estimated-time">2分30秒</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 12px; color: #6b7280; margin: 0 0 4px 0;">当前速度</p>
+                                <p style="font-size: 18px; font-weight: 600; color: #10b981; margin: 0;" id="dynamic-current-speed">0.8m/s</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 地图区域 -->
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                            <h3 style="font-weight: 500; margin: 0;">实时位置</h3>
+                            <button id="dynamic-refresh-location-btn" style="color: #3b82f6; font-size: 14px; background: none; border: none; cursor: pointer;">
+                                <i class="fas fa-sync" style="margin-right: 4px;"></i>刷新
+                            </button>
+                        </div>
+                        
+                        <!-- 简化地图视图 -->
+                        <div style="position: relative; background: #f3f4f6; border-radius: 8px; height: 192px; overflow: hidden;">
+                            <!-- 轮椅位置 -->
+                            <div id="dynamic-wheelchair-position" style="position: absolute; left: 80px; top: 80px; transition: all 1s ease;">
+                                <div style="width: 24px; height: 24px; background: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-wheelchair" style="color: white; font-size: 12px;"></i>
+                                </div>
+                                <div style="position: absolute; top: -32px; left: 50%; transform: translateX(-50%); background: #8b5cf6; color: white; font-size: 12px; padding: 4px 8px; border-radius: 4px;">
+                                    轮椅
+                                </div>
+                            </div>
+                            
+                            <!-- 目标位置 -->
+                            <div style="position: absolute; left: 250px; top: 75px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                                    <i class="fas fa-flag" style="color: white; font-size: 12px;"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- 路径指示 -->
+                            <div style="position: absolute; left: 100px; top: 85px; right: 50px; height: 4px; background: linear-gradient(90deg, #8b5cf6, #10b981); border-radius: 2px; opacity: 0.8;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 导航进度 -->
+                    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 100px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 14px; font-weight: 500;">导航进度</span>
+                            <span style="font-size: 14px; color: #8b5cf6;" id="dynamic-navigation-percentage">15%</span>
+                        </div>
+                        <div style="width: 100%; background: #e5e7eb; border-radius: 9999px; height: 8px;">
+                            <div id="dynamic-navigation-progress-bar" style="background: #8b5cf6; height: 8px; border-radius: 9999px; transition: width 0.5s ease; width: 15%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 圆形取消按钮 -->
+                    <div style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);">
+                        <button id="dynamic-cancel-navigation-btn" style="
+                            width: 120px; 
+                            height: 120px; 
+                            background: linear-gradient(135deg, #ef4444, #dc2626); 
+                            color: white; 
+                            border-radius: 50%; 
+                            border: 4px solid white;
+                            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1); 
+                            cursor: pointer;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 16px;
+                            font-weight: 700;
+                            transition: all 0.2s ease;
+                            outline: none;
+                            -webkit-tap-highlight-color: transparent;
+                        " 
+                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 32px rgba(239, 68, 68, 0.5), 0 6px 16px rgba(0, 0, 0, 0.15)'" 
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 24px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1)'" 
+                        onmousedown="this.style.transform='scale(0.95)'"
+                        onmouseup="this.style.transform='scale(1.05)'">
+                            <i class="fas fa-stop" style="font-size: 24px; margin-bottom: 8px;"></i>
+                            <span>取消导航</span>
+                        </button>
+                    </div>
+                `;
+                
+                // 添加到导航页面
+                const navigationPage = document.getElementById('navigation');
+                if (navigationPage) {
+                    navigationPage.appendChild(progressContainer);
+                    
+                    // 绑定取消按钮事件
+                    setTimeout(() => {
+                        const cancelBtn = document.getElementById('dynamic-cancel-navigation-btn');
+                        console.log('寻找取消按钮:', cancelBtn);
+                        
+                        if (cancelBtn) {
+                            // 绑定移动端确认对话框
+                            cancelBtn.onclick = async function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🛑 取消按钮被点击！');
+                                
+                                const confirmed = await window.showMobileConfirm(
+                                    '导航将会停止，轮椅会停在当前位置',
+                                    '取消导航',
+                                    '确认取消',
+                                    '继续导航'
+                                );
+                                
+                                if (confirmed) {
+                                    console.log('✅ 用户确认取消导航');
+                                    window.stopNavigation();
+                                    const targetPage = navigationSourcePage || 'device-status';
+                                    showPage(targetPage);
+                                    console.log('🏠 返回来源页面:', targetPage);
+                                } else {
+                                    console.log('❌ 用户取消了取消操作');
+                                }
+                            };
+                            
+                            // 添加触摸事件支持
+                            cancelBtn.ontouchstart = function(e) {
+                                console.log('👆 触摸开始');
+                                this.style.transform = 'scale(0.95)';
+                            };
+                            
+                            cancelBtn.ontouchend = function(e) {
+                                console.log('👆 触摸结束');
+                                this.style.transform = 'scale(1)';
+                            };
+                            
+                            console.log('✅ 取消按钮事件绑定完成');
+                        } else {
+                            console.error('❌ 未找到取消按钮');
+                        }
+                    }, 200);
+                    
+                    // 绑定刷新按钮事件
+                    const refreshBtn = document.getElementById('dynamic-refresh-location-btn');
+                    if (refreshBtn) {
+                        refreshBtn.addEventListener('click', function() {
+                            this.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 4px;"></i>刷新中';
+                            setTimeout(() => {
+                                this.innerHTML = '<i class="fas fa-sync" style="margin-right: 4px;"></i>刷新';
+                                showToast('位置已更新', 'success');
+                            }, 1000);
+                        });
+                    }
+                    
+                    // 开始模拟导航进度
+                    simulateNavigationProgress();
+                } else {
+                    console.error('❌ 导航页面未找到！');
+                }
+            }
+            
+            // 停止导航
+            function stopNavigation() {
+                if (countdownTimer) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                }
+                if (progressTimer) {
+                    clearInterval(progressTimer);
+                    progressTimer = null;
+                }
+                
+                // 重置状态
+                currentNavigationType = null;
+                currentDestination = null;
+                navigationSourcePage = null;
+                
+                // 移除动态创建的进度界面
+                const dynamicProgress = document.getElementById('navigation-progress');
+                if (dynamicProgress) {
+                    dynamicProgress.remove();
+                }
+            }
+        }
         
         // 更新导航栏状态
         function updateNavigation(activeTab) {
