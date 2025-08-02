@@ -1426,9 +1426,9 @@
         </div>
 
         <!-- 语音对话页面 -->
-        <div id="voice-chat" class="hidden p-4 max-w-md mx-auto pb-32">
+        <div id="voice-chat" class="hidden h-screen flex flex-col bg-gray-50">
             <!-- 顶部导航栏 -->
-            <div class="flex items-center mb-4">
+            <div class="flex items-center p-4 bg-white border-b border-gray-100">
                 <button id="voice-chat-back-btn" class="mr-3 text-gray-600 hover:text-gray-800">
                     <i class="fas fa-arrow-left text-lg"></i>
                 </button>
@@ -1441,29 +1441,29 @@
             </div>
             
             <!-- 连接状态 -->
-            <div class="flex items-center justify-center mb-4">
+            <div class="flex items-center justify-center py-3 bg-white">
                 <div class="flex items-center bg-green-50 px-3 py-1 rounded-full">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
                     <span class="text-xs text-green-700">今天 14:30</span>
                 </div>
             </div>
 
-            <!-- 对话历史区域 -->
-            <div id="conversation-container" class="h-96 overflow-y-auto mb-4 px-2">
-                <div class="space-y-4">
+            <!-- 对话历史区域 - 使用flex-1自适应高度 -->
+            <div id="conversation-container" class="flex-1 overflow-y-auto px-4 py-4" style="margin-bottom: 140px;">
+                <div class="space-y-4 max-w-md mx-auto">
                     <!-- 助手消息 -->
                     <div class="flex items-start">
                         <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
                             <i class="fas fa-robot text-white text-sm"></i>
                         </div>
-                        <div class="bg-gray-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
                             <p class="text-sm">你好，我是您的智能轮椅语音助手小智。您可以和我聊天，或者询问我任何问题。</p>
                         </div>
                     </div>
                     
                     <!-- 用户消息示例 -->
                     <div class="flex items-start justify-end">
-                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%]">
+                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
                             <p class="text-sm">你好，请告诉我现在轮椅的电量情况</p>
                         </div>
                         <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
@@ -1476,42 +1476,66 @@
                         <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
                             <i class="fas fa-robot text-white text-sm"></i>
                         </div>
-                        <div class="bg-gray-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
                             <p class="text-sm" id="battery-status-text">您的轮椅当前电量为85%，预计可以使用6小时30分钟，行驶距离约25公里。</p>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- 底部语音控制区域 -->
-            <div class="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 text-center">
-                <!-- 大圆形语音按钮 -->
-                <button id="voice-btn" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 active:scale-95 transition-all duration-300 group mb-2">
-                    <i class="fas fa-microphone text-2xl group-active:scale-110 transition-transform"></i>
-                </button>
-                <!-- 提示文字 -->
-                <p class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full shadow">长按说话</p>
-            </div>
-            
-            <!-- 语音识别指示器 (默认隐藏) -->
-            <div id="voice-indicator" class="hidden fixed bottom-48 left-1/2 transform -translate-x-1/2 text-center z-50">
-                <div class="flex justify-center mb-2">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center relative">
-                        <i class="fas fa-microphone text-blue-500 text-2xl"></i>
-                        <div class="absolute inset-0 border-4 border-blue-300 rounded-full animate-pulse"></div>
-                        <div class="absolute inset-0 flex justify-center items-center">
-                            <div class="voice-wave">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
+                    
+                    <!-- 用户消息示例2 -->
+                    <div class="flex items-start justify-end">
+                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">我可以做哪些轮椅操作？</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                            <i class="fas fa-user text-gray-500 text-sm"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 助手回复示例2 -->
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">您可以通过语音控制轮椅的速度调节、灯光控制、座椅温度调节、寻找轮椅位置、开始导航等功能。还可以询问电量、查看周围环境、设置目的地等。请随时告诉我您需要什么帮助！</p>
                         </div>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600 font-medium bg-white px-3 py-1 rounded-full shadow">正在聆听...</p>
-                <p id="voice-text" class="text-xs text-gray-500 mt-1 italic bg-white px-2 py-1 rounded shadow">请开始说话</p>
+            </div>
+            
+            <!-- 底部语音控制区域 - 固定在底部 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-20" style="padding-bottom: env(safe-area-inset-bottom, 80px);">
+                <div class="flex flex-col items-center py-4">
+                    <!-- 大圆形语音按钮 -->
+                    <button id="voice-btn" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 active:scale-95 transition-all duration-300 group mb-2">
+                        <i class="fas fa-microphone text-2xl group-active:scale-110 transition-transform"></i>
+                    </button>
+                    <!-- 提示文字 -->
+                    <p class="text-xs text-gray-500">长按说话</p>
+                </div>
+            </div>
+            
+            <!-- 语音识别指示器 (默认隐藏) -->
+            <div id="voice-indicator" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-2xl p-6 shadow-2xl text-center max-w-xs mx-4">
+                    <div class="flex justify-center mb-4">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center relative">
+                            <i class="fas fa-microphone text-blue-500 text-3xl"></i>
+                            <div class="absolute inset-0 border-4 border-blue-300 rounded-full animate-pulse"></div>
+                            <div class="absolute inset-0 flex justify-center items-center">
+                                <div class="voice-wave">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-lg text-gray-800 font-medium mb-2">正在聆听...</p>
+                    <p id="voice-text" class="text-sm text-gray-500 italic">请开始说话</p>
+                </div>
             </div>
         </div>
 
