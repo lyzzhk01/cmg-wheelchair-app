@@ -6945,6 +6945,8 @@
             
             // 融合地图切换功能
             function initUnifiedMapSwitching() {
+                console.log('🚀 开始初始化融合地图切换功能');
+                
                 const indoorMapBtn = document.getElementById('indoor-map-btn');
                 const outdoorMapBtn = document.getElementById('outdoor-map-btn');
                 const indoorMapView = document.getElementById('indoor-map-view');
@@ -6952,6 +6954,16 @@
                 const navigateBtn = document.getElementById('navigate-btn');
                 const positionStatusText = document.getElementById('position-status-text');
                 const mapTitle = document.getElementById('map-title');
+                
+                console.log('📍 元素查找结果:', {
+                    indoorMapBtn: !!indoorMapBtn,
+                    outdoorMapBtn: !!outdoorMapBtn,
+                    indoorMapView: !!indoorMapView,
+                    outdoorMapView: !!outdoorMapView,
+                    navigateBtn: !!navigateBtn,
+                    positionStatusText: !!positionStatusText,
+                    mapTitle: !!mapTitle
+                });
                 
                 let currentMapType = 'indoor'; // 默认显示室内地图
                 
@@ -6979,53 +6991,87 @@
                 
                 // 切换到室内地图
                 function switchToIndoorMap() {
-                    if (currentMapType === 'indoor') return;
+                    console.log('📍 switchToIndoorMap 被调用，当前类型:', currentMapType);
+                    if (currentMapType === 'indoor') {
+                        console.log('⚠️ 已经是室内地图，跳过切换');
+                        return;
+                    }
                     
                     currentMapType = 'indoor';
+                    console.log('🔄 正在切换到室内地图...');
                     
                     // 更新按钮样式
-                    indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
-                    outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
+                    if (indoorMapBtn && outdoorMapBtn) {
+                        indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
+                        outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
+                        console.log('✅ 按钮样式已更新');
+                    }
                     
                     // 切换地图视图
-                    indoorMapView.classList.remove('hidden');
-                    outdoorMapView.classList.add('hidden');
+                    if (indoorMapView && outdoorMapView) {
+                        indoorMapView.classList.remove('hidden');
+                        outdoorMapView.classList.add('hidden');
+                        console.log('✅ 地图视图已切换');
+                    }
                     
                     // 隐藏导航按钮（室内地图不需要）
-                    navigateBtn.classList.add('hidden');
+                    if (navigateBtn) {
+                        navigateBtn.classList.add('hidden');
+                        console.log('✅ 导航按钮已隐藏');
+                    }
                     
                     // 更新状态文本
-                    positionStatusText.textContent = '定位正常';
-                    mapTitle.textContent = '智能地图';
+                    if (positionStatusText && mapTitle) {
+                        positionStatusText.textContent = '定位正常';
+                        mapTitle.textContent = '智能地图';
+                        console.log('✅ 状态文本已更新');
+                    }
                     
-                    console.log('🏠 切换到室内地图');
+                    console.log('🏠 切换到室内地图完成');
                 }
                 
                 // 切换到室外地图
                 function switchToOutdoorMap() {
-                    if (currentMapType === 'outdoor') return;
+                    console.log('📍 switchToOutdoorMap 被调用，当前类型:', currentMapType);
+                    if (currentMapType === 'outdoor') {
+                        console.log('⚠️ 已经是室外地图，跳过切换');
+                        return;
+                    }
                     
                     currentMapType = 'outdoor';
+                    console.log('🔄 正在切换到室外地图...');
                     
                     // 更新按钮样式
-                    indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
-                    outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
+                    if (indoorMapBtn && outdoorMapBtn) {
+                        indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
+                        outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
+                        console.log('✅ 按钮样式已更新');
+                    }
                     
                     // 切换地图视图
-                    indoorMapView.classList.add('hidden');
-                    outdoorMapView.classList.remove('hidden');
+                    if (indoorMapView && outdoorMapView) {
+                        indoorMapView.classList.add('hidden');
+                        outdoorMapView.classList.remove('hidden');
+                        console.log('✅ 地图视图已切换');
+                    }
                     
                     // 显示导航按钮
-                    navigateBtn.classList.remove('hidden');
+                    if (navigateBtn) {
+                        navigateBtn.classList.remove('hidden');
+                        console.log('✅ 导航按钮已显示');
+                    }
                     
                     // 更新状态文本 - 简化为只显示GPS定位
-                    positionStatusText.textContent = 'GPS定位';
-                    mapTitle.textContent = '智能地图';
+                    if (positionStatusText && mapTitle) {
+                        positionStatusText.textContent = 'GPS定位';
+                        mapTitle.textContent = '智能地图';
+                        console.log('✅ 状态文本已更新为GPS定位');
+                    }
                     
                     // 更新室外地图显示
                     updateOutdoorMapDisplay();
                     
-                    console.log('🌍 切换到室外地图');
+                    console.log('🌍 切换到室外地图完成');
                 }
                 
                 // 更新室外地图显示
@@ -7061,11 +7107,23 @@
                 
                 // 绑定事件监听器
                 if (indoorMapBtn) {
-                    indoorMapBtn.addEventListener('click', switchToIndoorMap);
+                    console.log('✅ 绑定室内地图按钮事件');
+                    indoorMapBtn.addEventListener('click', function() {
+                        console.log('🏠 室内地图按钮被点击');
+                        switchToIndoorMap();
+                    });
+                } else {
+                    console.error('❌ 室内地图按钮未找到');
                 }
                 
                 if (outdoorMapBtn) {
-                    outdoorMapBtn.addEventListener('click', switchToOutdoorMap);
+                    console.log('✅ 绑定室外地图按钮事件');
+                    outdoorMapBtn.addEventListener('click', function() {
+                        console.log('🌍 室外地图按钮被点击');
+                        switchToOutdoorMap();
+                    });
+                } else {
+                    console.error('❌ 室外地图按钮未找到');
                 }
                 
                 // 绑定缩放按钮
@@ -7091,6 +7149,7 @@
                 }
                 
                 // 默认显示室内地图
+                console.log('🎯 初始化：设置默认为室内地图');
                 switchToIndoorMap();
                 
                 // 定时更新室外位置（仅在室外模式下有效）
@@ -7100,12 +7159,15 @@
                         updateOutdoorMapDisplay();
                     }
                 }, 30000);
+                
+                console.log('🎉 融合地图切换功能初始化完成');
             }
             
             // 在页面加载完成后初始化地图
             initDeviceLocationMap();
             
             // 初始化融合地图切换功能
+            console.log('🔧 准备初始化融合地图切换功能...');
             initUnifiedMapSwitching();
             
             // 建图功能相关事件处理
