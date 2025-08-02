@@ -605,22 +605,39 @@
                     </div>
                 </div>
                 
-                <!-- 室内地图和定位状态 -->
+                <!-- 智能地图卡片（室内/室外切换） -->
                 <div class="border border-gray-600 rounded-lg p-3 bg-gray-700 mb-3">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center">
-                            <i class="fas fa-map text-blue-400 mr-2"></i>
-                            <span class="text-sm text-white">室内地图</span>
+                            <!-- 地图类型切换按钮 -->
+                            <div class="bg-gray-800 rounded-lg p-1 mr-3">
+                                <button id="indoor-map-btn" class="px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white">
+                                    <i class="fas fa-map mr-1"></i>室内
+                                </button>
+                                <button id="outdoor-map-btn" class="px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>室外
+                                </button>
+                            </div>
+                            <span class="text-sm text-white" id="map-title">智能地图</span>
                         </div>
-                        <div class="flex items-center" id="indoor-position-status">
-                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
-                            <span class="text-xs text-green-400">定位正常</span>
+                        <div class="flex items-center">
+                            <!-- 定位状态 -->
+                            <div class="flex items-center mr-3" id="position-status">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                                <span class="text-xs text-green-400" id="position-status-text">定位正常</span>
+                            </div>
+                            <!-- 导航按钮（仅室外地图显示） -->
+                            <button class="navigate-btn hidden" id="navigate-btn">
+                                <span>导航前往</span>
+                                <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="relative rounded-lg overflow-hidden" style="height: 200px;" id="indoor-map">
-                        <!-- 室内地图背景 -->
-                        <div class="absolute inset-0 bg-gray-800 flex justify-center items-center">
+                    <!-- 地图容器 -->
+                    <div class="relative rounded-lg overflow-hidden" style="height: 200px;" id="unified-map-container">
+                        <!-- 室内地图 -->
+                        <div id="indoor-map-view" class="absolute inset-0 bg-gray-800">
                             <canvas id="indoor-map-canvas" class="w-full h-full rounded-lg"></canvas>
                             
                             <!-- 轮椅位置标记 -->
@@ -642,28 +659,62 @@
                             <svg class="absolute inset-0 w-full h-full" id="indoor-path-svg">
                                 <!-- 导航路径将通过JS动态绘制 -->
                             </svg>
-                        </div>
-                        
-                        <!-- 室内定位信息 -->
-                        <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2">
-                            <div class="text-xs text-white">
-                                <div class="mb-1">
-                                    <span class="text-gray-400">当前位置:</span>
-                                    <span class="text-white" id="indoor-current-location">客厅区域</span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-400">精度:</span>
-                                    <span class="text-green-400" id="indoor-accuracy">±0.5米</span>
+                            
+                            <!-- 室内定位信息 -->
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2">
+                                <div class="text-xs text-white">
+                                    <div class="mb-1">
+                                        <span class="text-gray-400">当前位置:</span>
+                                        <span class="text-white" id="indoor-current-location">客厅区域</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">精度:</span>
+                                        <span class="text-green-400" id="indoor-accuracy">±0.5米</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- 地图控制按钮 -->
+                        <!-- 室外地图 -->
+                        <div id="outdoor-map-view" class="absolute inset-0 bg-gray-800 hidden">
+                            <!-- 地图背景（模拟） -->
+                            <div class="absolute inset-0 opacity-80" id="outdoor-map-background" style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/121.4737,31.2304,15,0/350x200?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover;"></div>
+                            
+                            <!-- 位置标记和精度圆圈 -->
+                            <div class="location-marker">
+                                <!-- 精度圆圈 -->
+                                <div class="accuracy-circle"></div>
+                                <!-- 位置标记点 -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                            </div>
+                            
+                            <!-- 室外位置信息 -->
+                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2">
+                                <div class="text-xs text-white">
+                                    <div class="mb-1">
+                                        <span class="text-gray-400">地址:</span>
+                                        <span class="text-white" id="device-address">上海市浦东新区张江高科技园区</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <div class="mr-4">
+                                            <span class="text-gray-400">更新:</span>
+                                            <span class="text-green-400" id="location-update-time">10:23</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">GPS精度:</span>
+                                            <span class="text-green-400" id="gps-accuracy">5米</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 统一的地图控制按钮 -->
                         <div class="absolute bottom-2 right-2 flex flex-col space-y-1">
-                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="indoor-zoom-in">
+                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="map-zoom-in">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="indoor-zoom-out">
+                            <button class="w-6 h-6 bg-black bg-opacity-60 text-white rounded flex items-center justify-center text-xs hover:bg-opacity-80" id="map-zoom-out">
                                 <i class="fas fa-minus"></i>
                             </button>
                         </div>
@@ -687,52 +738,7 @@
                     <i class="fas fa-lock mr-2"></i> 锁车
                 </button>
                 
-                <!-- 设备位置地图 -->
-                <div class="border border-gray-600 rounded-lg p-3 bg-gray-700 mb-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center">
-                            <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                            <span class="text-sm text-white">当前位置</span>
-                        </div>
-                        <button class="navigate-btn" id="navigate-btn">
-                            <span>导航前往</span>
-                            <i class="fas fa-chevron-right ml-1 text-xs"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="relative rounded-lg overflow-hidden location-map" style="height: 150px;" id="device-location-map">
-                        <!-- 地图图像 -->
-                        <div class="absolute inset-0 bg-gray-800 flex justify-center items-center">
-                            <!-- 地图背景（模拟） -->
-                            <div class="absolute inset-0 opacity-80" style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/121.4737,31.2304,15,0/350x150?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover;"></div>
-                            
-                            <!-- 位置标记和精度圆圈 -->
-                            <div class="location-marker">
-                                <!-- 精度圆圈 -->
-                                <div class="accuracy-circle"></div>
-                                <!-- 位置标记点 -->
-                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
-                            </div>
-                            
-                            <!-- 右下角放大缩小按钮 -->
-                            <div class="map-controls">
-                                <button class="zoom-in" id="map-zoom-in"><i class="fas fa-plus"></i></button>
-                                <button class="zoom-out" id="map-zoom-out"><i class="fas fa-minus"></i></button>
-                            </div>
-                        </div>
-                        
-                        <!-- 左下角位置信息 -->
-                        <div class="map-address" id="device-address">
-                            上海市浦东新区张江高科技园区
-                        </div>
-                    </div>
-                    
-                    <!-- 设备信息 -->
-                    <div class="flex justify-between text-xs text-gray-300 mt-2">
-                        <div id="location-update-time">更新于: 10:23</div>
-                        <div id="gps-accuracy">GPS精度: 5米</div>
-                    </div>
-                </div>
+
             </div>
 
             <!-- 设备详情模态框 -->
@@ -6931,20 +6937,29 @@
                 });
             }
             
-            // 设备位置地图相关功能
+            // 设备位置地图相关功能（已集成到融合地图中）
             function initDeviceLocationMap() {
-                // 获取地图相关元素
-                const mapElement = document.getElementById('device-location-map');
-                const zoomInBtn = document.getElementById('map-zoom-in');
-                const zoomOutBtn = document.getElementById('map-zoom-out');
+                // 此函数现在主要用于兼容性，实际功能已移至 initUnifiedMapSwitching()
+                console.log('📍 设备位置地图功能已集成到融合地图中');
+            }
+            
+            // 融合地图切换功能
+            function initUnifiedMapSwitching() {
+                const indoorMapBtn = document.getElementById('indoor-map-btn');
+                const outdoorMapBtn = document.getElementById('outdoor-map-btn');
+                const indoorMapView = document.getElementById('indoor-map-view');
+                const outdoorMapView = document.getElementById('outdoor-map-view');
                 const navigateBtn = document.getElementById('navigate-btn');
-                const deviceAddress = document.getElementById('device-address');
-                const locationUpdateTime = document.getElementById('location-update-time');
-                const gpsAccuracy = document.getElementById('gps-accuracy');
+                const positionStatusText = document.getElementById('position-status-text');
+                const mapTitle = document.getElementById('map-title');
                 
-                if (!mapElement) return;
+                let currentMapType = 'indoor'; // 默认显示室内地图
                 
-                // 模拟不同的位置数据
+                // 室外地图相关变量
+                let currentLocationIndex = 0;
+                let currentZoomLevel = 15;
+                
+                // 模拟位置数据
                 const locationData = [
                     {
                         lat: 31.2304,
@@ -6959,76 +6974,139 @@
                         address: '上海市浦东新区世纪大道1号',
                         accuracy: '8米',
                         time: '10:45'
-                    },
-                    {
-                        lat: 31.2290,
-                        lng: 121.4688,
-                        address: '上海市黄浦区人民广场',
-                        accuracy: '3米',
-                        time: '11:12'
                     }
                 ];
                 
-                // 当前位置索引和缩放级别
-                let currentLocationIndex = 0;
-                let currentZoomLevel = 15;
-                
-                // 更新地图显示
-                function updateMapDisplay() {
-                    const location = locationData[currentLocationIndex];
+                // 切换到室内地图
+                function switchToIndoorMap() {
+                    if (currentMapType === 'indoor') return;
                     
-                    // 更新地图背景图像 (使用Mapbox Static Images API)
-                    const mapBackground = mapElement.querySelector('.inset-0.opacity-80');
-                    if (mapBackground) {
-                        mapBackground.style.backgroundImage = `url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/${location.lng},${location.lat},${currentZoomLevel},0/350x150?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA')`;
-                    }
+                    currentMapType = 'indoor';
                     
-                    // 更新位置信息
-                    if (deviceAddress) deviceAddress.textContent = location.address;
-                    if (locationUpdateTime) locationUpdateTime.textContent = `更新于: ${location.time}`;
-                    if (gpsAccuracy) gpsAccuracy.textContent = `GPS精度: ${location.accuracy}`;
+                    // 更新按钮样式
+                    indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
+                    outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
+                    
+                    // 切换地图视图
+                    indoorMapView.classList.remove('hidden');
+                    outdoorMapView.classList.add('hidden');
+                    
+                    // 隐藏导航按钮（室内地图不需要）
+                    navigateBtn.classList.add('hidden');
+                    
+                    // 更新状态文本
+                    positionStatusText.textContent = '定位正常';
+                    mapTitle.textContent = '智能地图';
+                    
+                    console.log('🏠 切换到室内地图');
                 }
                 
-                // 初始化地图显示
-                updateMapDisplay();
+                // 切换到室外地图
+                function switchToOutdoorMap() {
+                    if (currentMapType === 'outdoor') return;
+                    
+                    currentMapType = 'outdoor';
+                    
+                    // 更新按钮样式
+                    indoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-white';
+                    outdoorMapBtn.className = 'px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white';
+                    
+                    // 切换地图视图
+                    indoorMapView.classList.add('hidden');
+                    outdoorMapView.classList.remove('hidden');
+                    
+                    // 显示导航按钮
+                    navigateBtn.classList.remove('hidden');
+                    
+                    // 更新状态文本 - 简化为只显示GPS定位
+                    positionStatusText.textContent = 'GPS定位';
+                    mapTitle.textContent = '智能地图';
+                    
+                    // 更新室外地图显示
+                    updateOutdoorMapDisplay();
+                    
+                    console.log('🌍 切换到室外地图');
+                }
                 
-                // 定时模拟位置更新
-                setInterval(() => {
-                    currentLocationIndex = (currentLocationIndex + 1) % locationData.length;
-                    updateMapDisplay();
-                }, 30000); // 每30秒更新一次位置
+                // 更新室外地图显示
+                function updateOutdoorMapDisplay() {
+                    const location = locationData[currentLocationIndex];
+                    const mapBackground = document.getElementById('outdoor-map-background');
+                    const deviceAddress = document.getElementById('device-address');
+                    const locationUpdateTime = document.getElementById('location-update-time');
+                    const gpsAccuracy = document.getElementById('gps-accuracy');
+                    
+                    if (mapBackground) {
+                        mapBackground.style.backgroundImage = `url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/${location.lng},${location.lat},${currentZoomLevel},0/350x200?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA')`;
+                    }
+                    
+                    if (deviceAddress) deviceAddress.textContent = location.address;
+                    if (locationUpdateTime) locationUpdateTime.textContent = location.time;
+                    if (gpsAccuracy) gpsAccuracy.textContent = location.accuracy;
+                }
                 
-                // 缩放按钮事件
-                if (zoomInBtn) {
-                    zoomInBtn.addEventListener('click', () => {
-                        if (currentZoomLevel < 19) { // 最大缩放级别
+                // 缩放功能
+                function handleZoom(zoomIn) {
+                    if (currentMapType === 'outdoor') {
+                        if (zoomIn && currentZoomLevel < 19) {
                             currentZoomLevel += 1;
-                            updateMapDisplay();
+                            updateOutdoorMapDisplay();
+                        } else if (!zoomIn && currentZoomLevel > 10) {
+                            currentZoomLevel -= 1;
+                            updateOutdoorMapDisplay();
                         }
-                    });
+                    }
+                    // 室内地图缩放逻辑可以在这里添加
+                }
+                
+                // 绑定事件监听器
+                if (indoorMapBtn) {
+                    indoorMapBtn.addEventListener('click', switchToIndoorMap);
+                }
+                
+                if (outdoorMapBtn) {
+                    outdoorMapBtn.addEventListener('click', switchToOutdoorMap);
+                }
+                
+                // 绑定缩放按钮
+                const zoomInBtn = document.getElementById('map-zoom-in');
+                const zoomOutBtn = document.getElementById('map-zoom-out');
+                
+                if (zoomInBtn) {
+                    zoomInBtn.addEventListener('click', () => handleZoom(true));
                 }
                 
                 if (zoomOutBtn) {
-                    zoomOutBtn.addEventListener('click', () => {
-                        if (currentZoomLevel > 10) { // 最小缩放级别
-                            currentZoomLevel -= 1;
-                            updateMapDisplay();
-                        }
-                    });
+                    zoomOutBtn.addEventListener('click', () => handleZoom(false));
                 }
                 
                 // 导航按钮事件
                 if (navigateBtn) {
                     navigateBtn.addEventListener('click', async () => {
-                        const location = locationData[currentLocationIndex];
-                        // 在实际应用中，这里可以打开地图应用进行导航
-                        await appAlert(`已打开导航至: ${location.address}`, '导航');
+                        if (currentMapType === 'outdoor') {
+                            const location = locationData[currentLocationIndex];
+                            await appAlert(`已打开导航至: ${location.address}`, '导航');
+                        }
                     });
                 }
+                
+                // 默认显示室内地图
+                switchToIndoorMap();
+                
+                // 定时更新室外位置（仅在室外模式下有效）
+                setInterval(() => {
+                    if (currentMapType === 'outdoor') {
+                        currentLocationIndex = (currentLocationIndex + 1) % locationData.length;
+                        updateOutdoorMapDisplay();
+                    }
+                }, 30000);
             }
             
             // 在页面加载完成后初始化地图
             initDeviceLocationMap();
+            
+            // 初始化融合地图切换功能
+            initUnifiedMapSwitching();
             
             // 建图功能相关事件处理
             initMappingFunctions();
