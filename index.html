@@ -222,7 +222,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
     <!-- 页面导航栏 -->
-    <nav class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+    <nav id="bottom-nav" class="fixed bottom-0 w-full bg-white shadow-lg z-10">
         <div class="flex justify-around items-center p-2">
             <a href="#home" class="flex flex-col items-center p-2 text-blue-500">
                 <i class="fas fa-home text-xl"></i>
@@ -1426,30 +1426,30 @@
         </div>
 
         <!-- 语音对话页面 -->
-        <div id="voice-chat" class="hidden h-screen flex flex-col bg-gray-50">
-            <!-- 顶部导航栏 -->
-            <div class="flex items-center p-4 bg-white border-b border-gray-100">
-                <button id="voice-chat-back-btn" class="mr-3 text-gray-600 hover:text-gray-800">
+        <div id="voice-chat" class="hidden fixed inset-0 bg-gray-50 z-50">
+            <!-- 顶部导航栏 - 固定在最顶部 -->
+            <div class="fixed top-0 left-0 right-0 flex items-center p-4 bg-white border-b border-gray-100 z-10">
+                <button id="voice-chat-back-btn" class="mr-3 text-gray-600 hover:text-gray-800 active:text-gray-900">
                     <i class="fas fa-arrow-left text-lg"></i>
                 </button>
                 <div class="flex-1">
                     <h2 class="text-lg font-semibold text-center">AI助手</h2>
                 </div>
-                <button id="history-btn" class="text-gray-600 hover:text-gray-800">
+                <button id="history-btn" class="text-gray-600 hover:text-gray-800 active:text-gray-900">
                     <i class="fas fa-history text-lg"></i>
                 </button>
             </div>
             
-            <!-- 连接状态 -->
-            <div class="flex items-center justify-center py-3 bg-white">
+            <!-- 连接状态 - 固定在顶部导航下方 -->
+            <div class="fixed top-16 left-0 right-0 flex items-center justify-center py-3 bg-white border-b border-gray-50 z-10">
                 <div class="flex items-center bg-green-50 px-3 py-1 rounded-full">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
                     <span class="text-xs text-green-700">今天 14:30</span>
                 </div>
             </div>
 
-            <!-- 对话历史区域 - 使用flex-1自适应高度 -->
-            <div id="conversation-container" class="flex-1 overflow-y-auto px-4 py-4" style="margin-bottom: 140px;">
+            <!-- 对话历史区域 - 可滚动，但不影响顶部固定元素 -->
+            <div id="conversation-container" class="absolute top-28 bottom-32 left-0 right-0 overflow-y-auto px-4 py-4">
                 <div class="space-y-4 max-w-md mx-auto">
                     <!-- 助手消息 -->
                     <div class="flex items-start">
@@ -1500,12 +1500,52 @@
                             <p class="text-sm">您可以通过语音控制轮椅的速度调节、灯光控制、座椅温度调节、寻找轮椅位置、开始导航等功能。还可以询问电量、查看周围环境、设置目的地等。请随时告诉我您需要什么帮助！</p>
                         </div>
                     </div>
+                    
+                    <!-- 用户消息示例3 -->
+                    <div class="flex items-start justify-end">
+                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">调到导航模式</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                            <i class="fas fa-user text-gray-500 text-sm"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 助手回复示例3 -->
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">已切换到导航模式，当前速度2.5km/h，您可以通过语音指令设定目的地或获取路线信息。</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户消息示例4 -->
+                    <div class="flex items-start justify-end">
+                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">快没电了</p>
+                        </div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                            <i class="fas fa-user text-gray-500 text-sm"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 助手回复示例4 -->
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
+                            <p class="text-sm">已接收到低电量提醒，当前速度2.5km/h，您可以通过语音指令"去充电桩"或者点击轮椅状态页中的充电选项。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- 底部语音控制区域 - 固定在底部 -->
-            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-20" style="padding-bottom: env(safe-area-inset-bottom, 80px);">
-                <div class="flex flex-col items-center py-4">
+            <!-- 底部语音控制区域 - 固定在最底部 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+                <div class="flex flex-col items-center py-4" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
                     <!-- 大圆形语音按钮 -->
                     <button id="voice-btn" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 active:scale-95 transition-all duration-300 group mb-2">
                         <i class="fas fa-microphone text-2xl group-active:scale-110 transition-transform"></i>
@@ -1516,7 +1556,7 @@
             </div>
             
             <!-- 语音识别指示器 (默认隐藏) -->
-            <div id="voice-indicator" class="hidden fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center">
+            <div id="voice-indicator" class="hidden fixed inset-0 bg-black bg-opacity-30 z-[60] flex items-center justify-center">
                 <div class="bg-white rounded-2xl p-6 shadow-2xl text-center max-w-xs mx-4">
                     <div class="flex justify-center mb-4">
                         <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center relative">
@@ -7488,6 +7528,17 @@
                 }
             });
             
+            // 底部导航栏显示/隐藏逻辑
+            const bottomNav = document.getElementById('bottom-nav');
+            if (bottomNav) {
+                // 语音对话页面是二级页面，隐藏底部导航栏
+                if (pageId === 'voice-chat') {
+                    bottomNav.style.display = 'none';
+                } else {
+                    bottomNav.style.display = 'block';
+                }
+            }
+            
             // 显示目标页面
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
@@ -9721,6 +9772,13 @@
                 startChatBtn.addEventListener('click', function() {
                     console.log('🎤 点击开始对话');
                     showPage('voice-chat');
+                    
+                    // 隐藏底部导航栏（因为这是二级页面）
+                    const bottomNav = document.getElementById('bottom-nav');
+                    if (bottomNav) {
+                        bottomNav.style.display = 'none';
+                    }
+                    
                     // 为语音对话页面添加一个简单的向上滑动动画效果
                     const voiceChatPage = document.getElementById('voice-chat');
                     if (voiceChatPage) {
@@ -9737,7 +9795,15 @@
             if (voiceChatBackBtn) {
                 voiceChatBackBtn.addEventListener('click', function() {
                     console.log('🔙 返回发现广场');
+                    
+                    // 显示底部导航栏
+                    const bottomNav = document.getElementById('bottom-nav');
+                    if (bottomNav) {
+                        bottomNav.style.display = 'block';
+                    }
+                    
                     showPage('voice');
+                    
                     // 添加向下滑动的退出动画
                     const voiceChatPage = document.getElementById('voice-chat');
                     if (voiceChatPage) {
