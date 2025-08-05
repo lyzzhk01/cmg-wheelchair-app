@@ -7,10 +7,24 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♿</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet 地图库 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        /* 地图自定义标记样式 */
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+        
+        /* 确保地图容器正确显示 */
+        #route-map-container {
+            z-index: 1;
         }
         .joystick-container {
             position: relative;
@@ -1841,54 +1855,15 @@
             
             <!-- 全屏地图区域 -->
             <div class="absolute inset-0">
-                <!-- 地图背景 -->
-                <div class="absolute inset-0" id="route-map-background" 
-                     style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/static/geojson(%7B%22type%22%3A%22LineString%22%2C%22coordinates%22%3A%5B%5B116.4074%2C39.9042%5D%2C%5B116.4174%2C39.9142%5D%2C%5B116.4274%2C39.9242%5D%5D%7D)/116.4174,39.9142,15,0/400x800?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover; background-position: center;">
-                </div>
-                
-                <!-- 路线轨迹 -->
-                <svg class="absolute inset-0 w-full h-full pointer-events-none">
-                    <!-- 主要路线 -->
-                    <path d="M 200 680 Q 250 500 Q 300 350 350 200" 
-                          stroke="#4285F4" 
-                          stroke-width="8" 
-                          fill="none" 
-                          stroke-linecap="round"
-                          stroke-linejoin="round" />
-                    <!-- 已行驶路线 -->
-                    <path d="M 200 680 Q 225 600 250 500" 
-                          stroke="#1a73e8" 
-                          stroke-width="8" 
-                          fill="none" 
-                          stroke-linecap="round"
-                          stroke-linejoin="round" />
-                </svg>
-                
-                <!-- 当前位置标记 (类似Google Maps) -->
-                <div class="absolute" style="left: 50%; top: 85%; transform: translate(-50%, -50%);">
-                    <div class="relative">
-                        <!-- 方向指示箭头 -->
-                        <div class="w-8 h-8 bg-blue-600 transform rotate-45" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 50% 50% 50% 0;"></div>
-                        <!-- 位置圆圈 -->
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-blue-600"></div>
-                        <!-- 精度圆圈 -->
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-blue-400 border-opacity-30 rounded-full animate-pulse"></div>
-                    </div>
-                </div>
-                
-                <!-- 目的地标记 -->
-                <div class="absolute" style="left: 70%; top: 25%; transform: translate(-50%, -50%);">
-                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
-                    </div>
-                </div>
+                <!-- Leaflet 地图容器 -->
+                <div id="route-map-container" class="absolute inset-0 w-full h-full"></div>
                 
                 <!-- 地图控制按钮 -->
-                <div class="absolute right-4 bottom-48 flex flex-col space-y-2">
-                    <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+                <div class="absolute right-4 bottom-48 flex flex-col space-y-2 z-10">
+                    <button id="map-center-btn" class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
                         <i class="fas fa-crosshairs text-gray-600"></i>
                     </button>
-                    <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+                    <button id="map-layer-btn" class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
                         <i class="fas fa-layer-group text-gray-600"></i>
                     </button>
                 </div>
@@ -10592,6 +10567,8 @@
                     const showRouteOptionsBtn = document.getElementById('show-route-options');
                     const navigationOverviewBtn = document.getElementById('navigation-overview-btn');
                     const navigationShareBtn = document.getElementById('navigation-share-btn');
+                    const mapCenterBtn = document.getElementById('map-center-btn');
+                    const mapLayerBtn = document.getElementById('map-layer-btn');
                     
                     if (routeBackBtn || cancelNavigationBtn) {
                         const handleCancel = function() {
@@ -10635,6 +10612,24 @@
                     if (navigationShareBtn) {
                         navigationShareBtn.addEventListener('click', function() {
                             showToast('分享功能开发中', 'info');
+                        });
+                    }
+                    
+                    // 地图控制按钮
+                    if (mapCenterBtn) {
+                        mapCenterBtn.addEventListener('click', function() {
+                            if (window.navigationMap) {
+                                // 重新居中地图到路线
+                                const group = new L.featureGroup([window.startMarker, window.navigationMap._layers[Object.keys(window.navigationMap._layers).find(key => window.navigationMap._layers[key]._popup && window.navigationMap._layers[key]._popup._content.includes('目的地') || window.navigationMap._layers[key]._popup._content === (routeData ? routeData.destination : '目的地'))]]);
+                                window.navigationMap.fitBounds(group.getBounds(), { padding: [50, 50] });
+                                showToast('地图已居中', 'success');
+                            }
+                        });
+                    }
+                    
+                    if (mapLayerBtn) {
+                        mapLayerBtn.addEventListener('click', function() {
+                            showToast('图层切换功能开发中', 'info');
                         });
                     }
                     
@@ -10774,6 +10769,11 @@
                     isNavigating = true;
                     updateRoutePageData();
                     showPage('outdoor-navigation-route');
+                    
+                    // 初始化真实地图
+                    setTimeout(() => {
+                        initNavigationMap();
+                    }, 100); // 等待页面显示后再初始化地图
                     
                     // 模拟导航过程
                     simulateNavigation();
@@ -11034,11 +11034,160 @@
                     }
                 }
                 
+                // 初始化导航地图
+                function initNavigationMap() {
+                    console.log('🗺️ 初始化导航地图');
+                    
+                    const mapContainer = document.getElementById('route-map-container');
+                    if (!mapContainer) {
+                        console.error('❌ 地图容器未找到');
+                        return;
+                    }
+                    
+                    try {
+                        // 清除现有地图
+                        mapContainer.innerHTML = '';
+                        
+                        // 创建地图实例，尝试获取用户位置
+                        let initialCenter = [39.9042, 116.4074]; // 北京默认位置
+                        
+                        // 尝试获取用户实际位置
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                    console.log('📍 获取到用户位置:', position.coords.latitude, position.coords.longitude);
+                                    initialCenter = [position.coords.latitude, position.coords.longitude];
+                                    if (window.navigationMap) {
+                                        window.navigationMap.setView(initialCenter, 15);
+                                        if (window.startMarker) {
+                                            window.startMarker.setLatLng(initialCenter);
+                                        }
+                                    }
+                                },
+                                (error) => {
+                                    console.log('📍 无法获取位置，使用默认位置:', error.message);
+                                },
+                                { timeout: 5000, enableHighAccuracy: false }
+                            );
+                        }
+                        
+                        const map = L.map('route-map-container').setView(initialCenter, 15);
+                        
+                        // 添加瓦片图层 (使用OpenStreetMap)
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap contributors',
+                            maxZoom: 19
+                        }).addTo(map);
+                        
+                        // 起点标记（当前位置）
+                        const startIcon = L.divIcon({
+                            html: '<div class="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-lg flex items-center justify-center"><i class="fas fa-location-arrow text-white text-xs"></i></div>',
+                            className: 'custom-div-icon',
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        });
+                        
+                        const startMarker = L.marker(initialCenter, { icon: startIcon }).addTo(map)
+                            .bindPopup('当前位置');
+                        
+                        // 目的地标记
+                        const endIcon = L.divIcon({
+                            html: '<div class="w-8 h-8 bg-red-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center"><i class="fas fa-map-marker-alt text-white text-sm"></i></div>',
+                            className: 'custom-div-icon',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32]
+                        });
+                        
+                        // 根据目的地设置终点坐标
+                        let endCoords = [39.9142, 116.4174]; // 默认坐标
+                        if (routeData && routeData.destination) {
+                            // 根据目的地名称设置坐标（这里简化处理）
+                            const destinationCoords = {
+                                '朝阳公园': [39.9289, 116.4486],
+                                '北京站': [39.9042, 116.4278],
+                                '协和医院': [39.9127, 116.4108],
+                                '三里屯': [39.9365, 116.4478],
+                                '天安门广场': [39.9042, 116.3975],
+                                '故宫博物院': [39.9163, 116.3972]
+                            };
+                            endCoords = destinationCoords[routeData.destination] || endCoords;
+                        }
+                        
+                        const endMarker = L.marker(endCoords, { icon: endIcon }).addTo(map)
+                            .bindPopup(routeData ? routeData.destination : '目的地');
+                        
+                        // 绘制路线
+                        const routeCoords = [
+                            initialCenter, // 起点
+                            [initialCenter[0] + 0.004, initialCenter[1] + 0.005], // 中间点1
+                            [initialCenter[0] + 0.008, initialCenter[1] + 0.008], // 中间点2
+                            endCoords // 终点
+                        ];
+                        
+                        const routeLine = L.polyline(routeCoords, {
+                            color: '#4285F4',
+                            weight: 6,
+                            opacity: 0.8
+                        }).addTo(map);
+                        
+                        // 已行驶路线（绿色）
+                        const traveledLine = L.polyline([
+                            initialCenter,
+                            [initialCenter[0] + 0.004, initialCenter[1] + 0.005]
+                        ], {
+                            color: '#1a73e8',
+                            weight: 6,
+                            opacity: 0.9
+                        }).addTo(map);
+                        
+                        // 调整地图视野以包含所有标记
+                        const group = new L.featureGroup([startMarker, endMarker, routeLine]);
+                        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+                        
+                        // 禁用地图交互（保持导航专注性）
+                        map.dragging.disable();
+                        map.touchZoom.disable();
+                        map.doubleClickZoom.disable();
+                        map.scrollWheelZoom.disable();
+                        map.boxZoom.disable();
+                        map.keyboard.disable();
+                        if (map.tap) map.tap.disable();
+                        
+                        console.log('✅ 导航地图初始化成功');
+                        
+                        // 存储地图实例以便后续更新
+                        window.navigationMap = map;
+                        window.startMarker = startMarker;
+                        window.traveledLine = traveledLine;
+                        
+                    } catch (error) {
+                        console.error('❌ 地图初始化失败:', error);
+                        // 如果地图加载失败，显示友好提示
+                        mapContainer.innerHTML = `
+                            <div class="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-map text-4xl mb-4 opacity-50"></i>
+                                    <p class="text-lg mb-2">地图加载中...</p>
+                                    <p class="text-sm opacity-75">请稍候片刻</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
                 // 重置导航状态
                 function resetNavigationState() {
                     currentDestination = '';
                     routeData = null;
                     isNavigating = false;
+                    
+                    // 清理地图实例
+                    if (window.navigationMap) {
+                        window.navigationMap.remove();
+                        window.navigationMap = null;
+                        window.startMarker = null;
+                        window.traveledLine = null;
+                    }
                     
                     // 重置输入框
                     const destinationInput = document.getElementById('destination-input');
