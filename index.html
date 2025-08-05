@@ -10618,11 +10618,18 @@
                     // 地图控制按钮
                     if (mapCenterBtn) {
                         mapCenterBtn.addEventListener('click', function() {
-                            if (window.navigationMap) {
-                                // 重新居中地图到路线
-                                const group = new L.featureGroup([window.startMarker, window.navigationMap._layers[Object.keys(window.navigationMap._layers).find(key => window.navigationMap._layers[key]._popup && window.navigationMap._layers[key]._popup._content.includes('目的地') || window.navigationMap._layers[key]._popup._content === (routeData ? routeData.destination : '目的地'))]]);
-                                window.navigationMap.fitBounds(group.getBounds(), { padding: [50, 50] });
-                                showToast('地图已居中', 'success');
+                            if (window.navigationMap && window.startMarker && window.endMarker) {
+                                try {
+                                    // 重新居中地图到路线，使用存储的标记
+                                    const group = new L.featureGroup([window.startMarker, window.endMarker]);
+                                    window.navigationMap.fitBounds(group.getBounds(), { padding: [50, 50] });
+                                    showToast('地图已居中', 'success');
+                                } catch (error) {
+                                    console.error('地图居中失败:', error);
+                                    showToast('地图居中失败', 'error');
+                                }
+                            } else {
+                                showToast('地图尚未完全加载', 'warning');
                             }
                         });
                     }
@@ -11038,11 +11045,28 @@
                 function initNavigationMap() {
                     console.log('🗺️ 初始化导航地图');
                     
+                    // 检查网络状态
+                    if (!navigator.onLine) {
+                        console.warn('⚠️ 网络离线，无法加载地图');
+                        showToast('网络连接异常，地图功能可能受限', 'warning');
+                    }
+                    
                     const mapContainer = document.getElementById('route-map-container');
                     if (!mapContainer) {
                         console.error('❌ 地图容器未找到');
                         return;
                     }
+                    
+                    // 显示加载状态
+                    mapContainer.innerHTML = `
+                        <div class="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                <p class="text-lg mb-2">正在加载地图...</p>
+                                <p class="text-sm opacity-75">请稍候片刻</p>
+                            </div>
+                        </div>
+                    `;
                     
                     try {
                         // 清除现有地图
@@ -11073,11 +11097,52 @@
                         
                         const map = L.map('route-map-container').setView(initialCenter, 15);
                         
-                        // 添加瓦片图层 (使用OpenStreetMap)
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '© OpenStreetMap contributors',
-                            maxZoom: 19
-                        }).addTo(map);
+                        // 添加瓦片图层 (使用多个备用源)
+                        const tileUrls = [
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+                            'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png'
+                        ];
+                        
+                        let tileLayer = null;
+                        let currentUrlIndex = 0;
+                        
+                        function tryLoadTiles() {
+                            if (currentUrlIndex >= tileUrls.length) {
+                                console.error('所有瓦片服务都无法加载');
+                                return;
+                            }
+                            
+                            if (tileLayer) {
+                                map.removeLayer(tileLayer);
+                            }
+                            
+                            tileLayer = L.tileLayer(tileUrls[currentUrlIndex], {
+                                attribution: '© OpenStreetMap contributors',
+                                maxZoom: 19,
+                                timeout: 5000
+                            });
+                            
+                            tileLayer.on('tileerror', function(e) {
+                                console.warn(`瓦片加载失败，尝试下一个服务: ${tileUrls[currentUrlIndex]}`);
+                                currentUrlIndex++;
+                                if (currentUrlIndex < tileUrls.length) {
+                                    setTimeout(() => tryLoadTiles(), 1000);
+                                } else {
+                                    console.error('所有地图服务都无法加载，使用纯色背景');
+                                    // 显示纯色背景作为后备方案
+                                    map.getContainer().style.backgroundColor = '#f0f0f0';
+                                }
+                            });
+                            
+                            tileLayer.on('tileload', function() {
+                                console.log(`地图瓦片加载成功: ${tileUrls[currentUrlIndex]}`);
+                            });
+                            
+                            tileLayer.addTo(map);
+                        }
+                        
+                        tryLoadTiles();
                         
                         // 起点标记（当前位置）
                         const startIcon = L.divIcon({
@@ -11158,20 +11223,26 @@
                         // 存储地图实例以便后续更新
                         window.navigationMap = map;
                         window.startMarker = startMarker;
+                        window.endMarker = endMarker;
                         window.traveledLine = traveledLine;
                         
                     } catch (error) {
                         console.error('❌ 地图初始化失败:', error);
-                        // 如果地图加载失败，显示友好提示
+                        // 如果地图加载失败，显示友好提示和重试选项
                         mapContainer.innerHTML = `
                             <div class="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                                <div class="text-center text-white">
-                                    <i class="fas fa-map text-4xl mb-4 opacity-50"></i>
-                                    <p class="text-lg mb-2">地图加载中...</p>
-                                    <p class="text-sm opacity-75">请稍候片刻</p>
+                                <div class="text-center text-white px-6">
+                                    <i class="fas fa-exclamation-triangle text-4xl mb-4 text-yellow-400"></i>
+                                    <p class="text-lg mb-2">地图加载失败</p>
+                                    <p class="text-sm opacity-75 mb-4">请检查网络连接后重试</p>
+                                    <button onclick="initNavigationMap()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm transition-colors">
+                                        重新加载地图
+                                    </button>
                                 </div>
                             </div>
                         `;
+                        // 显示错误提示
+                        showToast('地图加载失败，请检查网络连接', 'error');
                     }
                 }
                 
@@ -11186,6 +11257,7 @@
                         window.navigationMap.remove();
                         window.navigationMap = null;
                         window.startMarker = null;
+                        window.endMarker = null;
                         window.traveledLine = null;
                     }
                     
