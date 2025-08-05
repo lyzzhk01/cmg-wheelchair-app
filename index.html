@@ -1819,36 +1819,46 @@
 
         <!-- 户外导航 - 导航页面 (Google Maps风格) -->
         <div id="outdoor-navigation-route" class="hidden fixed inset-0 bg-black z-50">
-            <!-- 顶部状态栏 -->
-            <div class="absolute top-0 left-0 right-0 z-20" style="background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);">
-                <div class="flex items-center justify-between p-4 pt-8">
-                    <!-- 左侧：取消按钮和ETA信息 -->
-                    <div class="flex items-center">
-                        <button id="route-back-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                            <i class="fas fa-times text-gray-700 text-lg"></i>
-                        </button>
-                        <div class="bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow-lg">
-                            <div class="flex items-center">
-                                <div class="mr-3">
-                                    <p class="text-2xl font-bold text-gray-800" id="eta-time">14:25</p>
-                                    <p class="text-xs text-gray-600">预计到达</p>
-                                </div>
-                                <div class="border-l border-gray-300 pl-3">
-                                    <p class="text-sm font-medium text-gray-800" id="route-time-display">22分钟</p>
-                                    <p class="text-xs text-gray-600" id="route-distance-display">5.2公里</p>
-                                </div>
-                            </div>
+            <!-- 顶部蓝色指令卡片 -->
+            <div class="absolute top-0 left-0 right-0 z-20 pt-6">
+                <!-- 主要指令卡片 -->
+                <div class="bg-white mx-3 mt-3 rounded-xl shadow-lg overflow-hidden">
+                    <!-- 指令头部 -->
+                    <div class="flex items-center px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-arrow-right text-white text-xl" id="direction-icon"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white text-base font-medium mb-0.5" id="next-instruction">前方右转</p>
+                            <p class="text-blue-100 text-xs" id="next-road">朝阳北路</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-2xl font-bold text-white" id="distance-to-turn">50</p>
+                            <p class="text-blue-100 text-xs">米</p>
                         </div>
                     </div>
                     
-                    <!-- 右侧：音量和菜单按钮 -->
-                    <div class="flex items-center space-x-2">
-                        <button id="voice-guidance-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg">
-                            <i class="fas fa-volume-up text-gray-700"></i>
-                        </button>
-                        <button id="route-menu-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg">
-                            <i class="fas fa-ellipsis-v text-gray-700"></i>
-                        </button>
+                    <!-- 次要信息栏 -->
+                    <div class="px-4 py-2 bg-gray-50 border-t">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 text-xs text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span id="remaining-time">18分钟</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-route mr-1"></i>
+                                    <span id="remaining-distance">4.7公里</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-battery-three-quarters mr-1"></i>
+                                    <span id="route-battery">60%</span>
+                                </div>
+                            </div>
+                            <button id="show-route-options" class="text-blue-600 text-xs font-medium">
+                                路线选项
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1866,71 +1876,28 @@
                 </div>
             </div>
             
-            <!-- 底部导航指令卡片 (Google Maps风格) -->
+            <!-- 底部操作栏 (参考高德地图优化版本) -->
             <div class="absolute bottom-0 left-0 right-0 z-20">
-                <!-- 主要指令卡片 -->
-                <div class="bg-white mx-4 mb-4 rounded-2xl shadow-2xl overflow-hidden">
-                    <!-- 指令头部 -->
-                    <div class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600">
-                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
-                            <i class="fas fa-arrow-right text-white text-2xl" id="direction-icon"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-white text-lg font-medium mb-1" id="next-instruction">前方200米右转</p>
-                            <p class="text-blue-100 text-sm" id="next-road">朝阳北路</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-3xl font-bold text-white" id="distance-to-turn">200</p>
-                            <p class="text-blue-100 text-xs">米</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 次要信息栏 -->
-                    <div class="px-4 py-3 bg-gray-50 border-t">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-4 text-sm text-gray-600">
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <span id="remaining-time">22分钟</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-route mr-1"></i>
-                                    <span id="remaining-distance">5.2公里</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-battery-three-quarters mr-1"></i>
-                                    <span id="route-battery">60%</span>
-                                </div>
-                            </div>
-                            <button id="show-route-options" class="text-blue-600 text-sm font-medium">
-                                路线选项
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 底部操作栏 (参考高德地图) -->
-                <div class="bg-white border-t border-gray-200 px-6 py-3" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
+                <div class="bg-white border-t border-gray-200 px-5 py-4" style="padding-bottom: env(safe-area-inset-bottom, 20px);">
                     <div class="flex items-center justify-between">
-                        <!-- 左侧：退出按钮 -->
-                        <button id="route-back-exit-btn" class="flex items-center space-x-2 py-2 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                            <i class="fas fa-times text-gray-700"></i>
-                            <span class="text-sm text-gray-700">退出</span>
+                        <!-- 左侧：语音播报开关 -->
+                        <button id="voice-guidance-btn" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-volume-up text-gray-700 text-lg"></i>
                         </button>
                         
                         <!-- 中间：距离和时间信息 -->
                         <div class="flex flex-col items-center">
-                            <div class="flex items-center space-x-4 text-sm">
-                                <span class="font-medium text-gray-800" id="bottom-distance">2.3公里</span>
-                                <span class="font-medium text-gray-800" id="bottom-time">11分钟</span>
+                            <div class="flex items-center space-x-4 mb-1">
+                                <span class="text-xl font-bold text-gray-800" id="bottom-distance">4.7公里</span>
+                                <span class="text-xl font-bold text-gray-800" id="bottom-time">18分钟</span>
                             </div>
-                            <div class="text-xs text-gray-500" id="bottom-eta">20:39到达</div>
+                            <div class="text-xs text-gray-500" id="bottom-eta">21:09到达</div>
                         </div>
                         
                         <!-- 右侧：结束导航按钮 -->
-                        <button id="end-navigation-btn" class="flex items-center space-x-2 py-2 px-4 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
-                            <i class="fas fa-stop"></i>
-                            <span class="text-sm">结束导航</span>
+                        <button id="end-navigation-btn" class="flex items-center justify-center px-4 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+                            <i class="fas fa-stop text-sm mr-1"></i>
+                            <span class="text-sm font-medium">结束导航</span>
                         </button>
                     </div>
                 </div>
@@ -8072,6 +8039,24 @@
                 }
             }
             
+            // 悬浮播放器显示/隐藏逻辑
+            const floatingPlayer = document.getElementById('floating-audio-player');
+            if (floatingPlayer) {
+                // 在导航页面隐藏悬浮播放器
+                const hidePlayerPages = [
+                    'outdoor-navigation-destination', 
+                    'outdoor-navigation-confirm', 
+                    'outdoor-navigation-route', 
+                    'outdoor-navigation-arrived'
+                ];
+                
+                if (hidePlayerPages.includes(pageId)) {
+                    floatingPlayer.style.display = 'none';
+                } else {
+                    floatingPlayer.style.display = 'block';
+                }
+            }
+            
             // 显示目标页面
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
@@ -10560,51 +10545,21 @@
                 
                 // 导航页面初始化
                 function initRoutePage() {
-                    const routeBackBtn = document.getElementById('route-back-btn');
-                    const routeBackExitBtn = document.getElementById('route-back-exit-btn');
                     const endNavigationBtn = document.getElementById('end-navigation-btn');
                     const voiceGuidanceBtn = document.getElementById('voice-guidance-btn');
-                    const routeMenuBtn = document.getElementById('route-menu-btn');
-                    const showRouteOptionsBtn = document.getElementById('show-route-options');
                     const mapCenterBtn = document.getElementById('map-center-btn');
                     
-                    // 顶部退出按钮 - 直接退出导航
-                    if (routeBackBtn) {
-                        routeBackBtn.addEventListener('click', function() {
-                            showNavigationCancelConfirm();
-                        });
-                    }
-                    
-                    // 底部左侧退出按钮 - 直接退出导航
-                    if (routeBackExitBtn) {
-                        routeBackExitBtn.addEventListener('click', function() {
-                            showNavigationCancelConfirm();
-                        });
-                    }
-                    
-                    // 底部右侧结束导航按钮 - 直接结束导航
+                    // 结束导航按钮
                     if (endNavigationBtn) {
                         endNavigationBtn.addEventListener('click', function() {
                             showNavigationCancelConfirm();
                         });
                     }
-
                     
+                    // 语音播报开关
                     if (voiceGuidanceBtn) {
                         voiceGuidanceBtn.addEventListener('click', function() {
                             toggleVoiceGuidance();
-                        });
-                    }
-                    
-                    if (routeMenuBtn) {
-                        routeMenuBtn.addEventListener('click', function() {
-                            showRouteMenu();
-                        });
-                    }
-                    
-                    if (showRouteOptionsBtn) {
-                        showRouteOptionsBtn.addEventListener('click', function() {
-                            showToast('路线选项功能开发中', 'info');
                         });
                     }
                     
@@ -10772,7 +10727,7 @@
                     simulateNavigation();
                 }
                 
-                // 更新导航页面数据 (Google Maps风格)
+                // 更新导航页面数据 (优化版本)
                 function updateRoutePageData() {
                     if (!routeData) return;
                     
@@ -10781,16 +10736,7 @@
                     const etaTime = new Date(now.getTime() + routeData.estimatedTime * 60000);
                     const etaTimeStr = `${etaTime.getHours()}:${etaTime.getMinutes().toString().padStart(2, '0')}`;
                     
-                    // 更新顶部ETA信息
-                    const etaTimeDisplay = document.getElementById('eta-time');
-                    const routeTimeDisplay = document.getElementById('route-time-display');
-                    const routeDistanceDisplay = document.getElementById('route-distance-display');
-                    
-                    if (etaTimeDisplay) etaTimeDisplay.textContent = etaTimeStr;
-                    if (routeTimeDisplay) routeTimeDisplay.textContent = `${routeData.estimatedTime}分钟`;
-                    if (routeDistanceDisplay) routeDistanceDisplay.textContent = `${routeData.distance}公里`;
-                    
-                    // 更新底部信息栏
+                    // 更新顶部蓝色卡片中的信息栏
                     const remainingTime = document.getElementById('remaining-time');
                     const remainingDistance = document.getElementById('remaining-distance');
                     const routeBattery = document.getElementById('route-battery');
@@ -10799,7 +10745,7 @@
                     if (remainingDistance) remainingDistance.textContent = `${routeData.distance}公里`;
                     if (routeBattery) routeBattery.textContent = '60%';
                     
-                    // 更新底部操作栏的数据 (参考高德地图样式)
+                    // 更新底部操作栏的数据 (高德地图样式)
                     const bottomDistance = document.getElementById('bottom-distance');
                     const bottomTime = document.getElementById('bottom-time');
                     const bottomEta = document.getElementById('bottom-eta');
@@ -10835,21 +10781,12 @@
                         const etaTime = new Date(now.getTime() + remainingTime * 60000);
                         const etaTimeStr = `${etaTime.getHours()}:${etaTime.getMinutes().toString().padStart(2, '0')}`;
                         
-                        // 更新顶部ETA信息
-                        const etaTimeDisplay = document.getElementById('eta-time');
-                        const routeTimeDisplay = document.getElementById('route-time-display');
-                        const routeDistanceDisplay = document.getElementById('route-distance-display');
+                        // 更新顶部蓝色卡片信息栏
+                        const remainingTimeTop = document.getElementById('remaining-time');
+                        const remainingDistanceTop = document.getElementById('remaining-distance');
                         
-                        if (etaTimeDisplay) etaTimeDisplay.textContent = etaTimeStr;
-                        if (routeTimeDisplay) routeTimeDisplay.textContent = `${Math.max(0, remainingTime)}分钟`;
-                        if (routeDistanceDisplay) routeDistanceDisplay.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
-                        
-                        // 更新底部信息栏
-                        const remainingTimeBottom = document.getElementById('remaining-time');
-                        const remainingDistanceBottom = document.getElementById('remaining-distance');
-                        
-                        if (remainingTimeBottom) remainingTimeBottom.textContent = `${Math.max(0, remainingTime)}分钟`;
-                        if (remainingDistanceBottom) remainingDistanceBottom.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
+                        if (remainingTimeTop) remainingTimeTop.textContent = `${Math.max(0, remainingTime)}分钟`;
+                        if (remainingDistanceTop) remainingDistanceTop.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
                         
                         // 更新底部操作栏的实时数据
                         const bottomDistance = document.getElementById('bottom-distance');
