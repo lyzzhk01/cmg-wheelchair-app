@@ -1796,7 +1796,7 @@
                     </div>
                     
                     <!-- 开始导航按钮 -->
-                    <button id="start-navigation-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                    <button id="start-outdoor-navigation-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
                         <i class="fas fa-navigation mr-2"></i>开始导航
                     </button>
                 </div>
@@ -8080,8 +8080,16 @@
             // 底部导航栏显示/隐藏逻辑
             const bottomNav = document.getElementById('bottom-nav');
             if (bottomNav) {
-                // 语音对话页面是二级页面，隐藏底部导航栏
-                if (pageId === 'voice-chat') {
+                // 这些页面是二级页面，需要隐藏底部导航栏
+                const hideNavPages = [
+                    'voice-chat', 
+                    'outdoor-navigation-destination', 
+                    'outdoor-navigation-confirm', 
+                    'outdoor-navigation-route', 
+                    'outdoor-navigation-arrived'
+                ];
+                
+                if (hideNavPages.includes(pageId)) {
                     bottomNav.style.display = 'none';
                 } else {
                     bottomNav.style.display = 'block';
@@ -10372,10 +10380,15 @@
                 // 路线导航按钮点击
                 const routeNavigationBtn = document.getElementById('route-navigation-btn');
                 if (routeNavigationBtn) {
-                    routeNavigationBtn.addEventListener('click', function() {
+                    console.log('✅ 路线导航按钮事件绑定成功');
+                    routeNavigationBtn.addEventListener('click', function(e) {
+                        console.log('🧭 路线导航按钮被点击');
+                        e.preventDefault();
+                        e.stopPropagation();
                         showPage('outdoor-navigation-destination');
-                        hideBottomNav();
                     });
+                } else {
+                    console.error('❌ 路线导航按钮未找到');
                 }
                 
                 // 目的地输入页面逻辑
@@ -10421,7 +10434,6 @@
                     if (destinationBackBtn) {
                         destinationBackBtn.addEventListener('click', function() {
                             showPage('voice');
-                            showBottomNav();
                         });
                     }
                     
@@ -10552,7 +10564,7 @@
                 // 导航确认页面初始化
                 function initConfirmPage() {
                     const confirmBackBtn = document.getElementById('confirm-back-btn');
-                    const startNavigationBtn = document.getElementById('start-navigation-btn');
+                    const startNavigationBtn = document.getElementById('start-outdoor-navigation-btn');
                     
                     if (confirmBackBtn) {
                         confirmBackBtn.addEventListener('click', function() {
@@ -10562,8 +10574,11 @@
                     
                     if (startNavigationBtn) {
                         startNavigationBtn.addEventListener('click', function() {
-                            startNavigation();
+                            console.log('✅ 户外导航确认按钮被点击');
+                            startOutdoorNavigation();
                         });
+                    } else {
+                        console.error('❌ 户外导航确认按钮未找到');
                     }
                 }
                 
@@ -10634,7 +10649,6 @@
                     if (backToDiscoveryBtn) {
                         backToDiscoveryBtn.addEventListener('click', function() {
                             showPage('voice');
-                            showBottomNav();
                             resetNavigationState();
                         });
                     }
@@ -10754,8 +10768,9 @@
                     }
                 }
                 
-                // 开始导航
-                function startNavigation() {
+                // 开始户外导航
+                function startOutdoorNavigation() {
+                    console.log('🚀 开始户外导航');
                     isNavigating = true;
                     updateRoutePageData();
                     showPage('outdoor-navigation-route');
@@ -10930,7 +10945,6 @@
                     yesBtn.addEventListener('click', () => {
                         removeModal();
                         showPage('voice');
-                        showBottomNav();
                         resetNavigationState();
                     });
                     
@@ -11046,10 +11060,11 @@
             // 功能入口卡片点击事件
             const featureCards = document.querySelectorAll('#voice .grid > div');
             featureCards.forEach(card => {
-                card.addEventListener('click', function() {
+                card.addEventListener('click', function(e) {
                     const featureName = this.querySelector('h4').textContent;
                     if (featureName === '路线导航') {
-                        // 路线导航功能已实现，不显示提示
+                        // 路线导航功能已由专门的事件处理器处理，阻止这里的处理
+                        e.stopPropagation();
                         return;
                     }
                     showToast(`${featureName}功能开发中，敬请期待`, 'info');
