@@ -1909,24 +1909,28 @@
                     </div>
                 </div>
                 
-                <!-- 底部操作栏 -->
-                <div class="bg-white border-t border-gray-200 px-4 py-2" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
-                    <div class="flex items-center justify-center space-x-6">
-                        <button id="cancel-navigation-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-                            <i class="fas fa-times text-lg mb-1"></i>
-                            <span class="text-xs">结束</span>
+                <!-- 底部操作栏 (参考高德地图) -->
+                <div class="bg-white border-t border-gray-200 px-6 py-3" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
+                    <div class="flex items-center justify-between">
+                        <!-- 左侧：退出按钮 -->
+                        <button id="route-back-exit-btn" class="flex items-center space-x-2 py-2 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-times text-gray-700"></i>
+                            <span class="text-sm text-gray-700">退出</span>
                         </button>
-                        <button id="pause-navigation-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-                            <i class="fas fa-pause text-lg mb-1"></i>
-                            <span class="text-xs">暂停</span>
-                        </button>
-                        <button id="navigation-overview-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-                            <i class="fas fa-route text-lg mb-1"></i>
-                            <span class="text-xs">总览</span>
-                        </button>
-                        <button id="navigation-share-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-                            <i class="fas fa-share text-lg mb-1"></i>
-                            <span class="text-xs">分享</span>
+                        
+                        <!-- 中间：距离和时间信息 -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span class="font-medium text-gray-800" id="bottom-distance">2.3公里</span>
+                                <span class="font-medium text-gray-800" id="bottom-time">11分钟</span>
+                            </div>
+                            <div class="text-xs text-gray-500" id="bottom-eta">20:39到达</div>
+                        </div>
+                        
+                        <!-- 右侧：结束导航按钮 -->
+                        <button id="end-navigation-btn" class="flex items-center space-x-2 py-2 px-4 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+                            <i class="fas fa-stop"></i>
+                            <span class="text-sm">结束导航</span>
                         </button>
                     </div>
                 </div>
@@ -10557,30 +10561,34 @@
                 // 导航页面初始化
                 function initRoutePage() {
                     const routeBackBtn = document.getElementById('route-back-btn');
-                    const cancelNavigationBtn = document.getElementById('cancel-navigation-btn');
-                    const pauseNavigationBtn = document.getElementById('pause-navigation-btn');
+                    const routeBackExitBtn = document.getElementById('route-back-exit-btn');
+                    const endNavigationBtn = document.getElementById('end-navigation-btn');
                     const voiceGuidanceBtn = document.getElementById('voice-guidance-btn');
                     const routeMenuBtn = document.getElementById('route-menu-btn');
                     const showRouteOptionsBtn = document.getElementById('show-route-options');
-                    const navigationOverviewBtn = document.getElementById('navigation-overview-btn');
-                    const navigationShareBtn = document.getElementById('navigation-share-btn');
                     const mapCenterBtn = document.getElementById('map-center-btn');
                     
-                    if (routeBackBtn || cancelNavigationBtn) {
-                        const handleCancel = function() {
+                    // 顶部退出按钮 - 直接退出导航
+                    if (routeBackBtn) {
+                        routeBackBtn.addEventListener('click', function() {
                             showNavigationCancelConfirm();
-                        };
-                        
-                        if (routeBackBtn) routeBackBtn.addEventListener('click', handleCancel);
-                        if (cancelNavigationBtn) cancelNavigationBtn.addEventListener('click', handleCancel);
-                    }
-
-                    
-                    if (pauseNavigationBtn) {
-                        pauseNavigationBtn.addEventListener('click', function() {
-                            toggleNavigationPause();
                         });
                     }
+                    
+                    // 底部左侧退出按钮 - 直接退出导航
+                    if (routeBackExitBtn) {
+                        routeBackExitBtn.addEventListener('click', function() {
+                            showNavigationCancelConfirm();
+                        });
+                    }
+                    
+                    // 底部右侧结束导航按钮 - 直接结束导航
+                    if (endNavigationBtn) {
+                        endNavigationBtn.addEventListener('click', function() {
+                            showNavigationCancelConfirm();
+                        });
+                    }
+
                     
                     if (voiceGuidanceBtn) {
                         voiceGuidanceBtn.addEventListener('click', function() {
@@ -10597,18 +10605,6 @@
                     if (showRouteOptionsBtn) {
                         showRouteOptionsBtn.addEventListener('click', function() {
                             showToast('路线选项功能开发中', 'info');
-                        });
-                    }
-                    
-                    if (navigationOverviewBtn) {
-                        navigationOverviewBtn.addEventListener('click', function() {
-                            showToast('总览功能开发中', 'info');
-                        });
-                    }
-                    
-                    if (navigationShareBtn) {
-                        navigationShareBtn.addEventListener('click', function() {
-                            showToast('分享功能开发中', 'info');
                         });
                     }
                     
@@ -10802,6 +10798,15 @@
                     if (remainingTime) remainingTime.textContent = `${routeData.estimatedTime}分钟`;
                     if (remainingDistance) remainingDistance.textContent = `${routeData.distance}公里`;
                     if (routeBattery) routeBattery.textContent = '60%';
+                    
+                    // 更新底部操作栏的数据 (参考高德地图样式)
+                    const bottomDistance = document.getElementById('bottom-distance');
+                    const bottomTime = document.getElementById('bottom-time');
+                    const bottomEta = document.getElementById('bottom-eta');
+                    
+                    if (bottomDistance) bottomDistance.textContent = `${routeData.distance}公里`;
+                    if (bottomTime) bottomTime.textContent = `${routeData.estimatedTime}分钟`;
+                    if (bottomEta) bottomEta.textContent = `${etaTimeStr}到达`;
                 }
                 
                 // 模拟导航过程 (Google Maps风格)
@@ -10845,6 +10850,15 @@
                         
                         if (remainingTimeBottom) remainingTimeBottom.textContent = `${Math.max(0, remainingTime)}分钟`;
                         if (remainingDistanceBottom) remainingDistanceBottom.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
+                        
+                        // 更新底部操作栏的实时数据
+                        const bottomDistance = document.getElementById('bottom-distance');
+                        const bottomTime = document.getElementById('bottom-time');
+                        const bottomEta = document.getElementById('bottom-eta');
+                        
+                        if (bottomDistance) bottomDistance.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
+                        if (bottomTime) bottomTime.textContent = `${Math.max(0, remainingTime)}分钟`;
+                        if (bottomEta) bottomEta.textContent = `${etaTimeStr}到达`;
                         
                         // 更新导航指令
                         if (currentInstruction < instructions.length) {
@@ -10953,22 +10967,7 @@
                     });
                 }
                 
-                // 切换导航暂停状态 (Google Maps风格)
-                function toggleNavigationPause() {
-                    const pauseBtn = document.getElementById('pause-navigation-btn');
-                    if (pauseBtn) {
-                        const currentIcon = pauseBtn.querySelector('i');
-                        const isPaused = currentIcon.classList.contains('fa-play');
-                        
-                        if (isPaused) {
-                            pauseBtn.innerHTML = '<i class="fas fa-pause text-lg mb-1"></i><span class="text-xs">暂停</span>';
-                            showToast('导航已恢复', 'success');
-                        } else {
-                            pauseBtn.innerHTML = '<i class="fas fa-play text-lg mb-1"></i><span class="text-xs">继续</span>';
-                            showToast('导航已暂停', 'warning');
-                        }
-                    }
-                }
+
                 
                 // 切换语音引导 (Google Maps风格)
                 function toggleVoiceGuidance() {
