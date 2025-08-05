@@ -1412,7 +1412,7 @@
                 </div>
                 
                 <!-- 路线导航 -->
-                <div class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                <div class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer" id="route-navigation-btn">
                     <div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
                         <i class="fas fa-route text-white text-xl"></i>
                     </div>
@@ -1581,6 +1581,464 @@
                     </div>
                     <p class="text-lg text-gray-800 font-medium mb-2">正在聆听...</p>
                     <p id="voice-text" class="text-sm text-gray-500 italic">请开始说话</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 户外导航 - 目的地输入页面 -->
+        <div id="outdoor-navigation-destination" class="hidden fixed inset-0 bg-gray-50 z-50">
+            <!-- 顶部导航栏 -->
+            <div class="fixed top-0 left-0 right-0 flex items-center p-4 bg-white border-b border-gray-100 z-10">
+                <button id="destination-back-btn" class="mr-3 text-gray-600 hover:text-gray-800 active:text-gray-900">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-center">户外导航</h2>
+                </div>
+                <div class="w-8"></div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="pt-16 pb-8 px-4 h-full overflow-y-auto">
+                <div class="max-w-md mx-auto">
+                    <!-- 导航图标和说明 -->
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-route text-green-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">请输入目的地</h3>
+                        <p class="text-gray-600 text-sm">支持语音输入或手动输入您想去的地方</p>
+                    </div>
+                    
+                    <!-- 输入方式选择 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+                        <div class="flex space-x-4 mb-4">
+                            <button id="voice-input-tab" class="flex-1 py-2 px-4 rounded-lg bg-blue-500 text-white text-sm font-medium">
+                                <i class="fas fa-microphone mr-2"></i>语音输入
+                            </button>
+                            <button id="text-input-tab" class="flex-1 py-2 px-4 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium">
+                                <i class="fas fa-keyboard mr-2"></i>手动输入
+                            </button>
+                        </div>
+                        
+                        <!-- 语音输入区域 -->
+                        <div id="voice-input-area" class="text-center">
+                            <button id="start-voice-input-btn" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl active:scale-95 transition-all duration-300 mx-auto mb-4">
+                                <i class="fas fa-microphone text-2xl"></i>
+                            </button>
+                            <p class="text-sm text-gray-600 mb-4">点击开始语音输入</p>
+                            <div id="voice-input-result" class="hidden">
+                                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <p class="text-sm text-gray-700" id="voice-input-text"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 文本输入区域 -->
+                        <div id="text-input-area" class="hidden">
+                            <div class="relative">
+                                <input type="text" id="destination-input" placeholder="例如：朝阳公园、北京站、三里屯..." 
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button id="clear-input-btn" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 常用目的地 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">常用目的地</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="common-destination-btn flex items-center p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors" data-destination="朝阳公园">
+                                <i class="fas fa-tree text-green-500 mr-3"></i>
+                                <span class="text-sm">朝阳公园</span>
+                            </button>
+                            <button class="common-destination-btn flex items-center p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors" data-destination="北京站">
+                                <i class="fas fa-train text-blue-500 mr-3"></i>
+                                <span class="text-sm">北京站</span>
+                            </button>
+                            <button class="common-destination-btn flex items-center p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors" data-destination="协和医院">
+                                <i class="fas fa-hospital text-red-500 mr-3"></i>
+                                <span class="text-sm">协和医院</span>
+                            </button>
+                            <button class="common-destination-btn flex items-center p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors" data-destination="三里屯">
+                                <i class="fas fa-shopping-bag text-purple-500 mr-3"></i>
+                                <span class="text-sm">三里屯</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 确认按钮 -->
+                    <button id="confirm-destination-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors" disabled>
+                        确认目的地
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 户外导航 - 导航前确认页面 -->
+        <div id="outdoor-navigation-confirm" class="hidden fixed inset-0 bg-gray-50 z-50">
+            <!-- 顶部导航栏 -->
+            <div class="fixed top-0 left-0 right-0 flex items-center p-4 bg-white border-b border-gray-100 z-10">
+                <button id="confirm-back-btn" class="mr-3 text-gray-600 hover:text-gray-800 active:text-gray-900">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-center">导航确认</h2>
+                </div>
+                <div class="w-8"></div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="pt-16 pb-8 px-4 h-full overflow-y-auto">
+                <div class="max-w-md mx-auto">
+                    <!-- 目的地信息 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-map-marker-alt text-green-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">目的地</h3>
+                                <p class="text-sm text-gray-600" id="destination-name">朝阳公园</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">预计距离</span>
+                                <span class="font-medium" id="estimated-distance">5.2 km</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">预计时间</span>
+                                <span class="font-medium" id="estimated-time">25 分钟</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 电量评估 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-battery-three-quarters text-blue-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">电量评估</h3>
+                                <p class="text-sm text-green-600" id="battery-assessment">电量充足，支持往返</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-blue-500" id="current-battery">65%</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-3">
+                            <p class="text-xs text-blue-700" id="battery-details">
+                                当前电量可支持约 45 公里行程，本次往返预计消耗 12% 电量
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 天气信息 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-sun text-yellow-500" id="weather-icon"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">天气状况</h3>
+                                <p class="text-sm text-gray-600" id="weather-description">晴朗，适宜出行</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-gray-700" id="current-temperature">22°C</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div class="bg-gray-50 rounded p-2 text-center">
+                                <i class="fas fa-thermometer-half text-orange-500 mb-1"></i>
+                                <p class="text-gray-600">体感温度</p>
+                                <p class="font-medium" id="feels-like">24°C</p>
+                            </div>
+                            <div class="bg-gray-50 rounded p-2 text-center">
+                                <i class="fas fa-wind text-blue-500 mb-1"></i>
+                                <p class="text-gray-600">风速</p>
+                                <p class="font-medium" id="wind-speed">3级</p>
+                            </div>
+                            <div class="bg-gray-50 rounded p-2 text-center">
+                                <i class="fas fa-cloud-rain text-blue-600 mb-1"></i>
+                                <p class="text-gray-600">降水</p>
+                                <p class="font-medium" id="precipitation">0%</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-2 bg-green-50 rounded-lg" id="weather-advice">
+                            <p class="text-xs text-green-700">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                天气条件良好，适合外出
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 日程冲突检查 -->
+                    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-calendar-alt text-purple-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">日程检查</h3>
+                                <p class="text-sm text-green-600" id="schedule-status">无冲突</p>
+                            </div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3" id="schedule-details">
+                            <p class="text-xs text-green-700">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                未发现与现有安排冲突，可以开始导航
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 开始导航按钮 -->
+                    <button id="start-navigation-btn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-navigation mr-2"></i>开始导航
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 户外导航 - 导航页面 (Google Maps风格) -->
+        <div id="outdoor-navigation-route" class="hidden fixed inset-0 bg-black z-50">
+            <!-- 顶部状态栏 -->
+            <div class="absolute top-0 left-0 right-0 z-20" style="background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);">
+                <div class="flex items-center justify-between p-4 pt-8">
+                    <!-- 左侧：取消按钮和ETA信息 -->
+                    <div class="flex items-center">
+                        <button id="route-back-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                            <i class="fas fa-times text-gray-700 text-lg"></i>
+                        </button>
+                        <div class="bg-white bg-opacity-90 rounded-lg px-3 py-2 shadow-lg">
+                            <div class="flex items-center">
+                                <div class="mr-3">
+                                    <p class="text-2xl font-bold text-gray-800" id="eta-time">14:25</p>
+                                    <p class="text-xs text-gray-600">预计到达</p>
+                                </div>
+                                <div class="border-l border-gray-300 pl-3">
+                                    <p class="text-sm font-medium text-gray-800" id="route-time-display">22分钟</p>
+                                    <p class="text-xs text-gray-600" id="route-distance-display">5.2公里</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：音量和菜单按钮 -->
+                    <div class="flex items-center space-x-2">
+                        <button id="voice-guidance-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-volume-up text-gray-700"></i>
+                        </button>
+                        <button id="route-menu-btn" class="w-10 h-10 bg-white bg-opacity-90 rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-ellipsis-v text-gray-700"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 全屏地图区域 -->
+            <div class="absolute inset-0">
+                <!-- 地图背景 -->
+                <div class="absolute inset-0" id="route-map-background" 
+                     style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/navigation-day-v1/static/geojson(%7B%22type%22%3A%22LineString%22%2C%22coordinates%22%3A%5B%5B116.4074%2C39.9042%5D%2C%5B116.4174%2C39.9142%5D%2C%5B116.4274%2C39.9242%5D%5D%7D)/116.4174,39.9142,15,0/400x800?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover; background-position: center;">
+                </div>
+                
+                <!-- 路线轨迹 -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                    <!-- 主要路线 -->
+                    <path d="M 200 680 Q 250 500 Q 300 350 350 200" 
+                          stroke="#4285F4" 
+                          stroke-width="8" 
+                          fill="none" 
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                    <!-- 已行驶路线 -->
+                    <path d="M 200 680 Q 225 600 250 500" 
+                          stroke="#1a73e8" 
+                          stroke-width="8" 
+                          fill="none" 
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+                
+                <!-- 当前位置标记 (类似Google Maps) -->
+                <div class="absolute" style="left: 50%; top: 85%; transform: translate(-50%, -50%);">
+                    <div class="relative">
+                        <!-- 方向指示箭头 -->
+                        <div class="w-8 h-8 bg-blue-600 transform rotate-45" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 50% 50% 50% 0;"></div>
+                        <!-- 位置圆圈 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-blue-600"></div>
+                        <!-- 精度圆圈 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-blue-400 border-opacity-30 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                
+                <!-- 目的地标记 -->
+                <div class="absolute" style="left: 70%; top: 25%; transform: translate(-50%, -50%);">
+                    <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                    </div>
+                </div>
+                
+                <!-- 地图控制按钮 -->
+                <div class="absolute right-4 bottom-48 flex flex-col space-y-2">
+                    <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+                        <i class="fas fa-crosshairs text-gray-600"></i>
+                    </button>
+                    <button class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+                        <i class="fas fa-layer-group text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 底部导航指令卡片 (Google Maps风格) -->
+            <div class="absolute bottom-0 left-0 right-0 z-20">
+                <!-- 主要指令卡片 -->
+                <div class="bg-white mx-4 mb-4 rounded-2xl shadow-2xl overflow-hidden">
+                    <!-- 指令头部 -->
+                    <div class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600">
+                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-arrow-right text-white text-2xl" id="direction-icon"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white text-lg font-medium mb-1" id="next-instruction">前方200米右转</p>
+                            <p class="text-blue-100 text-sm" id="next-road">朝阳北路</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-3xl font-bold text-white" id="distance-to-turn">200</p>
+                            <p class="text-blue-100 text-xs">米</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 次要信息栏 -->
+                    <div class="px-4 py-3 bg-gray-50 border-t">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <div class="flex items-center">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span id="remaining-time">22分钟</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-route mr-1"></i>
+                                    <span id="remaining-distance">5.2公里</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-battery-three-quarters mr-1"></i>
+                                    <span id="route-battery">60%</span>
+                                </div>
+                            </div>
+                            <button id="show-route-options" class="text-blue-600 text-sm font-medium">
+                                路线选项
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部操作栏 -->
+                <div class="bg-white border-t border-gray-200 px-4 py-2" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
+                    <div class="flex items-center justify-center space-x-6">
+                        <button id="cancel-navigation-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-times text-lg mb-1"></i>
+                            <span class="text-xs">结束</span>
+                        </button>
+                        <button id="pause-navigation-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-pause text-lg mb-1"></i>
+                            <span class="text-xs">暂停</span>
+                        </button>
+                        <button id="navigation-overview-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-route text-lg mb-1"></i>
+                            <span class="text-xs">总览</span>
+                        </button>
+                        <button id="navigation-share-btn" class="flex flex-col items-center py-2 px-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-share text-lg mb-1"></i>
+                            <span class="text-xs">分享</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 路线菜单弹窗 -->
+            <div id="route-menu-modal" class="hidden absolute inset-0 bg-black bg-opacity-50 z-30 flex items-end">
+                <div class="bg-white w-full rounded-t-3xl p-6 transform translate-y-full transition-transform duration-300" id="route-menu-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">导航设置</h3>
+                        <button id="close-route-menu" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i class="fas fa-times text-gray-600"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                            <div class="flex items-center">
+                                <i class="fas fa-volume-up w-6 text-blue-600 mr-3"></i>
+                                <span>语音提示</span>
+                            </div>
+                            <div class="w-12 h-6 bg-blue-600 rounded-full relative">
+                                <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                            <div class="flex items-center">
+                                <i class="fas fa-satellite w-6 text-blue-600 mr-3"></i>
+                                <span>卫星视图</span>
+                            </div>
+                            <div class="w-12 h-6 bg-gray-300 rounded-full relative">
+                                <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-moon w-6 text-blue-600 mr-3"></i>
+                                <span>夜间模式</span>
+                            </div>
+                            <div class="w-12 h-6 bg-gray-300 rounded-full relative">
+                                <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 户外导航 - 到达目的地页面 -->
+        <div id="outdoor-navigation-arrived" class="hidden fixed inset-0 bg-gray-50 z-50">
+            <div class="flex flex-col items-center justify-center h-full p-4">
+                <div class="text-center max-w-md mx-auto">
+                    <!-- 成功图标 -->
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-check text-green-500 text-4xl"></i>
+                    </div>
+                    
+                    <!-- 到达信息 -->
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">已到达目的地</h2>
+                    <p class="text-lg text-gray-600 mb-1" id="arrived-destination">朝阳公园</p>
+                    <p class="text-sm text-gray-500 mb-8" id="arrival-time">14:25 到达</p>
+                    
+                    <!-- 行程统计 -->
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8 w-full">
+                        <h3 class="font-semibold text-gray-800 mb-4 text-center">本次行程</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p class="text-2xl font-bold text-blue-500" id="trip-distance">5.2</p>
+                                <p class="text-xs text-gray-600">公里</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-green-500" id="trip-time">22</p>
+                                <p class="text-xs text-gray-600">分钟</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-orange-500" id="trip-battery">8%</p>
+                                <p class="text-xs text-gray-600">电量消耗</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 返回按钮 -->
+                    <button id="back-to-discovery-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>返回发现广场
+                    </button>
                 </div>
             </div>
         </div>
@@ -7608,7 +8066,8 @@
                 'map-naming', 'environment-check', 'mapping-precautions', 'set-charging-home',
                 'real-time-mapping', 'set-charging-station', 
                 'set-waypoints', 'set-parking-spots', 'set-safety-zones', 'set-restricted-zones', 
-                'mapping-complete', 'app-update', 'firmware-update'
+                'mapping-complete', 'app-update', 'firmware-update',
+                'outdoor-navigation-destination', 'outdoor-navigation-confirm', 'outdoor-navigation-route', 'outdoor-navigation-arrived'
             ];
             
             pages.forEach(page => {
@@ -9903,11 +10362,696 @@
                 });
             }
             
-            // 功能入口卡片点击事件（暂时显示提示）
+            // 户外导航功能实现
+            function initOutdoorNavigation() {
+                // 全局导航状态
+                let currentDestination = '';
+                let routeData = null;
+                let isNavigating = false;
+                
+                // 路线导航按钮点击
+                const routeNavigationBtn = document.getElementById('route-navigation-btn');
+                if (routeNavigationBtn) {
+                    routeNavigationBtn.addEventListener('click', function() {
+                        showPage('outdoor-navigation-destination');
+                        hideBottomNav();
+                    });
+                }
+                
+                // 目的地输入页面逻辑
+                initDestinationPage();
+                
+                // 导航确认页面逻辑
+                initConfirmPage();
+                
+                // 导航页面逻辑
+                initRoutePage();
+                
+                // 到达页面逻辑
+                initArrivedPage();
+                
+                function hideBottomNav() {
+                    const bottomNav = document.getElementById('bottom-nav');
+                    if (bottomNav) {
+                        bottomNav.style.display = 'none';
+                    }
+                }
+                
+                function showBottomNav() {
+                    const bottomNav = document.getElementById('bottom-nav');
+                    if (bottomNav) {
+                        bottomNav.style.display = 'block';
+                    }
+                }
+                
+                // 目的地输入页面初始化
+                function initDestinationPage() {
+                    const destinationBackBtn = document.getElementById('destination-back-btn');
+                    const voiceInputTab = document.getElementById('voice-input-tab');
+                    const textInputTab = document.getElementById('text-input-tab');
+                    const voiceInputArea = document.getElementById('voice-input-area');
+                    const textInputArea = document.getElementById('text-input-area');
+                    const startVoiceInputBtn = document.getElementById('start-voice-input-btn');
+                    const destinationInput = document.getElementById('destination-input');
+                    const clearInputBtn = document.getElementById('clear-input-btn');
+                    const confirmDestinationBtn = document.getElementById('confirm-destination-btn');
+                    const commonDestinationBtns = document.querySelectorAll('.common-destination-btn');
+                    
+                    // 返回按钮
+                    if (destinationBackBtn) {
+                        destinationBackBtn.addEventListener('click', function() {
+                            showPage('voice');
+                            showBottomNav();
+                        });
+                    }
+                    
+                    // 输入方式切换
+                    if (voiceInputTab && textInputTab) {
+                        voiceInputTab.addEventListener('click', function() {
+                            switchToVoiceInput();
+                        });
+                        
+                        textInputTab.addEventListener('click', function() {
+                            switchToTextInput();
+                        });
+                    }
+                    
+                    function switchToVoiceInput() {
+                        voiceInputTab.className = 'flex-1 py-2 px-4 rounded-lg bg-blue-500 text-white text-sm font-medium';
+                        textInputTab.className = 'flex-1 py-2 px-4 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium';
+                        voiceInputArea.classList.remove('hidden');
+                        textInputArea.classList.add('hidden');
+                    }
+                    
+                    function switchToTextInput() {
+                        textInputTab.className = 'flex-1 py-2 px-4 rounded-lg bg-blue-500 text-white text-sm font-medium';
+                        voiceInputTab.className = 'flex-1 py-2 px-4 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium';
+                        textInputArea.classList.remove('hidden');
+                        voiceInputArea.classList.add('hidden');
+                    }
+                    
+                    // 语音输入
+                    if (startVoiceInputBtn) {
+                        startVoiceInputBtn.addEventListener('click', function() {
+                            simulateVoiceInput();
+                        });
+                    }
+                    
+                    function simulateVoiceInput() {
+                        const voiceInputResult = document.getElementById('voice-input-result');
+                        const voiceInputText = document.getElementById('voice-input-text');
+                        
+                        // 模拟语音识别过程
+                        startVoiceInputBtn.classList.add('animate-pulse');
+                        startVoiceInputBtn.innerHTML = '<i class="fas fa-microphone text-2xl animate-bounce"></i>';
+                        
+                        setTimeout(() => {
+                            // 模拟NLP解析结果
+                            const destinations = ['朝阳公园', '北京站', '协和医院', '三里屯', '天安门广场', '故宫博物院'];
+                            const randomDestination = destinations[Math.floor(Math.random() * destinations.length)];
+                            
+                            voiceInputText.textContent = `我想去${randomDestination}`;
+                            voiceInputResult.classList.remove('hidden');
+                            currentDestination = randomDestination;
+                            
+                            startVoiceInputBtn.classList.remove('animate-pulse');
+                            startVoiceInputBtn.innerHTML = '<i class="fas fa-microphone text-2xl"></i>';
+                            
+                            updateConfirmButton();
+                        }, 2000);
+                    }
+                    
+                    // 文本输入
+                    if (destinationInput) {
+                        destinationInput.addEventListener('input', function() {
+                            currentDestination = this.value;
+                            updateConfirmButton();
+                        });
+                    }
+                    
+                    // 清除输入
+                    if (clearInputBtn) {
+                        clearInputBtn.addEventListener('click', function() {
+                            destinationInput.value = '';
+                            currentDestination = '';
+                            updateConfirmButton();
+                        });
+                    }
+                    
+                    // 常用目的地按钮
+                    commonDestinationBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const destination = this.getAttribute('data-destination');
+                            currentDestination = destination;
+                            
+                            // 更新输入框显示
+                            if (textInputArea.classList.contains('hidden')) {
+                                // 语音输入模式
+                                const voiceInputText = document.getElementById('voice-input-text');
+                                const voiceInputResult = document.getElementById('voice-input-result');
+                                voiceInputText.textContent = destination;
+                                voiceInputResult.classList.remove('hidden');
+                            } else {
+                                // 文本输入模式
+                                destinationInput.value = destination;
+                            }
+                            
+                            updateConfirmButton();
+                        });
+                    });
+                    
+                    // 确认目的地
+                    if (confirmDestinationBtn) {
+                        confirmDestinationBtn.addEventListener('click', function() {
+                            if (currentDestination) {
+                                proceedToConfirmPage();
+                            }
+                        });
+                    }
+                    
+                    function updateConfirmButton() {
+                        if (currentDestination && currentDestination.trim()) {
+                            confirmDestinationBtn.disabled = false;
+                            confirmDestinationBtn.classList.remove('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+                        } else {
+                            confirmDestinationBtn.disabled = true;
+                            confirmDestinationBtn.classList.add('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+                        }
+                    }
+                    
+                    function proceedToConfirmPage() {
+                        // 生成路线数据
+                        generateRouteData();
+                        // 更新确认页面信息
+                        updateConfirmPageData();
+                        // 跳转到确认页面
+                        showPage('outdoor-navigation-confirm');
+                    }
+                }
+                
+                // 导航确认页面初始化
+                function initConfirmPage() {
+                    const confirmBackBtn = document.getElementById('confirm-back-btn');
+                    const startNavigationBtn = document.getElementById('start-navigation-btn');
+                    
+                    if (confirmBackBtn) {
+                        confirmBackBtn.addEventListener('click', function() {
+                            showPage('outdoor-navigation-destination');
+                        });
+                    }
+                    
+                    if (startNavigationBtn) {
+                        startNavigationBtn.addEventListener('click', function() {
+                            startNavigation();
+                        });
+                    }
+                }
+                
+                // 导航页面初始化
+                function initRoutePage() {
+                    const routeBackBtn = document.getElementById('route-back-btn');
+                    const cancelNavigationBtn = document.getElementById('cancel-navigation-btn');
+                    const pauseNavigationBtn = document.getElementById('pause-navigation-btn');
+                    const voiceGuidanceBtn = document.getElementById('voice-guidance-btn');
+                    const routeMenuBtn = document.getElementById('route-menu-btn');
+                    const showRouteOptionsBtn = document.getElementById('show-route-options');
+                    const navigationOverviewBtn = document.getElementById('navigation-overview-btn');
+                    const navigationShareBtn = document.getElementById('navigation-share-btn');
+                    
+                    if (routeBackBtn || cancelNavigationBtn) {
+                        const handleCancel = function() {
+                            showNavigationCancelConfirm();
+                        };
+                        
+                        if (routeBackBtn) routeBackBtn.addEventListener('click', handleCancel);
+                        if (cancelNavigationBtn) cancelNavigationBtn.addEventListener('click', handleCancel);
+                    }
+                    
+                    if (pauseNavigationBtn) {
+                        pauseNavigationBtn.addEventListener('click', function() {
+                            toggleNavigationPause();
+                        });
+                    }
+                    
+                    if (voiceGuidanceBtn) {
+                        voiceGuidanceBtn.addEventListener('click', function() {
+                            toggleVoiceGuidance();
+                        });
+                    }
+                    
+                    if (routeMenuBtn) {
+                        routeMenuBtn.addEventListener('click', function() {
+                            showRouteMenu();
+                        });
+                    }
+                    
+                    if (showRouteOptionsBtn) {
+                        showRouteOptionsBtn.addEventListener('click', function() {
+                            showToast('路线选项功能开发中', 'info');
+                        });
+                    }
+                    
+                    if (navigationOverviewBtn) {
+                        navigationOverviewBtn.addEventListener('click', function() {
+                            showToast('总览功能开发中', 'info');
+                        });
+                    }
+                    
+                    if (navigationShareBtn) {
+                        navigationShareBtn.addEventListener('click', function() {
+                            showToast('分享功能开发中', 'info');
+                        });
+                    }
+                    
+                    // 路线菜单弹窗处理
+                    initRouteMenuModal();
+                }
+                
+                // 到达页面初始化
+                function initArrivedPage() {
+                    const backToDiscoveryBtn = document.getElementById('back-to-discovery-btn');
+                    
+                    if (backToDiscoveryBtn) {
+                        backToDiscoveryBtn.addEventListener('click', function() {
+                            showPage('voice');
+                            showBottomNav();
+                            resetNavigationState();
+                        });
+                    }
+                }
+                
+                // 生成路线数据
+                function generateRouteData() {
+                    const distances = [2.8, 5.2, 8.1, 12.5, 15.3];
+                    const randomDistance = distances[Math.floor(Math.random() * distances.length)];
+                    const estimatedTime = Math.ceil(randomDistance * 4.5); // 假设平均速度4.5km/h
+                    
+                    routeData = {
+                        destination: currentDestination,
+                        distance: randomDistance,
+                        estimatedTime: estimatedTime,
+                        batteryConsumption: Math.ceil(randomDistance * 1.5), // 假设每公里消耗1.5%电量
+                        weather: generateWeatherData(),
+                        schedule: generateScheduleCheck()
+                    };
+                }
+                
+                // 生成天气数据
+                function generateWeatherData() {
+                    const weathers = [
+                        { icon: 'fas fa-sun', desc: '晴朗，适宜出行', temp: 22, feelsLike: 24, wind: '3级', precipitation: '0%', advice: '天气条件良好，适合外出', adviceType: 'success' },
+                        { icon: 'fas fa-cloud', desc: '多云，天气良好', temp: 18, feelsLike: 20, wind: '2级', precipitation: '10%', advice: '天气较好，注意保暖', adviceType: 'info' },
+                        { icon: 'fas fa-cloud-rain', desc: '小雨，建议带伞', temp: 15, feelsLike: 13, wind: '4级', precipitation: '80%', advice: '预计15分钟后有小雨，建议带伞', adviceType: 'warning' }
+                    ];
+                    return weathers[Math.floor(Math.random() * weathers.length)];
+                }
+                
+                // 生成日程检查
+                function generateScheduleCheck() {
+                    const hasConflict = Math.random() < 0.2; // 20%概率有冲突
+                    return {
+                        hasConflict: hasConflict,
+                        status: hasConflict ? '存在冲突' : '无冲突',
+                        details: hasConflict ? '16:00有医院预约，请注意时间安排' : '未发现与现有安排冲突，可以开始导航',
+                        type: hasConflict ? 'warning' : 'success'
+                    };
+                }
+                
+                // 更新确认页面数据
+                function updateConfirmPageData() {
+                    if (!routeData) return;
+                    
+                    // 更新目的地信息
+                    const destinationName = document.getElementById('destination-name');
+                    const estimatedDistance = document.getElementById('estimated-distance');
+                    const estimatedTime = document.getElementById('estimated-time');
+                    
+                    if (destinationName) destinationName.textContent = routeData.destination;
+                    if (estimatedDistance) estimatedDistance.textContent = `${routeData.distance} km`;
+                    if (estimatedTime) estimatedTime.textContent = `${routeData.estimatedTime} 分钟`;
+                    
+                    // 更新电量评估
+                    const currentBattery = 65; // 模拟当前电量
+                    const batteryAssessment = document.getElementById('battery-assessment');
+                    const currentBatteryDisplay = document.getElementById('current-battery');
+                    const batteryDetails = document.getElementById('battery-details');
+                    
+                    const remainingBattery = currentBattery - routeData.batteryConsumption * 2; // 往返
+                    const canReturn = remainingBattery > 20;
+                    
+                    if (batteryAssessment) {
+                        batteryAssessment.textContent = canReturn ? '电量充足，支持往返' : '电量可能不足往返，建议充电';
+                        batteryAssessment.className = canReturn ? 'text-sm text-green-600' : 'text-sm text-orange-600';
+                    }
+                    if (currentBatteryDisplay) currentBatteryDisplay.textContent = `${currentBattery}%`;
+                    if (batteryDetails) {
+                        const maxRange = Math.floor(currentBattery / 1.5);
+                        batteryDetails.textContent = `当前电量可支持约 ${maxRange} 公里行程，本次往返预计消耗 ${routeData.batteryConsumption * 2}% 电量`;
+                    }
+                    
+                    // 更新天气信息
+                    const weather = routeData.weather;
+                    const weatherIcon = document.getElementById('weather-icon');
+                    const weatherDescription = document.getElementById('weather-description');
+                    const currentTemperature = document.getElementById('current-temperature');
+                    const feelsLike = document.getElementById('feels-like');
+                    const windSpeed = document.getElementById('wind-speed');
+                    const precipitation = document.getElementById('precipitation');
+                    const weatherAdvice = document.getElementById('weather-advice');
+                    
+                    if (weatherIcon) weatherIcon.className = weather.icon + ' text-yellow-500';
+                    if (weatherDescription) weatherDescription.textContent = weather.desc;
+                    if (currentTemperature) currentTemperature.textContent = `${weather.temp}°C`;
+                    if (feelsLike) feelsLike.textContent = `${weather.feelsLike}°C`;
+                    if (windSpeed) windSpeed.textContent = weather.wind;
+                    if (precipitation) precipitation.textContent = weather.precipitation;
+                    if (weatherAdvice) {
+                        const adviceColors = {
+                            success: 'bg-green-50 text-green-700',
+                            warning: 'bg-orange-50 text-orange-700',
+                            info: 'bg-blue-50 text-blue-700'
+                        };
+                        weatherAdvice.className = `mt-3 p-2 rounded-lg ${adviceColors[weather.adviceType]}`;
+                        weatherAdvice.innerHTML = `<p class="text-xs"><i class="fas fa-${weather.adviceType === 'success' ? 'check-circle' : weather.adviceType === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-1"></i>${weather.advice}</p>`;
+                    }
+                    
+                    // 更新日程检查
+                    const schedule = routeData.schedule;
+                    const scheduleStatus = document.getElementById('schedule-status');
+                    const scheduleDetails = document.getElementById('schedule-details');
+                    
+                    if (scheduleStatus) {
+                        scheduleStatus.textContent = schedule.status;
+                        scheduleStatus.className = schedule.hasConflict ? 'text-sm text-orange-600' : 'text-sm text-green-600';
+                    }
+                    if (scheduleDetails) {
+                        const detailColors = {
+                            warning: 'bg-orange-50 text-orange-700',
+                            success: 'bg-green-50 text-green-700'
+                        };
+                        scheduleDetails.className = `rounded-lg p-3 ${detailColors[schedule.type]}`;
+                        scheduleDetails.innerHTML = `<p class="text-xs"><i class="fas fa-${schedule.hasConflict ? 'exclamation-triangle' : 'check-circle'} mr-1"></i>${schedule.details}</p>`;
+                    }
+                }
+                
+                // 开始导航
+                function startNavigation() {
+                    isNavigating = true;
+                    updateRoutePageData();
+                    showPage('outdoor-navigation-route');
+                    
+                    // 模拟导航过程
+                    simulateNavigation();
+                }
+                
+                // 更新导航页面数据 (Google Maps风格)
+                function updateRoutePageData() {
+                    if (!routeData) return;
+                    
+                    // 计算ETA时间
+                    const now = new Date();
+                    const etaTime = new Date(now.getTime() + routeData.estimatedTime * 60000);
+                    const etaTimeStr = `${etaTime.getHours()}:${etaTime.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    // 更新顶部ETA信息
+                    const etaTimeDisplay = document.getElementById('eta-time');
+                    const routeTimeDisplay = document.getElementById('route-time-display');
+                    const routeDistanceDisplay = document.getElementById('route-distance-display');
+                    
+                    if (etaTimeDisplay) etaTimeDisplay.textContent = etaTimeStr;
+                    if (routeTimeDisplay) routeTimeDisplay.textContent = `${routeData.estimatedTime}分钟`;
+                    if (routeDistanceDisplay) routeDistanceDisplay.textContent = `${routeData.distance}公里`;
+                    
+                    // 更新底部信息栏
+                    const remainingTime = document.getElementById('remaining-time');
+                    const remainingDistance = document.getElementById('remaining-distance');
+                    const routeBattery = document.getElementById('route-battery');
+                    
+                    if (remainingTime) remainingTime.textContent = `${routeData.estimatedTime}分钟`;
+                    if (remainingDistance) remainingDistance.textContent = `${routeData.distance}公里`;
+                    if (routeBattery) routeBattery.textContent = '60%';
+                }
+                
+                // 模拟导航过程 (Google Maps风格)
+                function simulateNavigation() {
+                    let remainingTime = routeData.estimatedTime;
+                    let remainingDistance = routeData.distance;
+                    
+                    const instructions = [
+                        { icon: 'fa-arrow-right', text: '前方右转', road: '朝阳北路', distance: 200 },
+                        { icon: 'fa-arrow-left', text: '前方左转', road: '建国门外大街', distance: 500 },
+                        { icon: 'fa-arrow-up', text: '直行', road: '建国门外大街', distance: 800 },
+                        { icon: 'fa-arrow-right', text: '前方右转', road: '朝阳公园南路', distance: 300 },
+                        { icon: 'fa-map-marker-alt', text: '即将到达目的地', road: routeData.destination, distance: 50 }
+                    ];
+                    
+                    let currentInstruction = 0;
+                    let currentInstructionDistance = instructions[0]?.distance || 200;
+                    
+                    const navigationInterval = setInterval(() => {
+                        remainingTime -= 2;
+                        remainingDistance -= 0.15;
+                        currentInstructionDistance -= 50;
+                        
+                        // 计算新的ETA
+                        const now = new Date();
+                        const etaTime = new Date(now.getTime() + remainingTime * 60000);
+                        const etaTimeStr = `${etaTime.getHours()}:${etaTime.getMinutes().toString().padStart(2, '0')}`;
+                        
+                        // 更新顶部ETA信息
+                        const etaTimeDisplay = document.getElementById('eta-time');
+                        const routeTimeDisplay = document.getElementById('route-time-display');
+                        const routeDistanceDisplay = document.getElementById('route-distance-display');
+                        
+                        if (etaTimeDisplay) etaTimeDisplay.textContent = etaTimeStr;
+                        if (routeTimeDisplay) routeTimeDisplay.textContent = `${Math.max(0, remainingTime)}分钟`;
+                        if (routeDistanceDisplay) routeDistanceDisplay.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
+                        
+                        // 更新底部信息栏
+                        const remainingTimeBottom = document.getElementById('remaining-time');
+                        const remainingDistanceBottom = document.getElementById('remaining-distance');
+                        
+                        if (remainingTimeBottom) remainingTimeBottom.textContent = `${Math.max(0, remainingTime)}分钟`;
+                        if (remainingDistanceBottom) remainingDistanceBottom.textContent = `${Math.max(0, remainingDistance.toFixed(1))}公里`;
+                        
+                        // 更新导航指令
+                        if (currentInstruction < instructions.length) {
+                            const instruction = instructions[currentInstruction];
+                            const directionIcon = document.getElementById('direction-icon');
+                            const nextInstruction = document.getElementById('next-instruction');
+                            const nextRoad = document.getElementById('next-road');
+                            const distanceToTurn = document.getElementById('distance-to-turn');
+                            
+                            if (directionIcon) directionIcon.className = `fas ${instruction.icon} text-white text-2xl`;
+                            if (nextInstruction) nextInstruction.textContent = instruction.text;
+                            if (nextRoad) nextRoad.textContent = instruction.road;
+                            if (distanceToTurn) distanceToTurn.textContent = Math.max(0, currentInstructionDistance).toString();
+                            
+                            // 如果当前指令距离用完，切换到下一个指令
+                            if (currentInstructionDistance <= 0 && currentInstruction < instructions.length - 1) {
+                                currentInstruction++;
+                                currentInstructionDistance = instructions[currentInstruction]?.distance || 100;
+                            }
+                        }
+                        
+                        // 检查是否到达
+                        if (remainingTime <= 0 || remainingDistance <= 0) {
+                            clearInterval(navigationInterval);
+                            arriveAtDestination();
+                        }
+                    }, 3000); // 每3秒更新一次
+                }
+                
+                // 到达目的地
+                function arriveAtDestination() {
+                    updateArrivedPageData();
+                    showPage('outdoor-navigation-arrived');
+                    
+                    // 3秒后自动显示返回按钮提示
+                    setTimeout(() => {
+                        const backBtn = document.getElementById('back-to-discovery-btn');
+                        if (backBtn) {
+                            backBtn.classList.add('animate-pulse');
+                        }
+                    }, 3000);
+                }
+                
+                // 更新到达页面数据
+                function updateArrivedPageData() {
+                    if (!routeData) return;
+                    
+                    const arrivedDestination = document.getElementById('arrived-destination');
+                    const arrivalTime = document.getElementById('arrival-time');
+                    const tripDistance = document.getElementById('trip-distance');
+                    const tripTime = document.getElementById('trip-time');
+                    const tripBattery = document.getElementById('trip-battery');
+                    
+                    const now = new Date();
+                    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    if (arrivedDestination) arrivedDestination.textContent = routeData.destination;
+                    if (arrivalTime) arrivalTime.textContent = `${timeStr} 到达`;
+                    if (tripDistance) tripDistance.textContent = routeData.distance.toString();
+                    if (tripTime) tripTime.textContent = routeData.estimatedTime.toString();
+                    if (tripBattery) tripBattery.textContent = `${routeData.batteryConsumption}%`;
+                }
+                
+                // 显示取消导航确认 (移动端友好)
+                function showNavigationCancelConfirm() {
+                    // 创建确认对话框
+                    const confirmModal = document.createElement('div');
+                    confirmModal.className = 'fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center p-4';
+                    confirmModal.innerHTML = `
+                        <div class="bg-white rounded-2xl p-6 max-w-sm w-full">
+                            <h3 class="text-lg font-semibold text-center mb-3">结束导航</h3>
+                            <p class="text-gray-600 text-center mb-6">确定要结束当前导航吗？</p>
+                            <div class="flex space-x-3">
+                                <button id="cancel-confirm-no" class="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                                    继续导航
+                                </button>
+                                <button id="cancel-confirm-yes" class="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+                                    结束导航
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(confirmModal);
+                    
+                    // 绑定事件
+                    const noBtn = confirmModal.querySelector('#cancel-confirm-no');
+                    const yesBtn = confirmModal.querySelector('#cancel-confirm-yes');
+                    
+                    const removeModal = () => {
+                        document.body.removeChild(confirmModal);
+                    };
+                    
+                    noBtn.addEventListener('click', removeModal);
+                    yesBtn.addEventListener('click', () => {
+                        removeModal();
+                        showPage('voice');
+                        showBottomNav();
+                        resetNavigationState();
+                    });
+                    
+                    // 点击背景关闭
+                    confirmModal.addEventListener('click', (e) => {
+                        if (e.target === confirmModal) {
+                            removeModal();
+                        }
+                    });
+                }
+                
+                // 切换导航暂停状态 (Google Maps风格)
+                function toggleNavigationPause() {
+                    const pauseBtn = document.getElementById('pause-navigation-btn');
+                    if (pauseBtn) {
+                        const currentIcon = pauseBtn.querySelector('i');
+                        const isPaused = currentIcon.classList.contains('fa-play');
+                        
+                        if (isPaused) {
+                            pauseBtn.innerHTML = '<i class="fas fa-pause text-lg mb-1"></i><span class="text-xs">暂停</span>';
+                            showToast('导航已恢复', 'success');
+                        } else {
+                            pauseBtn.innerHTML = '<i class="fas fa-play text-lg mb-1"></i><span class="text-xs">继续</span>';
+                            showToast('导航已暂停', 'warning');
+                        }
+                    }
+                }
+                
+                // 切换语音引导 (Google Maps风格)
+                function toggleVoiceGuidance() {
+                    const voiceBtn = document.getElementById('voice-guidance-btn');
+                    if (voiceBtn) {
+                        const currentIcon = voiceBtn.querySelector('i');
+                        const isMuted = currentIcon.classList.contains('fa-volume-mute');
+                        
+                        if (isMuted) {
+                            currentIcon.className = 'fas fa-volume-up text-gray-700';
+                            showToast('语音引导已开启', 'success');
+                        } else {
+                            currentIcon.className = 'fas fa-volume-mute text-gray-700';
+                            showToast('语音引导已关闭', 'info');
+                        }
+                    }
+                }
+                
+                // 显示路线菜单
+                function showRouteMenu() {
+                    const routeMenuModal = document.getElementById('route-menu-modal');
+                    const routeMenuContent = document.getElementById('route-menu-content');
+                    
+                    if (routeMenuModal && routeMenuContent) {
+                        routeMenuModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            routeMenuContent.style.transform = 'translateY(0)';
+                        }, 10);
+                    }
+                }
+                
+                // 隐藏路线菜单
+                function hideRouteMenu() {
+                    const routeMenuModal = document.getElementById('route-menu-modal');
+                    const routeMenuContent = document.getElementById('route-menu-content');
+                    
+                    if (routeMenuModal && routeMenuContent) {
+                        routeMenuContent.style.transform = 'translateY(100%)';
+                        setTimeout(() => {
+                            routeMenuModal.classList.add('hidden');
+                        }, 300);
+                    }
+                }
+                
+                // 初始化路线菜单弹窗
+                function initRouteMenuModal() {
+                    const closeRouteMenuBtn = document.getElementById('close-route-menu');
+                    const routeMenuModal = document.getElementById('route-menu-modal');
+                    
+                    if (closeRouteMenuBtn) {
+                        closeRouteMenuBtn.addEventListener('click', hideRouteMenu);
+                    }
+                    
+                    if (routeMenuModal) {
+                        routeMenuModal.addEventListener('click', function(e) {
+                            if (e.target === routeMenuModal) {
+                                hideRouteMenu();
+                            }
+                        });
+                    }
+                }
+                
+                // 重置导航状态
+                function resetNavigationState() {
+                    currentDestination = '';
+                    routeData = null;
+                    isNavigating = false;
+                    
+                    // 重置输入框
+                    const destinationInput = document.getElementById('destination-input');
+                    const voiceInputResult = document.getElementById('voice-input-result');
+                    const confirmDestinationBtn = document.getElementById('confirm-destination-btn');
+                    
+                    if (destinationInput) destinationInput.value = '';
+                    if (voiceInputResult) voiceInputResult.classList.add('hidden');
+                    if (confirmDestinationBtn) {
+                        confirmDestinationBtn.disabled = true;
+                        confirmDestinationBtn.classList.add('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+                    }
+                }
+            }
+            
+            // 户外导航功能初始化
+            initOutdoorNavigation();
+            
+            // 功能入口卡片点击事件
             const featureCards = document.querySelectorAll('#voice .grid > div');
             featureCards.forEach(card => {
                 card.addEventListener('click', function() {
                     const featureName = this.querySelector('h4').textContent;
+                    if (featureName === '路线导航') {
+                        // 路线导航功能已实现，不显示提示
+                        return;
+                    }
                     showToast(`${featureName}功能开发中，敬请期待`, 'info');
                 });
             });
