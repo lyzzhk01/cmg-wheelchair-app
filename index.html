@@ -236,7 +236,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
     <!-- 页面导航栏 -->
-    <nav id="bottom-nav" class="fixed bottom-0 w-full bg-white shadow-lg z-10">
+    <nav id="bottom-nav" class="fixed bottom-0 w-full bg-white shadow-lg z-40">
         <div class="flex justify-around items-center p-2">
             <a href="#home" class="flex flex-col items-center p-2 text-blue-500">
                 <i class="fas fa-home text-xl"></i>
@@ -258,7 +258,7 @@
     </nav>
 
     <!-- 主要内容区域 -->
-    <div class="pb-16 pt-4">
+    <div class="pb-28 pt-4">
         <!-- 登录注册页面 -->
         <div id="login" class="p-4 max-w-md mx-auto">
             <div class="text-center mb-8">
@@ -523,7 +523,7 @@
         </div>
 
         <!-- 状态查询页面 -->
-        <div id="device-status" class="hidden p-4 max-w-md mx-auto">
+        <div id="device-status" class="hidden p-4 max-w-md mx-auto bg-gradient-to-b from-purple-50 to-blue-50 min-h-screen">
             <div class="flex justify-between items-center mb-4 px-2">
                 <button class="text-left" id="device-selector-btn">
                     <div class="flex items-center">
@@ -538,93 +538,108 @@
                 </button>
             </div>
             
+            <!-- 快捷控制按钮 -->
+            <div class="mb-4">
+                <!-- 四个功能按钮并排一行 -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button id="go-charging-btn" class="bg-green-600 text-white py-3 rounded-lg font-medium flex flex-col items-center justify-center shadow-sm text-xs">
+                        <i class="fas fa-charging-station mb-1"></i>
+                        <span>去充电</span>
+                    </button>
+                    <button id="summon-wheelchair-btn" class="bg-purple-600 text-white py-3 rounded-lg font-medium flex flex-col items-center justify-center shadow-sm text-xs">
+                        <i class="fas fa-hand-paper mb-1"></i>
+                        <span>召唤</span>
+                    </button>
+                    <button id="remote-control-btn" class="bg-blue-600 text-white py-3 rounded-lg font-medium flex flex-col items-center justify-center shadow-sm text-xs">
+                        <i class="fas fa-gamepad mb-1"></i>
+                        <span>远程控制</span>
+                    </button>
+                    <button id="lock-vehicle-btn" class="bg-gray-700 text-white py-3 rounded-lg font-medium flex flex-col items-center justify-center shadow-sm text-xs">
+                        <i class="fas fa-lock mb-1"></i>
+                        <span>锁车</span>
+                    </button>
+                </div>
+            </div>
+            
             <!-- 核心状态信息展示区域 -->
-            <div class="bg-gray-800 rounded-xl shadow-sm p-5 mb-4 text-white relative overflow-hidden">                
+            <div class="bg-white rounded-xl shadow-sm p-5 mb-4 text-gray-900 relative overflow-hidden">                
                 <!-- 电量和运行状态大卡片 -->
                 <div class="mb-4">
-                    <!-- 电量显示 -->
+                    <!-- 顶部综合状态卡：左侧信息 + 右侧放大轮椅图标 -->
                     <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center">
-                            <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
-                                <i class="fas fa-wheelchair text-blue-600 text-2xl"></i>
+                        <!-- 左侧：电量放大 + 三种状态 -->
+                        <div class="flex-1 mr-3">
+                            <p class="text-xs text-gray-500 mb-1">电量</p>
+                            <div class="flex items-end mb-3">
+                                <p id="battery-percentage" class="text-5xl font-extrabold leading-none mr-2">85%</p>
+                                <i id="battery-icon" class="fas fa-battery-three-quarters text-green-400 text-2xl"></i>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-400">电量</p>
-                                <div class="flex items-center">
-                                    <p class="text-3xl font-bold text-white mr-2" id="battery-percentage">85%</p>
-                                    <i class="fas fa-battery-three-quarters text-green-500 text-xl" id="battery-icon"></i>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div class="flex items-center bg-gray-100 rounded-md px-2 py-1">
+                                    <i class="fas fa-wifi text-green-600 mr-1"></i>
+                                    <span class="text-green-700">在线</span>
+                                </div>
+                                <div class="flex items-center bg-gray-100 rounded-md px-2 py-1">
+                                    <i class="fab fa-bluetooth-b text-blue-600 mr-1"></i>
+                                    <span class="text-blue-700">已配对</span>
+                                </div>
+                                <div class="flex items-center bg-gray-100 rounded-md px-2 py-1">
+                                    <i class="fas fa-lock text-gray-500 mr-1"></i>
+                                    <span class="text-gray-700">未锁定</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center">
-                            <span class="w-3 h-3 bg-green-500 rounded-full mr-3 pulse-animation"></span>
-                            <span class="text-green-400 font-medium text-lg">运行中</span>
+                        <!-- 右侧：放大轮椅图标 -->
+                        <div class="w-28 h-28 bg-blue-50 rounded-2xl flex items-center justify-center">
+                            <i class="fas fa-wheelchair text-blue-400 text-5xl"></i>
                         </div>
                     </div>
                     
                     <!-- 主要指标 -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="text-center bg-gray-700 rounded-lg p-3">
-                            <p class="text-sm text-gray-400 mb-2">当前速度</p>
+                        <div class="text-center bg-gray-50 rounded-lg p-3">
+                            <p class="text-sm text-gray-500 mb-2">当前速度</p>
                             <div class="flex items-center justify-center">
-                                <i class="fas fa-tachometer-alt text-blue-400 mr-2"></i>
-                                <p class="text-xl font-bold text-white" id="current-speed-status">2.5 km/h</p>
+                                <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>
+                                <p class="text-xl font-bold text-gray-900" id="current-speed-status">2.5 km/h</p>
                             </div>
                         </div>
-                        <div class="text-center bg-gray-700 rounded-lg p-3">
-                            <p class="text-sm text-gray-400 mb-2">今日里程</p>
+                        <div class="text-center bg-gray-50 rounded-lg p-3">
+                            <p class="text-sm text-gray-500 mb-2">今日里程</p>
                             <div class="flex items-center justify-center">
-                                <i class="fas fa-road text-blue-400 mr-2"></i>
-                                <p class="text-xl font-bold text-white" id="today-distance">25 km</p>
+                                <i class="fas fa-road text-blue-500 mr-2"></i>
+                                <p class="text-xl font-bold text-gray-900" id="today-distance">25 km</p>
                             </div>
                         </div>
                     </div>
                     
                     <!-- 预计信息 -->
-                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-600">
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                         <div class="text-center">
-                            <p class="text-xs text-gray-400 mb-1">预计行驶</p>
+                            <p class="text-xs text-gray-500 mb-1">预计行驶</p>
                             <div class="flex items-center justify-center">
-                                <i class="fas fa-route text-blue-400 mr-2 text-sm"></i>
-                                <p class="text-lg font-bold text-blue-400" id="estimated-distance">125 km</p>
+                                <i class="fas fa-route text-blue-500 mr-2 text-sm"></i>
+                                <p class="text-lg font-bold text-blue-600" id="estimated-distance">125 km</p>
                             </div>
                         </div>
                         <div class="text-center">
-                            <p class="text-xs text-gray-400 mb-1">预计可用</p>
+                            <p class="text-xs text-gray-500 mb-1">预计可用</p>
                             <div class="flex items-center justify-center">
-                                <i class="fas fa-clock text-blue-400 mr-2 text-sm"></i>
-                                <p class="text-lg font-bold text-blue-400" id="estimated-usage-time">6小时30分钟</p>
+                                <i class="fas fa-clock text-blue-500 mr-2 text-sm"></i>
+                                <p class="text-lg font-bold text-blue-600" id="estimated-usage-time">6小时30分钟</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 状态图标 -->
-                <div class="flex justify-around items-center text-center mb-4 text-xs bg-gray-700 rounded-lg p-3">
-                    <div>
-                        <i class="fas fa-wifi text-green-500 mb-1 block"></i>
-                        <span class="text-green-400">在线</span>
-                    </div>
-                    <div>
-                        <i class="fab fa-bluetooth-b text-green-500 mb-1 block"></i>
-                        <span class="text-green-400">已配对</span>
-                    </div>
-                    <div>
-                        <i class="fas fa-lock text-gray-400 mb-1 block"></i>
-                        <span class="text-gray-400">未锁定</span>
-                    </div>
-                    <div id="mode-status">
-                        <i class="fas fa-cog text-blue-400 mb-1 block"></i>
-                        <span class="text-blue-400" id="current-mode">DM</span>
-                    </div>
-                </div>
+
                 
                 <!-- 智能地图卡片（室内/室外切换） -->
-                <div class="border border-gray-600 rounded-lg p-3 bg-gray-700 mb-3">
+                <div class="border border-gray-200 rounded-lg p-3 bg-white mb-3">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center">
                             <!-- 地图类型切换按钮 -->
-                            <div class="bg-gray-800 rounded-lg p-1 mr-3">
+                            <div class="bg-gray-100 rounded-lg p-1 mr-3">
                                 <button id="indoor-map-btn" class="px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 bg-blue-600 text-white">
                                     <i class="fas fa-map mr-1"></i>室内
                                 </button>
@@ -632,13 +647,13 @@
                                     <i class="fas fa-map-marker-alt mr-1"></i>室外
                                 </button>
                             </div>
-                            <span class="text-sm text-white hidden" id="map-title">智能地图</span>
+                            <span class="text-sm text-gray-900 hidden" id="map-title">智能地图</span>
                         </div>
                         <div class="flex items-center">
                             <!-- 定位状态 -->
                             <div class="flex items-center mr-3" id="position-status">
                                 <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
-                                <span class="text-xs text-green-400" id="position-status-text">定位正常</span>
+                                <span class="text-xs text-green-700" id="position-status-text">定位正常</span>
                             </div>
                             <!-- 导航按钮（仅室外地图显示） -->
                             <button class="navigate-btn hidden" id="navigate-btn">
@@ -651,7 +666,7 @@
                     <!-- 地图容器 -->
                     <div class="relative rounded-lg overflow-hidden" style="height: 200px;" id="unified-map-container">
                         <!-- 室内地图 -->
-                        <div id="indoor-map-view" class="absolute inset-0 bg-gray-800">
+                        <div id="indoor-map-view" class="absolute inset-0 bg-gray-100">
                             <canvas id="indoor-map-canvas" class="w-full h-full rounded-lg"></canvas>
                             
                             <!-- 轮椅位置标记 -->
@@ -675,22 +690,22 @@
                             </svg>
                             
                             <!-- 室内定位信息 -->
-                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2">
-                                <div class="text-xs text-white">
+                            <div class="absolute bottom-2 left-2 bg-white bg-opacity-90 rounded-lg p-2">
+                                <div class="text-xs text-gray-800">
                                     <div class="mb-1">
                                         <span class="text-gray-400">当前位置:</span>
-                                        <span class="text-white" id="indoor-current-location">客厅区域</span>
+                                        <span class="text-gray-900" id="indoor-current-location">客厅区域</span>
                                     </div>
                                     <div>
                                         <span class="text-gray-400">精度:</span>
-                                        <span class="text-green-400" id="indoor-accuracy">±0.5米</span>
+                                        <span class="text-green-700" id="indoor-accuracy">±0.5米</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- 室外地图 -->
-                        <div id="outdoor-map-view" class="absolute inset-0 bg-gray-800 hidden">
+                        <div id="outdoor-map-view" class="absolute inset-0 bg-gray-100 hidden">
                             <!-- 地图背景（模拟） -->
                             <div class="absolute inset-0 opacity-80" id="outdoor-map-background" style="background-image: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/121.4737,31.2304,15,0/350x200?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2syMDVtbDZ1MG9hdjNvcGJ2YWUzcHNmcyJ9.f1Y4y9cTZxL-tsjNk3hUbA'); background-size: cover;"></div>
                             
@@ -703,20 +718,20 @@
                             </div>
                             
                             <!-- 室外位置信息 -->
-                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-80 rounded-lg p-2" id="outdoor-location-details">
-                                <div class="text-xs text-white">
+                            <div class="absolute bottom-2 left-2 bg-white bg-opacity-90 rounded-lg p-2" id="outdoor-location-details">
+                                <div class="text-xs text-gray-800">
                                     <div class="mb-1">
-                                        <span class="text-gray-400">地址:</span>
-                                        <span class="text-white" id="device-address">上海市浦东新区张江高科技园区</span>
+                                        <span class="text-gray-500">地址:</span>
+                                        <span class="text-gray-900" id="device-address">上海市浦东新区张江高科技园区</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <div class="mr-4">
                                             <span class="text-gray-400">更新:</span>
-                                            <span class="text-green-400" id="location-update-time">10:23</span>
+                                            <span class="text-green-700" id="location-update-time">10:23</span>
                                         </div>
                                         <div>
                                             <span class="text-gray-400">GPS精度:</span>
-                                            <span class="text-green-400" id="gps-accuracy">5米</span>
+                                            <span class="text-green-700" id="gps-accuracy">5米</span>
                                         </div>
                                     </div>
                                 </div>
@@ -735,24 +750,6 @@
                     </div>
                 </div>
                 
-                <!-- 控制按钮 -->
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <button id="go-charging-btn" class="bg-green-600 text-white py-3 rounded-lg font-medium flex items-center justify-center">
-                        <i class="fas fa-charging-station mr-2"></i> 去充电
-                    </button>
-                    <button id="summon-wheelchair-btn" class="bg-purple-600 text-white py-3 rounded-lg font-medium flex items-center justify-center">
-                        <i class="fas fa-hand-paper mr-2"></i> 召唤
-                    </button>
-                </div>
-                
-                <button id="remote-control-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium mb-2 flex items-center justify-center">
-                    <i class="fas fa-gamepad mr-2"></i> 远程控制
-                </button>
-                <button class="w-full bg-gray-700 text-white py-3 rounded-lg font-medium mb-3 flex items-center justify-center">
-                    <i class="fas fa-lock mr-2"></i> 锁车
-                </button>
-                
-
             </div>
 
             <!-- 设备详情模态框 -->
@@ -1564,7 +1561,7 @@
             </div>
             
             <!-- 底部语音控制区域 - 固定在最底部 -->
-            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40">
                 <div class="flex flex-col items-center py-4" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
                     <!-- 大圆形语音按钮 -->
                     <button id="voice-btn" class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:from-blue-600 hover:to-purple-700 active:scale-95 transition-all duration-300 group mb-2">
@@ -3693,7 +3690,7 @@
     </div>
 
     <!-- 全局悬浮音频播放器 -->
-    <div id="floating-audio-player" class="fixed left-4 bottom-20 z-50 transition-all duration-300 ease-in-out">
+    <div id="floating-audio-player" class="fixed left-4 bottom-28 z-50 transition-all duration-300 ease-in-out">
         <!-- 折叠状态：圆形悬浮球 -->
         <div id="player-collapsed" class="floating-player-ball w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full shadow-2xl flex items-center justify-center cursor-pointer">
             <div class="relative">
@@ -5506,17 +5503,7 @@
                 
                             // 定期检查定位状态和模式状态
             setInterval(checkPositioningStatus, 5000);
-            setInterval(updateModeStatus, 3000); // 每3秒检查一次模式变化
-            
-            // 初始化模式状态
-            updateModeStatus();
-            
-            // 添加模式切换点击事件
-            const modeStatusElement = document.getElementById('mode-status');
-            if (modeStatusElement) {
-                modeStatusElement.addEventListener('click', toggleMode);
-                modeStatusElement.style.cursor = 'pointer';
-            }
+            // 已移除模式状态逻辑
             }
             
             // 绘制室内地图
@@ -5666,47 +5653,7 @@
                 }
             }
             
-            // 当前模式状态
-            let currentWheelchairMode = 'DM'; // DM: Direct Mode (直接模式), AIM: AI Mode (智能模式)
-            
-            // 更新模式状态
-            function updateModeStatus() {
-                // 随机切换模式 (5%概率切换，因为用户可以手动切换)
-                if (Math.random() < 0.05) {
-                    currentWheelchairMode = currentWheelchairMode === 'DM' ? 'AIM' : 'DM';
-                }
-                
-                const modeElement = document.getElementById('current-mode');
-                if (modeElement) {
-                    modeElement.textContent = currentWheelchairMode;
-                    
-                    // 根据模式设置不同的颜色
-                    if (currentWheelchairMode === 'DM') {
-                        modeElement.className = 'text-blue-400';
-                        modeElement.parentElement.querySelector('i').className = 'fas fa-cog text-blue-400 mb-1 block';
-                    } else {
-                        modeElement.className = 'text-purple-400';
-                        modeElement.parentElement.querySelector('i').className = 'fas fa-brain text-purple-400 mb-1 block';
-                    }
-                }
-            }
-            
-            // 手动切换模式
-            function toggleMode() {
-                currentWheelchairMode = currentWheelchairMode === 'DM' ? 'AIM' : 'DM';
-                updateModeStatus();
-                
-                // 显示切换提示
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-                const modeText = currentWheelchairMode === 'DM' ? '直接控制模式' : '智能辅助模式';
-                toast.textContent = `已切换到${modeText}`;
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 2000);
-            }
+            // 已移除 DM/AIM 模式展示与切换逻辑
             
             // 去充电功能
             function initChargingFunction() {
