@@ -6675,23 +6675,25 @@
             // 语音按钮交互
             if (voiceBtn && voiceIndicator) {
                 voiceBtn.addEventListener('mousedown', function() {
-                    // 演示模式：使用预设对话数据
-                    sendDemoMessage();
+                    // 演示模式：开始语音识别流程
+                    startDemoVoiceRecognition();
                 });
                 
                 voiceBtn.addEventListener('mouseup', function() {
-                    // 演示模式不需要处理mouseup
+                    // 演示模式：停止语音识别，开始AI回复
+                    stopDemoVoiceRecognition();
                 });
                 
                 // 移动设备触摸支持
                 voiceBtn.addEventListener('touchstart', function(e) {
                     e.preventDefault();
-                    // 演示模式：使用预设对话数据
-                    sendDemoMessage();
+                    // 演示模式：开始语音识别流程
+                    startDemoVoiceRecognition();
                 });
                 
                 voiceBtn.addEventListener('touchend', function() {
-                    // 演示模式不需要处理touchend
+                    // 演示模式：停止语音识别，开始AI回复
+                    stopDemoVoiceRecognition();
                 });
             }
             
