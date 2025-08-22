@@ -1,0 +1,54 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <!-- 天空渐变 -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87ceeb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f6ff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#90ee90;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#228b22;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 天空背景 -->
+  <rect x="0" y="0" width="200" height="100" fill="url(#skyGradient)"/>
+  
+  <!-- 草地 -->
+  <rect x="0" y="100" width="200" height="50" fill="url(#grassGradient)"/>
+  
+  <!-- 远山 -->
+  <polygon points="0,100 50,60 100,80 150,50 200,70 200,100" fill="#9370db" opacity="0.6"/>
+  
+  <!-- 大树 -->
+  <rect x="45" y="70" width="10" height="30" fill="#8b4513"/>
+  <circle cx="50" cy="65" r="25" fill="#228b22"/>
+  <circle cx="40" cy="60" r="15" fill="#32cd32"/>
+  <circle cx="60" cy="70" r="18" fill="#228b22"/>
+  
+  <!-- 小树 -->
+  <rect x="140" y="80" width="6" height="20" fill="#8b4513"/>
+  <circle cx="143" cy="75" r="15" fill="#32cd32"/>
+  
+  <!-- 长椅 -->
+  <rect x="90" y="90" width="30" height="3" fill="#8b4513"/>
+  <rect x="85" y="93" width="5" height="10" fill="#8b4513"/>
+  <rect x="120" y="93" width="5" height="10" fill="#8b4513"/>
+  <rect x="90" y="85" width="30" height="3" fill="#8b4513"/>
+  
+  <!-- 小径 -->
+  <ellipse cx="100" cy="125" rx="60" ry="10" fill="#deb887" opacity="0.8"/>
+  
+  <!-- 云朵 -->
+  <ellipse cx="50" cy="25" rx="15" ry="8" fill="white" opacity="0.9"/>
+  <ellipse cx="60" cy="25" rx="12" ry="6" fill="white" opacity="0.9"/>
+  <ellipse cx="150" cy="35" rx="20" ry="10" fill="white" opacity="0.8"/>
+  
+  <!-- 太阳 -->
+  <circle cx="170" cy="25" r="12" fill="#ffd700" opacity="0.9"/>
+  
+  <!-- 小花 -->
+  <circle cx="30" cy="120" r="3" fill="#ff69b4"/>
+  <circle cx="170" cy="115" r="2" fill="#ff1493"/>
+  <circle cx="25" cy="110" r="2" fill="#ffa500"/>
+</svg> 
