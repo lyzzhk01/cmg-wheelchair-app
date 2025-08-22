@@ -6827,21 +6827,30 @@
                         </div>
                     </div>
                 `;
-                conversationContainer.querySelector('.space-y-4').appendChild(typingIndicator);
+                const conversationList = document.getElementById('demo-conversation-list');
+                conversationList.appendChild(typingIndicator);
                 scrollToBottom();
                 
-                // 模拟AI回复
+                // 模拟AI回复延迟
                 setTimeout(() => {
-                    // 移除"正在输入"指示器
-                    const typingEl = document.querySelector('.typing-indicator');
-                    if (typingEl) {
-                        typingEl.remove();
+                    // 移除正在输入指示
+                    const indicators = document.querySelectorAll('.typing-indicator');
+                    indicators.forEach(indicator => indicator.remove());
+                    
+                    // 添加AI回复
+                    if (conversation.response.type === 'text') {
+                        addMessageToConversation(conversation.response.content, 'assistant');
+                    } else if (conversation.response.type === 'music_card') {
+                        addMusicCard(conversation.response.content);
                     }
                     
-                    let response;
-                    
-                    // 增强的回复逻辑
-                    if (message.includes('电量') || message.includes('轮椅状态')) {
+                    // 滚动到底部
+                    scrollToBottom();
+                }, 1500);
+                
+                // 滚动到底部
+                scrollToBottom();
+            }
                         // 使用动态电量信息
                         response = window.currentBatteryStatus ? window.currentBatteryStatus.fullText : "Your wheelchair's current battery is at 85%, estimated to last 6 hours and 30 minutes, with a driving range of about 25 km. The wheelchair is in good overall condition with no abnormal faults.";
                     } else if (message.includes('速度') || message.includes('档位')) {
