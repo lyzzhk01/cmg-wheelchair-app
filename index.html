@@ -6675,11 +6675,15 @@
             // 语音按钮交互
             if (voiceBtn && voiceIndicator) {
                 voiceBtn.addEventListener('mousedown', function() {
+                    // 添加录音状态样式
+                    this.classList.add('voice-recording');
                     // 演示模式：开始语音识别流程
                     startDemoVoiceRecognition();
                 });
                 
                 voiceBtn.addEventListener('mouseup', function() {
+                    // 移除录音状态样式
+                    this.classList.remove('voice-recording');
                     // 演示模式：停止语音识别，开始AI回复
                     stopDemoVoiceRecognition();
                 });
@@ -6687,11 +6691,15 @@
                 // 移动设备触摸支持
                 voiceBtn.addEventListener('touchstart', function(e) {
                     e.preventDefault();
+                    // 添加录音状态样式
+                    this.classList.add('voice-recording');
                     // 演示模式：开始语音识别流程
                     startDemoVoiceRecognition();
                 });
                 
                 voiceBtn.addEventListener('touchend', function() {
+                    // 移除录音状态样式
+                    this.classList.remove('voice-recording');
                     // 演示模式：停止语音识别，开始AI回复
                     stopDemoVoiceRecognition();
                 });
