@@ -10,6 +10,8 @@
     <!-- Leaflet 地图库 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- 演示对话数据 -->
+    <script src="demo-conversations.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -1471,94 +1473,14 @@
 
             <!-- 对话历史区域 - 可滚动，但不影响顶部固定元素 -->
             <div id="conversation-container" class="absolute top-28 bottom-32 left-0 right-0 overflow-y-auto px-4 py-4">
-                <div class="space-y-4 max-w-md mx-auto">
-                    <!-- 助手消息 -->
+                <div class="space-y-4 max-w-md mx-auto" id="demo-conversation-list">
+                    <!-- 初始助手消息 - 人设话术 -->
                     <div class="flex items-start">
                         <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
                             <i class="fas fa-robot text-white text-sm"></i>
                         </div>
                         <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
                             <p class="text-sm">Hello, I'm your smart wheelchair voice assistant. You can chat with me or ask me any questions.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户消息示例 -->
-                    <div class="flex items-start justify-end">
-                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">Hello, please tell me the current battery status of my wheelchair</p>
-                        </div>
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
-                            <i class="fas fa-user text-gray-500 text-sm"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- 助手回复示例 -->
-                    <div class="flex items-start">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-white text-sm"></i>
-                        </div>
-                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm" id="battery-status-text">Your wheelchair's current battery is at 85%, estimated to last 6 hours and 30 minutes, with a driving range of about 25 km.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户消息示例2 -->
-                    <div class="flex items-start justify-end">
-                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">What wheelchair operations can I perform?</p>
-                        </div>
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
-                            <i class="fas fa-user text-gray-500 text-sm"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- 助手回复示例2 -->
-                    <div class="flex items-start">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-white text-sm"></i>
-                        </div>
-                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">You can voice control wheelchair speed adjustment, lighting control, seat temperature adjustment, find wheelchair location, start navigation and more. You can also check battery level, view surroundings, set destinations, etc. Please let me know what help you need!</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户消息示例3 -->
-                    <div class="flex items-start justify-end">
-                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">Switch to navigation mode</p>
-                        </div>
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
-                            <i class="fas fa-user text-gray-500 text-sm"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- 助手回复示例3 -->
-                    <div class="flex items-start">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-white text-sm"></i>
-                        </div>
-                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">Switched to navigation mode. Current speed: 2.5km/h. You can use voice commands to set destinations or get route information.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户消息示例4 -->
-                    <div class="flex items-start justify-end">
-                        <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">Battery is running low</p>
-                        </div>
-                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
-                            <i class="fas fa-user text-gray-500 text-sm"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- 助手回复示例4 -->
-                    <div class="flex items-start">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-white text-sm"></i>
-                        </div>
-                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
-                            <p class="text-sm">Low battery alert received. Current speed: 2.5km/h. You can use voice command "go to charging station" or click the charging option in wheelchair status page.</p>
                         </div>
                     </div>
                 </div>
@@ -6753,21 +6675,23 @@
             // 语音按钮交互
             if (voiceBtn && voiceIndicator) {
                 voiceBtn.addEventListener('mousedown', function() {
-                    startVoiceRecognition();
+                    // 演示模式：使用预设对话数据
+                    sendDemoMessage();
                 });
                 
                 voiceBtn.addEventListener('mouseup', function() {
-                    stopVoiceRecognition();
+                    // 演示模式不需要处理mouseup
                 });
                 
                 // 移动设备触摸支持
                 voiceBtn.addEventListener('touchstart', function(e) {
                     e.preventDefault();
-                    startVoiceRecognition();
+                    // 演示模式：使用预设对话数据
+                    sendDemoMessage();
                 });
                 
                 voiceBtn.addEventListener('touchend', function() {
-                    stopVoiceRecognition();
+                    // 演示模式不需要处理touchend
                 });
             }
             
@@ -6871,17 +6795,22 @@
                 }
             }
             
-            // 发送消息函数
-            function sendMessage(message) {
-                if (!conversationContainer) return;
+            // 演示模式发送消息函数
+            function sendDemoMessage() {
+                const conversation = getNextDemoConversation();
                 
-                // 如果没有传入消息，则不处理
-                if (!message || !message.trim()) return;
-                
-                const messageText = message.trim();
+                if (!conversation) {
+                    // 演示结束，显示提示
+                    addMessageToConversation("Demo completed. All conversation examples have been shown.", 'assistant');
+                    return;
+                }
                 
                 // 添加用户消息到对话区
-                addMessageToConversation(messageText, 'user');
+                if (conversation.query.type === 'text') {
+                    addMessageToConversation(conversation.query.content, 'user');
+                } else if (conversation.query.type === 'image_text') {
+                    addMessageWithImage(conversation.query.image.svg, conversation.query.content, 'user');
+                }
                 
                 // 显示正在输入指示
                 const typingIndicator = document.createElement('div');
@@ -7057,7 +6986,8 @@
             
             // 添加消息到对话区
             function addMessageToConversation(text, sender) {
-                if (!conversationContainer) return;
+                const conversationList = document.getElementById('demo-conversation-list');
+                if (!conversationList) return;
                 
                 const messageDiv = document.createElement('div');
                 
@@ -7074,16 +7004,76 @@
                 } else {
                     messageDiv.className = 'flex items-start my-4';
                     messageDiv.innerHTML = `
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-blue-600"></i>
+                        <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
                         </div>
-                        <div class="bg-gray-100 rounded-2xl rounded-tl-none p-3 max-w-[80%]">
+                        <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
                             <p class="text-sm">${text}</p>
                         </div>
                     `;
                 }
                 
-                conversationContainer.querySelector('.space-y-4').appendChild(messageDiv);
+                conversationList.appendChild(messageDiv);
+            }
+            
+            // 添加带图片的消息
+            function addMessageWithImage(imageSvg, text, sender) {
+                const conversationList = document.getElementById('demo-conversation-list');
+                if (!conversationList) return;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex items-start justify-end my-4';
+                
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%]">
+                        <div class="mb-2 rounded-lg overflow-hidden bg-white p-2">
+                            ${imageSvg}
+                        </div>
+                        <p class="text-sm">${text}</p>
+                    </div>
+                    <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                        <i class="fas fa-user text-gray-500"></i>
+                    </div>
+                `;
+                
+                conversationList.appendChild(messageDiv);
+            }
+            
+            // 添加音乐卡片
+            function addMusicCard(musicData) {
+                const conversationList = document.getElementById('demo-conversation-list');
+                if (!conversationList) return;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex items-start my-4';
+                
+                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white rounded-2xl rounded-tl-none p-3 max-w-[80%] shadow-sm">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-4 text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-music text-lg mr-2"></i>
+                                    <span class="font-semibold">${musicData.station}</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-1 h-3 bg-white rounded-full animate-pulse"></div>
+                                    <div class="w-1 h-2 bg-white rounded-full animate-pulse" style="animation-delay: 0.1s"></div>
+                                    <div class="w-1 h-4 bg-white rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-blue-100 mb-2">${musicData.description}</p>
+                            <div class="flex items-center text-sm">
+                                <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                                ${musicData.status}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                conversationList.appendChild(messageDiv);
             }
             
             // 滚动到对话底部
