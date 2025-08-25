@@ -7024,6 +7024,8 @@
                         addReminderPreview(currentDemoConversation.response.content);
                     } else if (currentDemoConversation.response.type === 'text_navigation_card') {
                         addNavigationCard(currentDemoConversation.response.content);
+                    } else if (currentDemoConversation.response.type === 'text_dual_card') {
+                        addDualCard(currentDemoConversation.response.content);
                     }
                     
                     // 滚动到底部
@@ -7269,6 +7271,61 @@
                                 <div>
                                     <p class="text-gray-500">Traffic</p>
                                     <p class="font-semibold">${responseData.navigation_card.traffic}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                conversationList.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // 添加双段文字卡片到对话区
+            function addDualCard(dualCardData) {
+                const conversationList = document.getElementById('demo-conversation-list');
+                if (!conversationList) return;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex items-start my-4';
+                
+                // 获取卡片颜色配置
+                const getCardStyle = (color) => {
+                    const styles = {
+                        blue: 'from-blue-50 to-indigo-50 border-blue-200',
+                        green: 'from-green-50 to-emerald-50 border-green-200',
+                        purple: 'from-purple-50 to-pink-50 border-purple-200',
+                        orange: 'from-orange-50 to-yellow-50 border-orange-200'
+                    };
+                    return styles[color] || styles.blue;
+                };
+                
+                // 获取卡片样式
+                const card1Style = getCardStyle(dualCardData.card1.color);
+                const card2Style = getCardStyle(dualCardData.card2.color);
+                
+                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 max-w-[80%] shadow-sm">
+                        <!-- 第一个卡片 -->
+                        <div class="bg-gradient-to-r ${card1Style} border rounded-xl p-4 mb-3">
+                            <div class="flex items-start mb-2">
+                                <span class="text-2xl mr-3">${dualCardData.card1.icon}</span>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800 mb-2">${dualCardData.card1.title}</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${dualCardData.card1.text}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 第二个卡片 -->
+                        <div class="bg-gradient-to-r ${card2Style} border rounded-xl p-4">
+                            <div class="flex items-start mb-2">
+                                <span class="text-2xl mr-3">${dualCardData.card2.icon}</span>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800 mb-2">${dualCardData.card2.title}</h4>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${dualCardData.card2.text}</p>
                                 </div>
                             </div>
                         </div>

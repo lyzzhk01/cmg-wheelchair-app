@@ -9,37 +9,103 @@ const DEMO_CONVERSATIONS = [
         id: 1,
         query: {
             type: 'text',
-            content: 'Hello, please tell me the current battery status of my wheelchair'
+            content: 'Set a lunch pill reminder at 11 AM and a water reminder every 2 hours. If I’m off the chair, ping my phone.'
         },
         response: {
-            type: 'text',
-            content: 'Your wheelchair\'s current battery is at 85%, estimated to last 6 hours and 30 minutes, with a driving range of about 25 km. The wheelchair is in good overall condition with no abnormal faults.'
+            type: 'text_schedule_card',
+            content: {
+                text: 'Set. I\’ll alert on-chair first; if you\’re away, I\’ll push to your phone.',
+                schedule_cards: [
+                    {
+                        id: 1,
+                        title: 'Lunch Pill Reminder',
+                        time: 'Tomorrow 11:00 AM',
+                        location: 'Home',
+                        type: 'appointment',
+                        icon: '💊'
+                    },
+                    {
+                        id: 2,
+                        title: 'Water Reminder',
+                        time: 'Daily 11:00 AM',
+                        description: 'Take water every 2 hours',
+                        type: 'reminder',
+                        icon: '💧'
+                    }
+                ]
+            }
         }
     },
     {
         id: 2,
         query: {
             type: 'text',
-            content: 'What wheelchair operations can I perform?'
+            content: 'Also set a prolonged\‑sitting alert at 60 minutes.'
         },
         response: {
-            type: 'text',
-            content: 'You can voice control wheelchair speed adjustment, lighting control, seat temperature adjustment, find wheelchair location, start navigation and more. You can also check battery level, view surroundings, set destinations, etc. Please let me know what help you need!'
+            type: 'text_schedule_card',
+            content: {
+                text: 'Set. I\’ll nudge you gently and suggest simple in\‑chair moves.',
+                schedule_cards: [
+                    {
+                        id: 1,
+                        title: 'Prolonged\‑sitting Alert',
+                        time: 'Sitting for 60 minutes',
+                        location: 'On chair',
+                        type: 'reminder',
+                        icon: '💺'
+                    }
+                ]
+            }
         }
     },
     {
         id: 3,
         query: {
             type: 'text',
-            content: 'Switch to navigation mode'
+            content: 'Can I make it to Dr. Patel\'s clinic and back today?'
         },
         response: {
-            type: 'text',
-            content: 'Switched to navigation mode. Current speed: 2.5km/h. You can use voice commands to set destinations or get route information.'
+            type: 'text_dual_card',
+            content: {
+                card1: {
+                    title: 'Trip Analysis',
+                    text: 'Round trip ≈ 4.6 miles. Battery 78% → safe, est. range ~12–14 miles. The clinic is open now, closes 6:00 PM, and Google marks an accessible entrance on Main St.',
+                    icon: '🔋',
+                    color: 'blue'
+                },
+                card2: {
+                    title: 'Route Options',
+                    text: 'Two ways to get there: Walk/Roll 2.3 miles via curb‑ramp crossings to the Main St accessible entrance; or Transit—Bus 5 in 6 minutes, elevators at Central Station, total 18 minutes.',
+                    icon: '🗺️',
+                    color: 'green'
+                }
+            }
         }
     },
     {
         id: 4,
+        query: {
+            type: 'text',
+            content: 'Start route accessible preferred.'
+        },
+        response: {
+            type: 'text_navigation_card',
+            content: {
+                text: 'Accessible routing on: curb ramps & elevators only, avoiding stairs and steep grades.',
+                    destination: 'Dr. Patel\'s Clinic',
+                    address: '123 Main Street, Downtown',
+                    distance: '2.3 miles',
+                    duration: '12 minutes',
+                    route_type: 'Accessible route',
+                    traffic: 'Light traffic',
+                    icon: '🚌',
+                    start_available: false
+                }
+            }
+    },
+    {
+        id: 5,
         query: {
             type: 'image_text',
             image: {
