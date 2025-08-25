@@ -95,11 +95,11 @@ const DEMO_CONVERSATIONS = [
                 text: 'Accessible routing on: curb ramps & elevators only, avoiding stairs and steep grades.',
                 navigation_card: {
                     destination: 'Dr. Patel\'s Clinic',
-                    address: '123 Main Street, Downtown',
-                    distance: '2.3 miles',
-                    duration: '12 minutes',
-                    route_type: 'Accessible route',
-                    traffic: 'Light traffic',
+                    address: '123 Main St, Downtown',
+                    distance: '2.3 mi',
+                    duration: '12 min',
+                    route_type: 'Accessible',
+                    traffic: 'Light',
                     icon: '🚌',
                     start_available: false
                 }
@@ -321,11 +321,11 @@ const DEMO_CONVERSATIONS = [
                 text: 'I found the best route to Central Library for you. The path is wheelchair accessible.',
                 navigation_card: {
                     destination: 'Central Library',
-                    address: '123 Main Street, Downtown',
+                    address: '123 Main St, Downtown',
                     distance: '2.3 km',
-                    duration: '12 minutes',
-                    route_type: 'Wheelchair Accessible',
-                    traffic: 'Light traffic',
+                    duration: '12 min',
+                    route_type: 'Accessible',
+                    traffic: 'Light',
                     icon: '📚',
                     start_available: true
                 }
