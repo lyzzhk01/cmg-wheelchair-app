@@ -93,6 +93,7 @@ const DEMO_CONVERSATIONS = [
             type: 'text_navigation_card',
             content: {
                 text: 'Accessible routing on: curb ramps & elevators only, avoiding stairs and steep grades.',
+                navigation_card: {
                     destination: 'Dr. Patel\'s Clinic',
                     address: '123 Main Street, Downtown',
                     distance: '2.3 miles',
@@ -103,6 +104,7 @@ const DEMO_CONVERSATIONS = [
                     start_available: false
                 }
             }
+        }
     },
     {
         id: 5,
