@@ -163,6 +163,147 @@ const DEMO_CONVERSATIONS = [
             type: 'text',
             content: 'Low battery alert received. Current battery level: 23%. I recommend finding a charging station soon. There are 2 charging stations within 800 meters. Would you like me to navigate to the nearest one?'
         }
+    },
+    
+    // 日程提醒类型对话
+    {
+        id: 9,
+        query: {
+            type: 'text',
+            content: 'Schedule a doctor appointment for tomorrow at 2 PM and remind me to take medication at 8 AM'
+        },
+        response: {
+            type: 'text_schedule_card',
+            content: {
+                text: 'I\'ve scheduled your appointments and set up the reminders for you.',
+                schedule_cards: [
+                    {
+                        id: 1,
+                        title: 'Doctor Appointment',
+                        time: 'Tomorrow 2:00 PM',
+                        location: 'City Medical Center',
+                        type: 'appointment',
+                        icon: '🏥'
+                    },
+                    {
+                        id: 2,
+                        title: 'Medication Reminder',
+                        time: 'Daily 8:00 AM',
+                        description: 'Take morning medication',
+                        type: 'reminder',
+                        icon: '💊'
+                    }
+                ]
+            }
+        }
+    },
+    
+    // 主动提醒 - AI主动发起
+    {
+        id: 10,
+        query: {
+            type: 'ai_initiated',
+            content: '' // AI主动发起，无用户输入
+        },
+        response: {
+            type: 'reminder_card',
+            content: {
+                title: 'Medication Reminder',
+                time: 'Now - 8:00 AM',
+                description: 'Time to take your morning medication',
+                medication: 'Vitamin D + Calcium',
+                icon: '💊',
+                urgent: true
+            }
+        }
+    },
+    
+    // 用户确认提醒
+    {
+        id: 11,
+        query: {
+            type: 'text',
+            content: 'Okay, I\'ve taken it'
+        },
+        response: {
+            type: 'text_reminder_preview',
+            content: {
+                text: 'Great! Medication taken recorded. Here\'s your next reminder:',
+                next_reminder: {
+                    title: 'Physical Therapy Session',
+                    time: 'Today 3:00 PM',
+                    location: 'Rehabilitation Center',
+                    icon: '🏃‍♂️',
+                    type: 'appointment'
+                }
+            }
+        }
+    },
+    
+    // 路线导航对话
+    {
+        id: 12,
+        query: {
+            type: 'text',
+            content: 'Navigate to Central Library, I want to go there to read some books'
+        },
+        response: {
+            type: 'text_navigation_card',
+            content: {
+                text: 'I found the best route to Central Library for you. The path is wheelchair accessible.',
+                navigation_card: {
+                    destination: 'Central Library',
+                    address: '123 Main Street, Downtown',
+                    distance: '2.3 km',
+                    duration: '12 minutes',
+                    route_type: 'Wheelchair Accessible',
+                    traffic: 'Light traffic',
+                    icon: '📚',
+                    start_available: true
+                }
+            }
+        }
+    },
+    
+    // 另一个日程对话 - 多个日程
+    {
+        id: 13,
+        query: {
+            type: 'text',
+            content: 'What\'s my schedule for this week?'
+        },
+        response: {
+            type: 'text_schedule_card',
+            content: {
+                text: 'Here\'s your schedule for this week:',
+                schedule_cards: [
+                    {
+                        id: 3,
+                        title: 'Physical Therapy',
+                        time: 'Monday 10:00 AM',
+                        location: 'Wellness Center',
+                        type: 'therapy',
+                        icon: '🏃‍♂️'
+                    },
+                    {
+                        id: 4,
+                        title: 'Family Dinner',
+                        time: 'Wednesday 6:00 PM',
+                        location: 'Home',
+                        type: 'personal',
+                        icon: '🍽️'
+                    },
+                    {
+                        id: 5,
+                        title: 'Grocery Shopping',
+                        time: 'Friday 2:00 PM',
+                        location: 'SuperMart',
+                        type: 'errand',
+                        icon: '🛒'
+                    }
+                ]
+            }
+        }
     }
 ];
 
