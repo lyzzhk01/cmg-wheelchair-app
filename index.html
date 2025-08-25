@@ -7238,39 +7238,83 @@
                         <i class="fas fa-robot text-white text-sm"></i>
                     </div>
                     <div class="bg-white rounded-2xl rounded-tl-none p-4 max-w-[80%] shadow-sm">
-                        <p class="text-sm mb-3">${responseData.text}</p>
-                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center">
-                                    <span class="text-2xl mr-3">${responseData.navigation_card.icon}</span>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-800">${responseData.navigation_card.destination}</h4>
-                                        <p class="text-sm text-gray-600">${responseData.navigation_card.address}</p>
+                        <p class="text-sm mb-4 text-gray-700 leading-relaxed">${responseData.text}</p>
+                        
+                        <!-- 导航卡片主体 -->
+                        <div class="bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 border border-blue-200 rounded-xl overflow-hidden shadow-sm">
+                            <!-- 目的地头部区域 -->
+                            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <span class="text-3xl mr-3 filter drop-shadow-sm">${responseData.navigation_card.icon}</span>
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-bold mb-1 text-white">${responseData.navigation_card.destination}</h3>
+                                            <p class="text-xs text-blue-100 opacity-90">${responseData.navigation_card.address}</p>
+                                        </div>
                                     </div>
+                                    ${responseData.navigation_card.start_available ? `
+                                        <button class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-all duration-200 border border-white/30">
+                                            <i class="fas fa-play mr-2"></i>
+                                            Start
+                                        </button>
+                                    ` : ''}
                                 </div>
-                                ${responseData.navigation_card.start_available ? `
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors">
-                                        <i class="fas fa-play mr-2"></i>
-                                        Start
-                                    </button>
-                                ` : ''}
                             </div>
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p class="text-gray-500">Distance</p>
-                                    <p class="font-semibold">${responseData.navigation_card.distance}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Duration</p>
-                                    <p class="font-semibold">${responseData.navigation_card.duration}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Route Type</p>
-                                    <p class="font-semibold">${responseData.navigation_card.route_type}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-500">Traffic</p>
-                                    <p class="font-semibold">${responseData.navigation_card.traffic}</p>
+                            
+                            <!-- 详细信息区域 -->
+                            <div class="p-4">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <!-- Distance -->
+                                    <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-route text-blue-600 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Distance</p>
+                                                <p class="text-sm font-bold text-gray-800">${responseData.navigation_card.distance}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Duration -->
+                                    <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-clock text-green-600 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Duration</p>
+                                                <p class="text-sm font-bold text-gray-800">${responseData.navigation_card.duration}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Route Type -->
+                                    <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-wheelchair text-purple-600 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Route Type</p>
+                                                <p class="text-xs font-semibold text-gray-800 leading-tight">${responseData.navigation_card.route_type}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Traffic -->
+                                    <div class="bg-white rounded-lg p-3 border border-blue-100 shadow-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-traffic-light text-orange-600 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Traffic</p>
+                                                <p class="text-sm font-bold text-gray-800">${responseData.navigation_card.traffic}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
