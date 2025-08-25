@@ -6950,6 +6950,11 @@
             function stopDemoVoiceRecognition() {
                 if (!currentDemoConversation) return;
                 
+                // 如果是AI主动发起的对话，不需要处理用户消息
+                if (currentDemoConversation.query.type === 'ai_initiated') {
+                    return;
+                }
+                
                 // 清除识别文字流式效果
                 if (recognitionTextInterval) {
                     clearInterval(recognitionTextInterval);
@@ -6957,6 +6962,7 @@
                 }
                 
                 // 确保文字完全显示
+                if (!currentUserMessageDiv) return; // 防止null访问
                 const recognitionTextEl = currentUserMessageDiv.querySelector('p.text-sm');
                 if (recognitionTextEl) {
                     recognitionTextEl.textContent = currentDemoConversation.query.content;
