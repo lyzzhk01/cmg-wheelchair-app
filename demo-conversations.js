@@ -244,7 +244,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 8,
+        id: 9,
         query: {
             type: 'image_text',
             image: {
@@ -293,7 +293,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 9,
+        id: 10,
         query: {
             type: 'image_text',
             image: {
@@ -342,7 +342,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 10,  
+        id: 11,  
         query: {
             type: 'text',
             content: 'I prefer the first one'
@@ -355,7 +355,7 @@ const DEMO_CONVERSATIONS = [
 
      // 主动久坐提醒 - AI主动发起
      {
-        id: 11,
+        id: 12,
         query: {
             type: 'ai_initiated',
             content: '' // AI主动发起，无用户输入
@@ -374,7 +374,7 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 12,
+        id: 13,
         query: {
             type: 'text',
             content: 'Start ankle pumps.'
@@ -388,10 +388,10 @@ const DEMO_CONVERSATIONS = [
 
     // 兴趣爱好话题对话
     {
-        id: 13,
+        id: 14,
         query: {
             type: 'text',
-            content: 'Let\’s talk about 1977 Yankees.'
+            content: 'Let\'s talk about 1977 Yankees.'
         },
         response: {
             type: 'text',
@@ -402,7 +402,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 14,
+        id: 15,
         query: {
             type: 'text',
             content: 'With my dad at my brother\'s place.'
@@ -417,7 +417,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 15,
+        id: 16,
         query: {
             type: 'text',
             content: 'The last homer—neighbors shouted.'
@@ -432,7 +432,7 @@ const DEMO_CONVERSATIONS = [
 
     //情感关怀
     {
-        id: 16,
+        id: 17,
         query: {
             type: 'text',
             content: 'Feeling a bit tense today.'
@@ -445,7 +445,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 17,
+        id: 18,
         query: {
             type: 'text',
             content: 'A story.'
@@ -458,7 +458,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 18,
+        id: 19,
         query: {
             type: 'text',
             content: 'My neighbor brought over soup.'
@@ -472,7 +472,7 @@ const DEMO_CONVERSATIONS = [
 
     //回忆录
     {
-        id: 19,
+        id: 20,
         query: {
             type: 'text',
             content: 'Start my memoir—"In 1969 I moved to Chicago and…"'
@@ -484,7 +484,7 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 20,
+        id: 21,
         query: {
             type: 'text',
             content: 'The first paycheck—I bought a second‑hand radio and it squeaked.'
@@ -498,10 +498,10 @@ const DEMO_CONVERSATIONS = [
 
     //音乐播放
     {
-        id: 21,
+        id: 22,
         query: {
             type: 'text',
-            content: 'Play some late \’70s classic rock.'
+            content: 'Play some late \'70s classic rock.'
         },
         response: {
             type: 'music_card',
@@ -585,7 +585,7 @@ const DEMO_CONVERSATIONS = [
     
     // 另一个日程对话 - 多个日程
     {
-        id: 22,
+        id: 23,
         query: {
             type: 'text',
             content: 'What\'s my schedule for this week?'
