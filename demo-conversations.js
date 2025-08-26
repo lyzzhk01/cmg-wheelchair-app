@@ -14,21 +14,23 @@ const DEMO_CONVERSATIONS = [
         response: {
             type: 'text_schedule_card',
             content: {
-                text: 'Set. I\’ll alert on-chair first; if you\’re away, I\’ll push to your phone.',
+                text: 'Set. I\'ll alert on wheelchair first; if you\'re away, I\'ll push to your phone.',
                 schedule_cards: [
                     {
                         id: 1,
                         title: 'Lunch Pill Reminder',
-                        time: 'Tomorrow 11:00 AM',
-                        location: 'Home',
-                        type: 'appointment',
+                        time: 'Daily 11:00 AM',
+                        description: '🪑 Wheelchair alert → 📱 Phone backup',
+                        device: 'Wheelchair (Phone backup)',
+                        type: 'reminder',
                         icon: '💊'
                     },
                     {
                         id: 2,
                         title: 'Water Reminder',
-                        time: 'Daily 11:00 AM',
-                        description: 'Take water every 2 hours',
+                        time: 'every 2 hours',
+                        description: '🪑 Wheelchair alert → 📱 Phone backup',
+                        device: 'Wheelchair (Phone backup)',
                         type: 'reminder',
                         icon: '💧'
                     }
