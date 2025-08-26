@@ -18,15 +18,6 @@ const DEMO_CONVERSATIONS = [
                 schedule_cards: [
                     {
                         id: 1,
-                        title: 'Lunch Pill Reminder',
-                        time: 'Daily 11:00 AM',
-                        description: '♿️ Wheelchair alert → 📱 Phone backup',
-                        device: 'Wheelchair (Phone backup)',
-                        type: 'reminder',
-                        icon: '💊'
-                    },
-                    {
-                        id: 2,
                         title: 'Water Reminder',
                         time: 'every 2 hours',
                         description: '♿️ Wheelchair alert → 📱 Phone backup',
