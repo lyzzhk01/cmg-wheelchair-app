@@ -157,7 +157,7 @@ const DEMO_CONVERSATIONS = [
             type: 'image_text',
             image: {
                 description: 'A cozy coffee shop storefront with large windows, outdoor seating, and a coffee sign',
-                url: 'images/demo/coffee-shop.jpg', // 添加真实图片路径
+                url: 'images/demo/menu.png', // 添加真实图片路径
                 svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
                     <!-- Building -->
                     <rect x="20" y="40" width="160" height="90" fill="#8B4513" stroke="#654321" stroke-width="2"/>
@@ -199,7 +199,7 @@ const DEMO_CONVERSATIONS = [
             type: 'image_text',
             image: {
                 description: 'Two coffee packs; one has large "Decaf" text',
-                url: 'images/demo/coffee-packs.jpg', // 添加真实图片路径
+                url: 'images/demo/coffee decaf.png', // 添加真实图片路径
                 svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
                     <!-- Sky -->
                     <rect x="0" y="0" width="200" height="100" fill="#87CEEB"/>
@@ -249,7 +249,7 @@ const DEMO_CONVERSATIONS = [
             type: 'image_text',
             image: {
                 description: 'Zero Sugar soda vs regular',
-                url: 'images/demo/soda-comparison.jpg', // 添加真实图片路径
+                url: 'images/demo/cocakola.png', // 添加真实图片路径
                 svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
                     <!-- Sky -->
                     <rect x="0" y="0" width="200" height="100" fill="#87CEEB"/>
@@ -298,7 +298,7 @@ const DEMO_CONVERSATIONS = [
             type: 'image_text',
             image: {
                 description: 'Tomatoes, potatoes, and a tray labeled "Beef Stew Meat"',
-                url: 'images/demo/cooking-ingredients.jpg', // 添加真实图片路径
+                url: 'images/demo/tomato potato beef.png', // 添加真实图片路径
                 svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
                     <!-- Sky -->
                     <rect x="0" y="0" width="200" height="100" fill="#87CEEB"/>
@@ -501,7 +501,7 @@ const DEMO_CONVERSATIONS = [
         id: 22,
         query: {
             type: 'text',
-            content: 'Play some late \'70s classic rock.'
+            content: 'Play some late 70s classic rock.'
         },
         response: {
             type: 'music_card',
