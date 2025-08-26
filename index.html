@@ -6819,7 +6819,11 @@
                 if (conversation.query.type === 'text') {
                     addMessageToConversation(conversation.query.content, 'user');
                 } else if (conversation.query.type === 'image_text') {
-                    addMessageWithImage(conversation.query.image.svg, conversation.query.content, 'user');
+                    // 支持真实图片或SVG
+                    const imageContent = conversation.query.image.url 
+                        ? `<img src="${conversation.query.image.url}" alt="${conversation.query.image.description}" class="w-full h-auto rounded-lg" style="max-height: 150px; object-fit: cover;">` 
+                        : conversation.query.image.svg;
+                    addMessageWithImage(imageContent, conversation.query.content, 'user');
                 }
                 
                 // 显示正在输入指示
@@ -6906,10 +6910,14 @@
                         </div>
                     `;
                 } else if (conversation.query.type === 'image_text') {
+                    // 支持真实图片或SVG
+                    const imageContent = conversation.query.image.url 
+                        ? `<img src="${conversation.query.image.url}" alt="${conversation.query.image.description}" class="w-full h-auto rounded-lg" style="max-height: 150px; object-fit: cover;">` 
+                        : conversation.query.image.svg;
                     messageDiv.innerHTML = `
                         <div class="bg-blue-500 text-white rounded-2xl rounded-tr-none p-3 max-w-[80%]">
                             <div class="mb-2 rounded-lg overflow-hidden bg-white p-2" style="display: none;">
-                                ${conversation.query.image.svg}
+                                ${imageContent}
                             </div>
                             <p class="text-sm" id="${uniqueId}"></p>
                         </div>
