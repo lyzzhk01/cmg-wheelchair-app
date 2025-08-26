@@ -349,7 +349,7 @@ const DEMO_CONVERSATIONS = [
         }
     },
 
-     // 主动提醒 - AI主动发起
+     // 主动久坐提醒 - AI主动发起
      {
         id: 11,
         query: {
@@ -357,24 +357,12 @@ const DEMO_CONVERSATIONS = [
             content: '' // AI主动发起，无用户输入
         },
         response: {
-            type: 'text',
-            content: 'You\’ve been seated 60 minutes. If safe, do in-chair pressure relief: lean/tilt or 60-sec ankle pumps'
-        }
-    },
-
-    {
-        id: 12,
-        query: {
-            type: 'ai_initiated',
-            content: '' // AI主动发起，无用户输入
-        },
-        response: {
             type: 'reminder_card',
             content: {
-                title: 'Sedentary reminder',
-                time: 'Now',
-                description: 'Lean/tilt or 60-sec ankle pumps',
-                medication: 'Sedentary reminder',
+                title: 'Prolonged Sitting Alert',
+                time: 'Now - 60 minutes seated',
+                description: 'You\'ve been seated 60 minutes. If safe, do in-chair pressure relief: lean/tilt or 60-sec ankle pumps',
+                medication: 'Movement reminder',
                 icon: '💺',
                 urgent: true
             }
@@ -382,7 +370,7 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 13,
+        id: 12,
         query: {
             type: 'text',
             content: 'Start ankle pumps.'
@@ -396,7 +384,7 @@ const DEMO_CONVERSATIONS = [
 
     // 兴趣爱好话题对话
     {
-        id: 14,
+        id: 13,
         query: {
             type: 'text',
             content: 'Let\’s talk about 1977 Yankees.'
@@ -410,14 +398,14 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 15,
+        id: 14,
         query: {
             type: 'text',
-            content: 'With my dad at my brother\’s place.'
+            content: 'With my dad at my brother\'s place.'
         },
         response: {
             type: 'text',
-            content: 'That\’s special. What sticks with you most—the announcer\’s call, the crowd noise, or the pizza?'
+            content: 'That\'s special. What sticks with you most—the announcer\'s call, the crowd noise, or the pizza?'
         }
     },
 
@@ -425,7 +413,7 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 16,
+        id: 15,
         query: {
             type: 'text',
             content: 'The last homer—neighbors shouted.'
@@ -440,7 +428,7 @@ const DEMO_CONVERSATIONS = [
 
     //情感关怀
     {
-        id: 17 ,
+        id: 16,
         query: {
             type: 'text',
             content: 'Feeling a bit tense today.'
@@ -453,34 +441,34 @@ const DEMO_CONVERSATIONS = [
 
 
     {
-        id: 18,
+        id: 17,
         query: {
             type: 'text',
             content: 'A story.'
         },
         response: {
             type: 'text',
-            content: 'A small one: a bus driver paused so an older couple could board together—people smiled and waited. What\’s one small good thing from your week?'
+            content: 'A small one: a bus driver paused so an older couple could board together—people smiled and waited. What\'s one small good thing from your week?'
         }
     },
 
 
     {
-        id: 19,
+        id: 18,
         query: {
             type: 'text',
             content: 'My neighbor brought over soup.'
         },
         response: {
             type: 'text',
-            content: 'That\’s kindness. If you want to talk things through, just say “talk it through,” and we\’ll chat.'
+            content: 'That\'s kindness. If you want to talk things through, just say "talk it through," and we\'ll chat.'
         }
     },
 
 
     //回忆录
     {
-        id: 20,
+        id: 19,
         query: {
             type: 'text',
             content: 'Start my memoir—"In 1969 I moved to Chicago and…"'
@@ -492,7 +480,7 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 21,
+        id: 20,
         query: {
             type: 'text',
             content: 'The first paycheck—I bought a second‑hand radio and it squeaked.'
@@ -506,7 +494,7 @@ const DEMO_CONVERSATIONS = [
 
     //音乐播放
     {
-        id: 22,
+        id: 21,
         query: {
             type: 'text',
             content: 'Play some late \’70s classic rock.'
@@ -593,7 +581,7 @@ const DEMO_CONVERSATIONS = [
     
     // 另一个日程对话 - 多个日程
     {
-        id: 23,
+        id: 22,
         query: {
             type: 'text',
             content: 'What\'s my schedule for this week?'
