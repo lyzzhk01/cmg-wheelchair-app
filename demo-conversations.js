@@ -87,7 +87,7 @@ const DEMO_CONVERSATIONS = [
         id: 4,
         query: {
             type: 'text',
-            content: 'Start route accessible preferred.'
+            content: 'Start walking route accessible preferred.'
         },
         response: {
             type: 'text_navigation_card',
@@ -99,7 +99,6 @@ const DEMO_CONVERSATIONS = [
                     distance: '2.3 mi',
                     duration: '12 min',
                     route_type: 'Accessible',
-                    traffic: 'Light',
                     icon: '🚌',
                     start_available: false
                 }
@@ -341,21 +340,21 @@ const DEMO_CONVERSATIONS = [
     },
 
 
-    {
-        id: 11,  
-        query: {
-            type: 'text',
-            content: 'I prefer the first one'
-        },
-        response: {
-            type: 'text',
-            content: 'Sounds good.'
-        }
-    },
+    // {
+    //     id: 11,  
+    //     query: {
+    //         type: 'text',
+    //         content: 'I prefer the first one'
+    //     },
+    //     response: {
+    //         type: 'text',
+    //         content: 'Sounds good.'
+    //     }
+    // },
 
      // 主动久坐提醒 - AI主动发起
      {
-        id: 12,
+        id: 11,
         query: {
             type: 'ai_initiated',
             content: '' // AI主动发起，无用户输入
@@ -374,10 +373,10 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 13,
+        id: 12,
         query: {
             type: 'text',
-            content: 'Start ankle pumps.'
+            content: 'Ok I\'ll do some ankle pumps.'
         },
         response: {
             type: 'text',
@@ -388,94 +387,94 @@ const DEMO_CONVERSATIONS = [
 
     // 兴趣爱好话题对话
     {
+        id: 13,
+        query: {
+            type: 'text',
+            content: 'What do you know about 1986 World Cup？'
+        },
+        response: {
+            type: 'text',
+            content: 'Quarterfinal at the Azteca, Argentina vs England (June 22): Maradona scored the “Hand of God,” then four minutes later the “Goal of the Century” with a 60\‑meter run past five defenders. Argentina won 2\–1 and later lifted the trophy. Want a 10\‑second recap? '
+        }
+    },
+
+
+
+    {
         id: 14,
         query: {
             type: 'text',
-            content: 'Let\'s talk about 1977 Yankees.'
+            content: 'Give me the quick recap'
         },
         response: {
             type: 'text',
-            content: 'I remember Reggie Jackson\’s three homers in Game 6. Who were you with?'
-        }
-    },
-
-
-
-    {
-        id: 15,
-        query: {
-            type: 'text',
-            content: 'With my dad at my brother\'s place.'
-        },
-        response: {
-            type: 'text',
-            content: 'That\'s special. What sticks with you most—the announcer\'s call, the crowd noise, or the pizza?'
+            content: '51\’ handball counted, 55\’ solo made it 2\–0, 81\’ Lineker pulled one back. That\’s why \’86 still lights up every football chat.'
         }
     },
 
 
 
 
-    {
-        id: 16,
-        query: {
-            type: 'text',
-            content: 'The last homer—neighbors shouted.'
-        },
-        response: {
-            type: 'text',
-            content: 'What a night—like a movie.'
-        }
-    },
+    // {
+    //     id: 16,
+    //     query: {
+    //         type: 'text',
+    //         content: 'The last homer—neighbors shouted.'
+    //     },
+    //     response: {
+    //         type: 'text',
+    //         content: 'What a night—like a movie.'
+    //     }
+    // },
 
 
 
     //情感关怀
     {
-        id: 17,
+        id: 15,
         query: {
             type: 'text',
             content: 'Feeling a bit tense today.'
         },
         response: {
             type: 'text',
-            content: 'I\’m here. Would a quick pep talk or a light story help?'
+            content: 'I\’m here. Want a one\‑liner or a short funny story? '
         }
     },
 
 
     {
-        id: 18,
+        id: 16,
         query: {
             type: 'text',
-            content: 'A story.'
+            content: 'A one\‑liner. '
         },
         response: {
             type: 'text',
-            content: 'A small one: a bus driver paused so an older couple could board together—people smiled and waited. What\'s one small good thing from your week?'
+            content: 'Quick chuckle: my GPS said “recalculating”—I said “same,” and we both felt better. Got a tiny win from your day? '
         }
     },
 
 
     {
-        id: 19,
+        id: 17,
         query: {
             type: 'text',
             content: 'My neighbor brought over soup.'
         },
         response: {
             type: 'text',
-            content: 'That\'s kindness. If you want to talk things through, just say "talk it through," and we\'ll chat.'
+            content: 'That\’s five\‑star neighbor behavior. If you want another laugh, say “tell me a funny,” or say “good news” for a cheerful headline.'
         }
     },
 
 
     //回忆录
     {
-        id: 20,
+        id: 18,
         query: {
             type: 'text',
-            content: 'Start my memoir—"In 1969 I moved to Chicago and…"'
+            content: 'Start my memoir, In 1969 I moved to Chicago and… '
         },
         response: {
             type: 'text',
@@ -484,30 +483,55 @@ const DEMO_CONVERSATIONS = [
     },
 
     {
-        id: 21,
+        id: 19,
         query: {
             type: 'text',
             content: 'The first paycheck—I bought a second‑hand radio and it squeaked.'
         },
         response: {
             type: 'text',
-            content: 'Added. '
+            content: 'Nice. Which shop did you get it from, and where did you set it at home? '
         }
     },
 
+
+    {
+        id: 20,
+        query: {
+            type: 'text',
+            content: 'From Maxwell Street Market. I set it on the kitchen counter. '
+        },
+        response: {
+            type: 'text',
+            content: 'Saved. One detail to bring it alive: what did you hear first—news, baseball, or a soul song? '
+        }
+    },
+
+
+    {
+        id: 21,
+        query: {
+            type: 'text',
+            content: ' A Motown song, My Girl'
+        },
+        response: {
+            type: 'text',
+            content: 'Added. Next, would you like to capture your funniest neighbor or your first Chicago winter? Once I have all your details, I\’ll help weave them into a complete, chronological memoir.'
+        }
+    },
 
     //音乐播放
     {
         id: 22,
         query: {
             type: 'text',
-            content: 'Play some late 70s classic rock.'
+            content: 'I\’m at the park in the shade—nice breeze today. Put on an oldies radio'
         },
         response: {
             type: 'music_card',
             content: {
-                station: 'Eagles, Fleetwood Mac, Billy Joel Collection',
-                description: '70s classic rock.',
+                station: '60s/70s oldies radio',
+                description: 'Easy vibe that suits the park.',
                 status: 'Now Playing'
             }
         }
