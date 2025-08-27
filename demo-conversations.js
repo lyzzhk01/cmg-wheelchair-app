@@ -69,14 +69,14 @@ const DEMO_CONVERSATIONS = [
             type: 'text_dual_card',
             content: {
                 card1: {
-                    title: 'Trip Analysis',
-                    text: 'Round trip ≈ 4.6 miles. Battery 78% → safe, est. range ~12–14 miles. The clinic is open now, closes 6:00 PM, and Google marks an accessible entrance on Main St.',
+                    title: 'Trip Check',
+                    text: '✅ 4.6 mi round trip\n✅ Battery 78% (sufficient)\n✅ Open until 6:00 PM\n✅ Accessible entrance',
                     icon: '🔋',
                     color: 'blue'
                 },
                 card2: {
                     title: 'Route Options',
-                    text: 'Two ways to get there: Walk/Roll 2.3 miles via curb‑ramp crossings to the Main St accessible entrance; or Transit—Bus 5 in 6 minutes, elevators at Central Station, total 18 minutes.',
+                    text: '🚶 Walk/Roll: 2.3 mi, accessible path\n\n🚌 Bus: Bus 5 in 6 minutes, Central Station, 18 min total',
                     icon: '🗺️',
                     color: 'green'
                 }
@@ -447,7 +447,7 @@ const DEMO_CONVERSATIONS = [
         id: 16,
         query: {
             type: 'text',
-            content: 'A one\‑liner. '
+            content: 'A one liner. '
         },
         response: {
             type: 'text',
@@ -486,7 +486,7 @@ const DEMO_CONVERSATIONS = [
         id: 19,
         query: {
             type: 'text',
-            content: 'The first paycheck—I bought a second‑hand radio and it squeaked.'
+            content: 'The first paycheck，I bought a second hand radio and it squeaked.'
         },
         response: {
             type: 'text',
@@ -525,7 +525,7 @@ const DEMO_CONVERSATIONS = [
         id: 22,
         query: {
             type: 'text',
-            content: 'I\’m at the park in the shade—nice breeze today. Put on an oldies radio'
+            content: 'I\’m at the park in the shade nice breeze today. Put on an oldies radio'
         },
         response: {
             type: 'music_card',
