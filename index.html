@@ -253,7 +253,7 @@
     </div>
 
     <!-- 全局半屏对话窗 -->
-    <div id="global-chat-dialog" class="fixed bottom-20 left-0 right-0 z-45 transform translate-y-full transition-transform duration-300 hidden">
+    <div id="global-chat-dialog" class="fixed bottom-16 left-0 right-0 z-50 transform translate-y-full transition-transform duration-300 hidden">
         <!-- 拖拽手柄 -->
         <div class="bg-white rounded-t-2xl shadow-2xl">
             <div class="flex justify-center py-2">
@@ -13230,6 +13230,8 @@
             };
             
             globalConversationData.push(message);
+            console.log('📨 添加消息到对话历史:', message);
+            console.log('📊 当前对话历史长度:', globalConversationData.length);
             
             // 更新半屏对话窗
             updateHalfScreenConversation();
@@ -13241,12 +13243,30 @@
         // 显示半屏对话窗
         function showHalfScreenChat() {
             const globalChatDialog = document.getElementById('global-chat-dialog');
+            console.log('🎯 尝试显示半屏对话窗', globalChatDialog);
+            
             if (globalChatDialog) {
+                console.log('📱 半屏对话窗元素找到，当前类名:', globalChatDialog.className);
+                
                 globalChatDialog.classList.remove('hidden');
+                console.log('✅ 移除hidden类，当前类名:', globalChatDialog.className);
+                
                 // 使用setTimeout确保动画生效
                 setTimeout(() => {
                     globalChatDialog.classList.remove('translate-y-full');
+                    console.log('🚀 移除translate-y-full类，当前类名:', globalChatDialog.className);
+                    
+                    // 强制检查元素是否可见
+                    const rect = globalChatDialog.getBoundingClientRect();
+                    console.log('📏 对话窗位置信息:', {
+                        top: rect.top,
+                        bottom: rect.bottom,
+                        height: rect.height,
+                        visible: rect.height > 0 && rect.top < window.innerHeight
+                    });
                 }, 10);
+            } else {
+                console.error('❌ 找不到半屏对话窗元素 #global-chat-dialog');
             }
         }
         
@@ -13304,10 +13324,23 @@
         // 更新半屏对话内容
         function updateHalfScreenConversation() {
             const halfScreenConversation = document.getElementById('half-screen-conversation');
-            if (!halfScreenConversation) return;
+            console.log('💬 更新半屏对话内容', halfScreenConversation);
+            
+            if (!halfScreenConversation) {
+                console.error('❌ 找不到半屏对话列表元素 #half-screen-conversation');
+                return;
+            }
             
             const recentMessages = globalConversationData.slice(-3); // 只显示最近3条消息
-            halfScreenConversation.innerHTML = recentMessages.map(msg => createMessageHTML(msg, true)).join('');
+            console.log('📝 要显示的消息:', recentMessages);
+            
+            if (recentMessages.length === 0) {
+                halfScreenConversation.innerHTML = '<p class="text-gray-500 text-center py-4">暂无对话记录</p>';
+            } else {
+                const html = recentMessages.map(msg => createMessageHTML(msg, true)).join('');
+                halfScreenConversation.innerHTML = html;
+                console.log('✅ 半屏对话内容已更新', html.length, '字符');
+            }
         }
         
         // 更新全屏对话内容
@@ -13425,6 +13458,19 @@
                 }
                 
                 console.log('🎤 长按中央黄色按钮开始语音对话体验');
+                
+                // 添加测试功能，双击黄色按钮可以手动触发对话窗测试
+                const globalVoiceBtn = document.getElementById('global-voice-btn');
+                if (globalVoiceBtn) {
+                    globalVoiceBtn.addEventListener('dblclick', function() {
+                        console.log('🧪 手动测试对话窗显示');
+                        // 添加测试消息
+                        addMessageToGlobalConversation('测试用户消息', 'user');
+                        addMessageToGlobalConversation('测试AI回复消息', 'assistant');
+                        // 显示半屏对话窗
+                        showHalfScreenChat();
+                    });
+                }
             }, 100);
         });
         
