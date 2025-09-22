@@ -302,15 +302,22 @@
         </div>
         
         <!-- 全屏对话内容 -->
-        <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 60px);">
-            <div id="fullscreen-conversation" class="space-y-3 max-w-md mx-auto">
+        <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 120px);">
+            <div id="fullscreen-conversation" class="space-y-3 max-w-md mx-auto pb-20">
                 <!-- 全屏对话内容将在这里动态生成 -->
             </div>
+        </div>
+        
+        <!-- 全屏对话窗中的语音按钮 -->
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <button id="fullscreen-voice-btn" class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95">
+                <i class="fas fa-microphone text-white text-xl"></i>
+            </button>
         </div>
     </div>
     
     <!-- 搜索对话窗口 -->
-    <div id="search-dialog-window" class="fixed inset-0 bg-white z-60 transform translate-y-full transition-transform duration-300 hidden">
+    <div id="search-dialog-window" class="fixed inset-0 bg-white z-[70] transform translate-y-full transition-transform duration-300 hidden">
         <!-- 搜索窗口头部 -->
         <div class="bg-white border-b border-gray-200 px-4 py-3">
             <div class="flex items-center justify-between mb-3">
@@ -13055,6 +13062,9 @@
             // 搜索对话窗口交互
             initSearchDialog();
             
+            // 全屏语音按钮交互
+            initFullscreenVoiceButton();
+            
             // 拖拽手柄点击切换半屏对话窗
             const dragHandle = globalChatDialog?.querySelector('.w-10.h-1');
             if (dragHandle) {
@@ -13937,6 +13947,51 @@
                 
                 console.log('✅ 已跳转到消息:', messageIndex);
             }
+        }
+        
+        // 初始化全屏语音按钮
+        function initFullscreenVoiceButton() {
+            const fullscreenVoiceBtn = document.getElementById('fullscreen-voice-btn');
+            if (!fullscreenVoiceBtn) return;
+            
+            // 复用全局语音按钮的功能
+            // 长按开始语音识别 (鼠标)
+            fullscreenVoiceBtn.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                startGlobalVoiceRecognition();
+            });
+            
+            fullscreenVoiceBtn.addEventListener('mouseup', function(e) {
+                e.preventDefault();
+                stopGlobalVoiceRecognition();
+            });
+            
+            // 长按开始语音识别 (触摸)
+            fullscreenVoiceBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startGlobalVoiceRecognition();
+            });
+            
+            fullscreenVoiceBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                stopGlobalVoiceRecognition();
+            });
+            
+            // 防止长按离开按钮区域时失效
+            fullscreenVoiceBtn.addEventListener('mouseleave', function() {
+                if (globalVoiceListening) {
+                    stopGlobalVoiceRecognition();
+                }
+            });
+            
+            // 双击测试功能
+            fullscreenVoiceBtn.addEventListener('dblclick', function() {
+                console.log('🧪 全屏模式手动测试对话窗显示');
+                addMessageToGlobalConversation('全屏模式测试消息', 'user');
+                addMessageToGlobalConversation('全屏模式AI回复', 'assistant');
+            });
+            
+            console.log('🎙️ 全屏语音按钮已初始化');
         }
         
         // 清除全局对话历史（可选功能）
