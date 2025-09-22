@@ -12923,6 +12923,7 @@
         let globalVoiceListening = false;
         let globalConversationData = []; // 存储对话历史
         let currentVoiceTimeout = null;
+        let currentVoiceRecognitionData = null; // 当前正在识别的对话数据
         
         // 初始化全局语音功能
         function initGlobalVoiceFunction() {
@@ -13044,6 +13045,9 @@
                 currentVoiceTimeout = null;
             }
             
+            // 立即完成文字上屏和识别流程
+            completeVoiceRecognition();
+            
             // 隐藏收音指示器
             const globalVoiceIndicator = document.getElementById('global-voice-indicator');
             if (globalVoiceIndicator) {
@@ -13087,6 +13091,32 @@
             });
         }
         
+        // 立即完成语音识别（松手时调用）
+        function completeVoiceRecognition() {
+            if (!currentVoiceRecognitionData) {
+                console.log('⚠️ 没有正在进行的语音识别');
+                return;
+            }
+            
+            const { fullText, conversationData, currentIndex } = currentVoiceRecognitionData;
+            const globalVoiceText = document.getElementById('global-voice-text');
+            
+            console.log('⚡ 立即完成语音识别，补足剩余文字');
+            
+            // 立即显示完整文字
+            if (globalVoiceText) {
+                globalVoiceText.textContent = fullText;
+            }
+            
+            // 稍作延迟后触发识别完成
+            setTimeout(() => {
+                handleVoiceRecognitionComplete(fullText, conversationData);
+                
+                // 清理识别数据
+                currentVoiceRecognitionData = null;
+            }, 300);
+        }
+        
         // 模拟语音识别过程
         function simulateVoiceRecognition() {
             const globalVoiceText = document.getElementById('global-voice-text');
@@ -13123,20 +13153,42 @@
             
             console.log('🎙️ 使用演示对话:', conversationData);
             
+            // 保存当前识别数据，供松手时使用
+            currentVoiceRecognitionData = {
+                fullText: userQuery,
+                conversationData: conversationData,
+                currentIndex: 0
+            };
+            
             // 模拟语音转文字过程 - 打字机效果
             let displayText = '';
             const fullText = userQuery;
             let index = 0;
             
             function typeText() {
-                if (!globalVoiceListening || index >= fullText.length) return;
+                if (!globalVoiceListening || index >= fullText.length) {
+                    // 如果识别完成，自动触发完成流程
+                    if (globalVoiceListening && index >= fullText.length) {
+                        setTimeout(() => {
+                            if (globalVoiceListening) {
+                                handleVoiceRecognitionComplete(userQuery, conversationData);
+                            }
+                        }, 500);
+                    }
+                    return;
+                }
                 
                 displayText += fullText[index];
                 if (globalVoiceText) {
                     globalVoiceText.textContent = displayText;
                 }
-                index++;
                 
+                // 更新当前识别数据的进度
+                if (currentVoiceRecognitionData) {
+                    currentVoiceRecognitionData.currentIndex = index;
+                }
+                
+                index++;
                 currentVoiceTimeout = setTimeout(typeText, 80); // 稍微快一点的打字速度
             }
             
