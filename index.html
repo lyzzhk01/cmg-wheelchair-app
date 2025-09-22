@@ -253,9 +253,9 @@
     </div>
 
     <!-- 全局半屏对话窗 -->
-    <div id="global-chat-dialog" class="fixed bottom-16 left-0 right-0 z-50 transform translate-y-full transition-transform duration-300 hidden">
+    <div id="global-chat-dialog" class="fixed top-16 left-0 right-0 z-50 transform -translate-y-full transition-transform duration-300 hidden">
         <!-- 拖拽手柄 -->
-        <div class="bg-white rounded-t-2xl shadow-2xl">
+        <div class="bg-white rounded-b-2xl shadow-2xl">
             <div class="flex justify-center py-2">
                 <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
             </div>
@@ -13198,13 +13198,21 @@
         function handleSpecialResponseTypes(responseData) {
             if (!responseData || !responseData.type) return;
             
-            // 根据不同的回复类型，可以添加特殊的UI展示
+            console.log('🎨 处理特殊回复类型:', responseData.type);
+            
+            // 根据不同的回复类型，创建特殊的UI展示
             switch (responseData.type) {
                 case 'text_schedule_card':
                     console.log('📅 日程卡片回复');
+                    if (responseData.content && responseData.content.schedule_cards) {
+                        createScheduleCardsMessage(responseData.content.schedule_cards);
+                    }
                     break;
                 case 'reminder_card':
                     console.log('⏰ 提醒卡片回复');
+                    if (responseData.content) {
+                        createReminderCardMessage(responseData.content);
+                    }
                     break;
                 case 'text_image_card':
                     console.log('🖼️ 图片卡片回复');
@@ -13215,8 +13223,80 @@
                 default:
                     console.log('📝 标准文本回复');
             }
+        }
+        
+        // 创建日程卡片消息
+        function createScheduleCardsMessage(scheduleCards) {
+            console.log('📅 创建日程卡片:', scheduleCards);
             
-            // 未来可以在这里实现更丰富的UI展示
+            const cardsHtml = scheduleCards.map(card => `
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-3 mb-2">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">${card.icon || '⏰'}</span>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${card.title}</h4>
+                            <p class="text-sm text-blue-600 font-medium mb-1">${card.time}</p>
+                            <p class="text-xs text-gray-600">${card.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const cardMessage = {
+                id: `card_${Date.now()}`,
+                html: `
+                    <div class="space-y-2">
+                        <p class="text-sm text-gray-600 mb-3">已为您设置以下提醒：</p>
+                        ${cardsHtml}
+                    </div>
+                `,
+                sender: 'assistant',
+                timestamp: Date.now(),
+                isCard: true
+            };
+            
+            addSpecialMessageToGlobalConversation(cardMessage);
+        }
+        
+        // 创建提醒卡片消息
+        function createReminderCardMessage(reminderContent) {
+            console.log('⏰ 创建提醒卡片:', reminderContent);
+            
+            const urgentClass = reminderContent.urgent ? 'from-red-50 to-orange-50 border-red-200' : 'from-yellow-50 to-amber-50 border-yellow-200';
+            const iconColor = reminderContent.urgent ? 'text-red-500' : 'text-amber-500';
+            
+            const cardMessage = {
+                id: `reminder_${Date.now()}`,
+                html: `
+                    <div class="bg-gradient-to-r ${urgentClass} border rounded-xl p-4">
+                        <div class="flex items-start">
+                            <span class="text-2xl mr-3">${reminderContent.icon || '⏰'}</span>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-800 mb-2">${reminderContent.title}</h3>
+                                <p class="text-sm font-medium ${iconColor} mb-2">${reminderContent.time}</p>
+                                <p class="text-sm text-gray-700 mb-2">${reminderContent.description}</p>
+                                ${reminderContent.medication ? `<p class="text-xs text-gray-600">药物: ${reminderContent.medication}</p>` : ''}
+                                ${reminderContent.urgent ? '<p class="text-xs text-red-600 font-medium mt-2">⚠️ 紧急提醒</p>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `,
+                sender: 'assistant',
+                timestamp: Date.now(),
+                isCard: true
+            };
+            
+            addSpecialMessageToGlobalConversation(cardMessage);
+        }
+        
+        // 添加特殊消息到对话历史
+        function addSpecialMessageToGlobalConversation(message) {
+            globalConversationData.push(message);
+            console.log('🎨 添加特殊消息到对话历史:', message);
+            
+            // 更新对话窗
+            updateHalfScreenConversation();
+            updateFullscreenConversation();
         }
         
         // 添加消息到全局对话
@@ -13253,8 +13333,8 @@
                 
                 // 使用setTimeout确保动画生效
                 setTimeout(() => {
-                    globalChatDialog.classList.remove('translate-y-full');
-                    console.log('🚀 移除translate-y-full类，当前类名:', globalChatDialog.className);
+                    globalChatDialog.classList.remove('-translate-y-full');
+                    console.log('🚀 移除-translate-y-full类，当前类名:', globalChatDialog.className);
                     
                     // 强制检查元素是否可见
                     const rect = globalChatDialog.getBoundingClientRect();
@@ -13274,7 +13354,7 @@
         function hideHalfScreenChat() {
             const globalChatDialog = document.getElementById('global-chat-dialog');
             if (globalChatDialog) {
-                globalChatDialog.classList.add('translate-y-full');
+                globalChatDialog.classList.add('-translate-y-full');
                 setTimeout(() => {
                     globalChatDialog.classList.add('hidden');
                 }, 300);
@@ -13369,16 +13449,30 @@
                     </div>
                 `;
             } else {
-                return `
-                    <div class="flex items-start mb-2">
-                        <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
-                            <i class="fas fa-robot text-white text-xs"></i>
+                // 检查是否是特殊卡片消息
+                if (message.isCard && message.html) {
+                    return `
+                        <div class="flex items-start mb-3">
+                            <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-1">
+                                <i class="fas fa-robot text-white text-xs"></i>
+                            </div>
+                            <div class="max-w-[85%]">
+                                ${message.html}
+                            </div>
                         </div>
-                        <div class="bg-gray-100 rounded-2xl rounded-tl-none ${paddingClass} max-w-[80%] shadow-sm">
-                            <p class="${compactClass} text-gray-800">${message.text}</p>
+                    `;
+                } else {
+                    return `
+                        <div class="flex items-start mb-2">
+                            <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                                <i class="fas fa-robot text-white text-xs"></i>
+                            </div>
+                            <div class="bg-gray-100 rounded-2xl rounded-tl-none ${paddingClass} max-w-[80%] shadow-sm">
+                                <p class="${compactClass} text-gray-800">${message.text}</p>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }
         }
         
