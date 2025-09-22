@@ -296,8 +296,8 @@
                 </div>
                 <span class="text-lg font-medium text-gray-800">智能助手</span>
             </div>
-            <button id="history-fullscreen-btn" class="p-2 hover:bg-gray-100 rounded-full">
-                <i class="fas fa-history text-gray-600"></i>
+            <button id="search-fullscreen-btn" class="p-2 hover:bg-gray-100 rounded-full">
+                <i class="fas fa-search text-gray-600"></i>
             </button>
         </div>
         
@@ -305,6 +305,68 @@
         <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 60px);">
             <div id="fullscreen-conversation" class="space-y-3 max-w-md mx-auto">
                 <!-- 全屏对话内容将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 搜索对话窗口 -->
+    <div id="search-dialog-window" class="fixed inset-0 bg-white z-60 transform translate-y-full transition-transform duration-300 hidden">
+        <!-- 搜索窗口头部 -->
+        <div class="bg-white border-b border-gray-200 px-4 py-3">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-medium text-gray-800">搜索会话内容</h2>
+                <button id="close-search-dialog" class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 text-sm"></i>
+                </div>
+                <input id="search-input" type="text" placeholder="搜索关键词..." 
+                       class="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <!-- 搜索选项 -->
+            <div class="flex items-center space-x-4 mt-3 text-sm">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-user text-gray-500"></i>
+                    <select id="search-sender-filter" class="border border-gray-300 rounded px-2 py-1">
+                        <option value="all">来自用户</option>
+                        <option value="user">用户消息</option>
+                        <option value="assistant">助手回复</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-clock text-gray-500"></i>
+                    <span class="text-gray-600">时间</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 搜索结果区域 -->
+        <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 140px);">
+            <div id="search-results-container">
+                <!-- 搜索结果将在这里显示 -->
+                <div id="search-empty-state" class="text-center text-gray-500 py-12">
+                    <i class="fas fa-search text-4xl mb-4 opacity-30"></i>
+                    <p class="text-lg mb-2">搜索对话记录</p>
+                    <p class="text-sm">输入关键词查找您的对话内容</p>
+                </div>
+                
+                <div id="search-results-list" class="space-y-3 hidden">
+                    <!-- 搜索结果将在这里动态生成 -->
+                </div>
+                
+                <!-- 搜索统计信息 -->
+                <div id="search-stats" class="hidden mt-4 text-center">
+                    <div class="inline-flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="search-stats-text">已展示完近 1 年消息，查看更早的消息</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -12967,7 +13029,7 @@
             // 半屏对话窗交互
             const expandChatBtn = document.getElementById('expand-chat-btn');
             const closeFullscreenBtn = document.getElementById('close-fullscreen-btn');
-            const historyFullscreenBtn = document.getElementById('history-fullscreen-btn');
+            const searchFullscreenBtn = document.getElementById('search-fullscreen-btn');
             
             // 展开到全屏
             if (expandChatBtn) {
@@ -12983,12 +13045,15 @@
                 });
             }
             
-            // 历史记录功能
-            if (historyFullscreenBtn) {
-                historyFullscreenBtn.addEventListener('click', function() {
-                    showConversationHistory();
+            // 搜索对话功能
+            if (searchFullscreenBtn) {
+                searchFullscreenBtn.addEventListener('click', function() {
+                    showSearchDialog();
                 });
             }
+            
+            // 搜索对话窗口交互
+            initSearchDialog();
             
             // 拖拽手柄点击切换半屏对话窗
             const dragHandle = globalChatDialog?.querySelector('.w-10.h-1');
@@ -13600,33 +13665,277 @@
             }
         }
         
-        // 显示对话历史
-        function showConversationHistory() {
-            console.log('📖 显示对话历史', globalConversationData);
-            
-            // 检查演示进度
-            let demoInfo = '';
-            if (typeof getDemoProgress === 'function') {
-                const progress = getDemoProgress();
-                demoInfo = `\n演示进度: ${progress.current}/${progress.total}`;
-                
-                // 如果演示已完成，提供重置选项
-                if (progress.completed) {
-                    demoInfo += '\n演示已完成，将重新开始';
-                    if (typeof resetDemoConversations === 'function') {
-                        resetDemoConversations();
-                        console.log('🔄 演示对话已重置');
+        // 显示搜索对话窗口
+        function showSearchDialog() {
+            const searchDialog = document.getElementById('search-dialog-window');
+            if (searchDialog) {
+                searchDialog.classList.remove('hidden');
+                setTimeout(() => {
+                    searchDialog.classList.remove('translate-y-full');
+                    // 自动聚焦搜索框
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.focus();
                     }
-                }
+                }, 10);
+            }
+        }
+        
+        // 隐藏搜索对话窗口
+        function hideSearchDialog() {
+            const searchDialog = document.getElementById('search-dialog-window');
+            if (searchDialog) {
+                searchDialog.classList.add('translate-y-full');
+                setTimeout(() => {
+                    searchDialog.classList.add('hidden');
+                    // 清空搜索结果
+                    resetSearchResults();
+                }, 300);
+            }
+        }
+        
+        // 初始化搜索对话功能
+        function initSearchDialog() {
+            const closeSearchDialog = document.getElementById('close-search-dialog');
+            const searchInput = document.getElementById('search-input');
+            const searchSenderFilter = document.getElementById('search-sender-filter');
+            
+            // 关闭搜索窗口
+            if (closeSearchDialog) {
+                closeSearchDialog.addEventListener('click', hideSearchDialog);
             }
             
-            const message = `共有 ${globalConversationData.length} 条对话记录${demoInfo}`;
+            // 搜索输入事件
+            if (searchInput) {
+                // 实时搜索
+                let searchTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        performSearch(this.value.trim());
+                    }, 300); // 防抖300ms
+                });
+                
+                // 回车搜索
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performSearch(this.value.trim());
+                    }
+                });
+            }
             
-            // 显示历史记录信息
-            if (typeof appAlert === 'function') {
-                appAlert(message, '对话历史');
+            // 搜索过滤器变化
+            if (searchSenderFilter) {
+                searchSenderFilter.addEventListener('change', function() {
+                    const searchKeyword = searchInput ? searchInput.value.trim() : '';
+                    if (searchKeyword) {
+                        performSearch(searchKeyword);
+                    }
+                });
+            }
+        }
+        
+        // 执行搜索
+        function performSearch(keyword) {
+            console.log('🔍 搜索关键词:', keyword);
+            
+            if (!keyword) {
+                resetSearchResults();
+                return;
+            }
+            
+            const senderFilter = document.getElementById('search-sender-filter')?.value || 'all';
+            const results = searchInConversations(keyword, senderFilter);
+            
+            displaySearchResults(results, keyword);
+        }
+        
+        // 在对话中搜索
+        function searchInConversations(keyword, senderFilter) {
+            const results = [];
+            
+            globalConversationData.forEach((message, index) => {
+                // 发送者过滤
+                if (senderFilter !== 'all' && message.sender !== senderFilter) {
+                    return;
+                }
+                
+                // 文本匹配
+                let textToSearch = '';
+                if (message.text) {
+                    textToSearch = message.text;
+                } else if (message.html) {
+                    // 从HTML中提取纯文本进行搜索
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = message.html;
+                    textToSearch = tempDiv.textContent || tempDiv.innerText || '';
+                }
+                
+                if (textToSearch.toLowerCase().includes(keyword.toLowerCase())) {
+                    results.push({
+                        ...message,
+                        index: index,
+                        matchText: textToSearch,
+                        highlightedText: highlightKeyword(textToSearch, keyword)
+                    });
+                }
+            });
+            
+            return results.reverse(); // 最新的在前面
+        }
+        
+        // 高亮关键词
+        function highlightKeyword(text, keyword) {
+            const regex = new RegExp(`(${keyword})`, 'gi');
+            return text.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
+        }
+        
+        // 显示搜索结果
+        function displaySearchResults(results, keyword) {
+            const emptyState = document.getElementById('search-empty-state');
+            const resultsList = document.getElementById('search-results-list');
+            const searchStats = document.getElementById('search-stats');
+            const searchStatsText = document.getElementById('search-stats-text');
+            
+            if (results.length === 0) {
+                // 显示无结果状态
+                emptyState.innerHTML = `
+                    <div class="text-center text-gray-500 py-12">
+                        <i class="fas fa-search-minus text-4xl mb-4 opacity-30"></i>
+                        <p class="text-lg mb-2">未找到相关内容</p>
+                        <p class="text-sm">尝试使用其他关键词搜索</p>
+                    </div>
+                `;
+                emptyState.classList.remove('hidden');
+                resultsList.classList.add('hidden');
+                searchStats.classList.add('hidden');
+                return;
+            }
+            
+            // 隐藏空状态，显示结果
+            emptyState.classList.add('hidden');
+            resultsList.classList.remove('hidden');
+            searchStats.classList.remove('hidden');
+            
+            // 更新统计信息
+            searchStatsText.textContent = `共找到 ${results.length} 条相关对话`;
+            
+            // 生成搜索结果HTML
+            resultsList.innerHTML = results.map((result, index) => {
+                const timeStr = new Date(result.timestamp).toLocaleString('zh-CN', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const senderIcon = result.sender === 'user' ? 'fa-user' : 'fa-robot';
+                const senderName = result.sender === 'user' ? '用户' : '助手';
+                const senderColor = result.sender === 'user' ? 'text-blue-600' : 'text-purple-600';
+                
+                // 截取显示文本
+                let displayText = result.highlightedText;
+                if (displayText.length > 100) {
+                    const keywordIndex = displayText.toLowerCase().indexOf(keyword.toLowerCase());
+                    if (keywordIndex > -1) {
+                        const start = Math.max(0, keywordIndex - 30);
+                        const end = Math.min(displayText.length, keywordIndex + keyword.length + 70);
+                        displayText = (start > 0 ? '...' : '') + displayText.slice(start, end) + (end < displayText.length ? '...' : '');
+                    } else {
+                        displayText = displayText.slice(0, 100) + '...';
+                    }
+                }
+                
+                return `
+                    <div class="search-result-item bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-colors" 
+                         data-message-index="${result.index}" onclick="jumpToMessage(${result.index})">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 ${result.sender === 'user' ? 'bg-blue-100' : 'bg-purple-100'} rounded-full flex items-center justify-center">
+                                    <i class="fas ${senderIcon} ${senderColor} text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium ${senderColor}">${senderName}</span>
+                                    <span class="text-xs text-gray-500">${timeStr}</span>
+                                </div>
+                                <p class="text-sm text-gray-700 leading-relaxed">${displayText}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 重置搜索结果
+        function resetSearchResults() {
+            const emptyState = document.getElementById('search-empty-state');
+            const resultsList = document.getElementById('search-results-list');
+            const searchStats = document.getElementById('search-stats');
+            const searchInput = document.getElementById('search-input');
+            
+            // 恢复初始状态
+            emptyState.innerHTML = `
+                <div class="text-center text-gray-500 py-12">
+                    <i class="fas fa-search text-4xl mb-4 opacity-30"></i>
+                    <p class="text-lg mb-2">搜索对话记录</p>
+                    <p class="text-sm">输入关键词查找您的对话内容</p>
+                </div>
+            `;
+            emptyState.classList.remove('hidden');
+            resultsList.classList.add('hidden');
+            searchStats.classList.add('hidden');
+            
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+        
+        // 跳转到指定消息
+        function jumpToMessage(messageIndex) {
+            console.log('🔗 跳转到消息:', messageIndex);
+            
+            // 关闭搜索窗口
+            hideSearchDialog();
+            
+            // 确保全屏对话窗是打开的
+            if (!document.getElementById('global-fullscreen-chat').classList.contains('translate-y-full')) {
+                // 已经在全屏对话窗中，直接滚动到目标消息
+                setTimeout(() => {
+                    scrollToMessage(messageIndex);
+                }, 500);
             } else {
-                alert(message);
+                // 打开全屏对话窗，然后滚动到目标消息
+                showFullscreenChat();
+                setTimeout(() => {
+                    scrollToMessage(messageIndex);
+                }, 800);
+            }
+        }
+        
+        // 滚动到指定消息并高亮
+        function scrollToMessage(messageIndex) {
+            const fullscreenConversation = document.getElementById('fullscreen-conversation');
+            if (!fullscreenConversation) return;
+            
+            const messageElements = fullscreenConversation.children;
+            if (messageIndex >= 0 && messageIndex < messageElements.length) {
+                const targetMessage = messageElements[messageIndex];
+                
+                // 滚动到目标消息
+                targetMessage.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // 高亮显示
+                targetMessage.classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-50');
+                setTimeout(() => {
+                    targetMessage.classList.remove('ring-2', 'ring-yellow-400', 'bg-yellow-50');
+                }, 3000);
+                
+                console.log('✅ 已跳转到消息:', messageIndex);
             }
         }
         
