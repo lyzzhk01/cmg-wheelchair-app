@@ -302,17 +302,31 @@
         </div>
         
         <!-- 全屏对话内容 -->
-        <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 120px);">
-            <div id="fullscreen-conversation" class="space-y-3 max-w-md mx-auto pb-20">
+        <div class="flex-1 overflow-y-auto px-4 py-4" style="height: calc(100vh - 180px);">
+            <div id="fullscreen-conversation" class="space-y-3 max-w-md mx-auto pb-4">
                 <!-- 全屏对话内容将在这里动态生成 -->
             </div>
         </div>
         
-        <!-- 全屏对话窗中的语音按钮 -->
-        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <button id="fullscreen-voice-btn" class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95">
-                <i class="fas fa-microphone text-white text-xl"></i>
-            </button>
+        <!-- 全屏对话窗底部交互区域 -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+            <div class="flex items-center space-x-3 max-w-md mx-auto">
+                <!-- 文本输入框 -->
+                <div class="flex-1 relative">
+                    <input id="fullscreen-text-input" type="text" 
+                           placeholder="输入消息..." 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12">
+                    <button id="fullscreen-send-btn" 
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors disabled:bg-gray-300">
+                        <i class="fas fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+                
+                <!-- 语音按钮 -->
+                <button id="fullscreen-voice-btn" class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 flex-shrink-0">
+                    <i class="fas fa-microphone text-white text-lg"></i>
+                </button>
+            </div>
         </div>
     </div>
     
@@ -13949,49 +13963,160 @@
             }
         }
         
-        // 初始化全屏语音按钮
+        // 初始化全屏交互功能（语音+文字）
         function initFullscreenVoiceButton() {
             const fullscreenVoiceBtn = document.getElementById('fullscreen-voice-btn');
-            if (!fullscreenVoiceBtn) return;
+            const fullscreenTextInput = document.getElementById('fullscreen-text-input');
+            const fullscreenSendBtn = document.getElementById('fullscreen-send-btn');
             
-            // 复用全局语音按钮的功能
-            // 长按开始语音识别 (鼠标)
-            fullscreenVoiceBtn.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                startGlobalVoiceRecognition();
-            });
-            
-            fullscreenVoiceBtn.addEventListener('mouseup', function(e) {
-                e.preventDefault();
-                stopGlobalVoiceRecognition();
-            });
-            
-            // 长按开始语音识别 (触摸)
-            fullscreenVoiceBtn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                startGlobalVoiceRecognition();
-            });
-            
-            fullscreenVoiceBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                stopGlobalVoiceRecognition();
-            });
-            
-            // 防止长按离开按钮区域时失效
-            fullscreenVoiceBtn.addEventListener('mouseleave', function() {
-                if (globalVoiceListening) {
+            // 初始化语音按钮
+            if (fullscreenVoiceBtn) {
+                // 复用全局语音按钮的功能
+                // 长按开始语音识别 (鼠标)
+                fullscreenVoiceBtn.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    startGlobalVoiceRecognition();
+                });
+                
+                fullscreenVoiceBtn.addEventListener('mouseup', function(e) {
+                    e.preventDefault();
                     stopGlobalVoiceRecognition();
+                });
+                
+                // 长按开始语音识别 (触摸)
+                fullscreenVoiceBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startGlobalVoiceRecognition();
+                });
+                
+                fullscreenVoiceBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    stopGlobalVoiceRecognition();
+                });
+                
+                // 防止长按离开按钮区域时失效
+                fullscreenVoiceBtn.addEventListener('mouseleave', function() {
+                    if (globalVoiceListening) {
+                        stopGlobalVoiceRecognition();
+                    }
+                });
+                
+                console.log('🎙️ 全屏语音按钮已初始化');
+            }
+            
+            // 初始化文字输入功能
+            if (fullscreenTextInput && fullscreenSendBtn) {
+                // 发送按钮点击事件
+                fullscreenSendBtn.addEventListener('click', function() {
+                    sendFullscreenTextMessage();
+                });
+                
+                // 输入框回车事件
+                fullscreenTextInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendFullscreenTextMessage();
+                    }
+                });
+                
+                // 输入框内容变化时更新发送按钮状态
+                fullscreenTextInput.addEventListener('input', function() {
+                    const hasText = this.value.trim().length > 0;
+                    fullscreenSendBtn.disabled = !hasText;
+                    fullscreenSendBtn.classList.toggle('opacity-50', !hasText);
+                });
+                
+                // 初始状态
+                fullscreenSendBtn.disabled = true;
+                fullscreenSendBtn.classList.add('opacity-50');
+                
+                console.log('💬 全屏文字输入已初始化');
+            }
+        }
+        
+        // 发送全屏文字消息
+        function sendFullscreenTextMessage() {
+            const fullscreenTextInput = document.getElementById('fullscreen-text-input');
+            const fullscreenSendBtn = document.getElementById('fullscreen-send-btn');
+            
+            if (!fullscreenTextInput) return;
+            
+            const message = fullscreenTextInput.value.trim();
+            if (!message) return;
+            
+            console.log('📝 发送全屏文字消息:', message);
+            
+            // 禁用输入和发送按钮，防止重复发送
+            fullscreenTextInput.disabled = true;
+            fullscreenSendBtn.disabled = true;
+            fullscreenSendBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
+            
+            // 添加用户消息
+            addMessageToGlobalConversation(message, 'user');
+            
+            // 清空输入框
+            fullscreenTextInput.value = '';
+            
+            // 模拟AI思考时间后回复
+            setTimeout(() => {
+                // 使用演示数据生成回复
+                const response = generateTextResponse(message);
+                addMessageToGlobalConversation(response.text, 'assistant');
+                
+                // 处理特殊回复类型
+                if (response.data && response.data.response) {
+                    handleSpecialResponseTypes(response.data.response);
                 }
-            });
+                
+                // 恢复输入功能
+                fullscreenTextInput.disabled = false;
+                fullscreenSendBtn.disabled = false;
+                fullscreenSendBtn.innerHTML = '<i class="fas fa-paper-plane text-sm"></i>';
+                fullscreenTextInput.focus();
+                
+            }, 1000);
+        }
+        
+        // 根据用户输入生成文字回复
+        function generateTextResponse(userMessage) {
+            // 使用演示数据匹配用户输入
+            if (typeof DEMO_CONVERSATIONS !== 'undefined') {
+                // 查找匹配的演示对话
+                const matchedConversation = DEMO_CONVERSATIONS.find(conv => {
+                    if (conv.query && conv.query.content) {
+                        const queryText = conv.query.content.toLowerCase();
+                        const userText = userMessage.toLowerCase();
+                        
+                        // 简单的关键词匹配
+                        if (queryText.includes(userText) || userText.includes(queryText.split(' ')[0])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                
+                if (matchedConversation) {
+                    console.log('🎯 找到匹配的演示对话:', matchedConversation);
+                    return {
+                        text: matchedConversation.response?.content?.text || matchedConversation.response?.content || '我理解了您的需求。',
+                        data: matchedConversation
+                    };
+                }
+            }
             
-            // 双击测试功能
-            fullscreenVoiceBtn.addEventListener('dblclick', function() {
-                console.log('🧪 全屏模式手动测试对话窗显示');
-                addMessageToGlobalConversation('全屏模式测试消息', 'user');
-                addMessageToGlobalConversation('全屏模式AI回复', 'assistant');
-            });
+            // 默认智能回复
+            const responses = [
+                "我理解您的问题，让我为您查询相关信息。",
+                "这是一个很好的问题，我来帮您分析一下。",
+                "根据您的描述，我建议您可以尝试以下方案。",
+                "我已经记录了您的需求，稍后会为您处理。",
+                "感谢您的反馈，我会继续为您提供帮助。"
+            ];
             
-            console.log('🎙️ 全屏语音按钮已初始化');
+            return {
+                text: responses[Math.floor(Math.random() * responses.length)],
+                data: null
+            };
         }
         
         // 清除全局对话历史（可选功能）
