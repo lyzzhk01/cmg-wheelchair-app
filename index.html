@@ -13091,18 +13091,39 @@
         function simulateVoiceRecognition() {
             const globalVoiceText = document.getElementById('global-voice-text');
             
-            // 获取演示对话
-            const demoConversations = window.demoConversations || [];
-            const randomConversation = demoConversations[Math.floor(Math.random() * demoConversations.length)];
+            // 使用demo-conversations.js的数据
+            let conversationData = null;
             
-            if (!randomConversation) {
-                console.log('没有找到演示对话数据');
-                return;
+            // 尝试获取下一个演示对话
+            if (typeof getNextDemoConversation === 'function') {
+                conversationData = getNextDemoConversation();
             }
             
-            const userQuery = randomConversation.query?.text || "协和医院怎么走";
+            // 如果没有获取到数据，则从DEMO_CONVERSATIONS随机选择
+            if (!conversationData && typeof DEMO_CONVERSATIONS !== 'undefined') {
+                const validConversations = DEMO_CONVERSATIONS.filter(conv => 
+                    conv.query.type === 'text' || conv.query.type === 'image_text'
+                );
+                if (validConversations.length > 0) {
+                    conversationData = validConversations[Math.floor(Math.random() * validConversations.length)];
+                }
+            }
             
-            // 模拟语音转文字过程
+            // 默认数据，如果以上都没找到
+            if (!conversationData) {
+                conversationData = {
+                    query: { type: 'text', content: 'Where is the nearest hospital?' },
+                    response: { type: 'text', content: 'The nearest hospital is Beijing Concord Hospital, about 2.5km away. Would you like me to navigate there?' }
+                };
+                console.log('使用默认演示对话数据');
+            }
+            
+            // 获取用户输入内容
+            const userQuery = conversationData.query?.content || conversationData.query?.text || "Where is the nearest hospital?";
+            
+            console.log('🎙️ 使用演示对话:', conversationData);
+            
+            // 模拟语音转文字过程 - 打字机效果
             let displayText = '';
             const fullText = userQuery;
             let index = 0;
@@ -13116,25 +13137,29 @@
                 }
                 index++;
                 
-                currentVoiceTimeout = setTimeout(typeText, 100);
+                currentVoiceTimeout = setTimeout(typeText, 80); // 稍微快一点的打字速度
             }
             
             // 延迟开始打字效果
             currentVoiceTimeout = setTimeout(() => {
+                if (globalVoiceText) {
+                    globalVoiceText.textContent = ''; // 清空初始文本
+                }
                 typeText();
                 
                 // 识别完成后处理
                 currentVoiceTimeout = setTimeout(() => {
                     if (globalVoiceListening) {
-                        handleVoiceRecognitionComplete(userQuery, randomConversation);
+                        handleVoiceRecognitionComplete(userQuery, conversationData);
                     }
-                }, (fullText.length + 2) * 100);
-            }, 500);
+                }, (fullText.length + 2) * 80);
+            }, 800);
         }
         
         // 语音识别完成处理
         function handleVoiceRecognitionComplete(userText, conversationData) {
             console.log('🗣️ 语音识别完成:', userText);
+            console.log('📋 对话数据:', conversationData);
             
             // 添加用户消息到对话历史
             addMessageToGlobalConversation(userText, 'user');
@@ -13142,11 +13167,56 @@
             // 显示半屏对话窗
             showHalfScreenChat();
             
-            // 模拟AI回复
+            // 模拟AI思考时间
             setTimeout(() => {
-                const aiResponse = conversationData.response?.text || "我正在为您查找相关信息...";
+                // 获取AI回复内容
+                let aiResponse = "I'm processing your request...";
+                
+                if (conversationData.response) {
+                    if (conversationData.response.content) {
+                        // 处理不同类型的回复
+                        if (typeof conversationData.response.content === 'string') {
+                            aiResponse = conversationData.response.content;
+                        } else if (conversationData.response.content.text) {
+                            aiResponse = conversationData.response.content.text;
+                        }
+                    } else if (typeof conversationData.response === 'string') {
+                        aiResponse = conversationData.response;
+                    }
+                }
+                
+                console.log('🤖 AI回复:', aiResponse);
                 addMessageToGlobalConversation(aiResponse, 'assistant');
-            }, 1000);
+                
+                // 如果有特殊的回复类型（如卡片、提醒等），可以在这里扩展
+                handleSpecialResponseTypes(conversationData.response);
+                
+            }, 1200); // 稍微长一点的AI思考时间，更真实
+        }
+        
+        // 处理特殊回复类型（卡片、提醒等）
+        function handleSpecialResponseTypes(responseData) {
+            if (!responseData || !responseData.type) return;
+            
+            // 根据不同的回复类型，可以添加特殊的UI展示
+            switch (responseData.type) {
+                case 'text_schedule_card':
+                    console.log('📅 日程卡片回复');
+                    break;
+                case 'reminder_card':
+                    console.log('⏰ 提醒卡片回复');
+                    break;
+                case 'text_image_card':
+                    console.log('🖼️ 图片卡片回复');
+                    break;
+                case 'dual_card':
+                    console.log('📋 双卡片回复');
+                    break;
+                default:
+                    console.log('📝 标准文本回复');
+            }
+            
+            // 未来可以在这里实现更丰富的UI展示
         }
         
         // 添加消息到全局对话
@@ -13282,12 +13352,40 @@
         // 显示对话历史
         function showConversationHistory() {
             console.log('📖 显示对话历史', globalConversationData);
-            // 这里可以实现更详细的历史记录功能
-            if (typeof appAlert === 'function') {
-                appAlert(`共有 ${globalConversationData.length} 条对话记录`, '对话历史');
-            } else {
-                alert(`共有 ${globalConversationData.length} 条对话记录`);
+            
+            // 检查演示进度
+            let demoInfo = '';
+            if (typeof getDemoProgress === 'function') {
+                const progress = getDemoProgress();
+                demoInfo = `\n演示进度: ${progress.current}/${progress.total}`;
+                
+                // 如果演示已完成，提供重置选项
+                if (progress.completed) {
+                    demoInfo += '\n演示已完成，将重新开始';
+                    if (typeof resetDemoConversations === 'function') {
+                        resetDemoConversations();
+                        console.log('🔄 演示对话已重置');
+                    }
+                }
             }
+            
+            const message = `共有 ${globalConversationData.length} 条对话记录${demoInfo}`;
+            
+            // 显示历史记录信息
+            if (typeof appAlert === 'function') {
+                appAlert(message, '对话历史');
+            } else {
+                alert(message);
+            }
+        }
+        
+        // 清除全局对话历史（可选功能）
+        function clearGlobalConversationHistory() {
+            globalConversationData = [];
+            updateHalfScreenConversation();
+            updateFullscreenConversation();
+            hideHalfScreenChat();
+            console.log('🗑️ 全局对话历史已清除');
         }
         
         // 在页面加载完成后初始化全局语音功能
@@ -13296,6 +13394,37 @@
             setTimeout(() => {
                 initGlobalVoiceFunction();
                 console.log('🎙️ 全局语音功能已初始化');
+                
+                // 输出演示数据信息
+                if (typeof DEMO_CONVERSATIONS !== 'undefined') {
+                    console.log('📋 演示对话数据已加载，共', DEMO_CONVERSATIONS.length, '条对话');
+                    
+                    // 显示前几条对话的简要信息
+                    DEMO_CONVERSATIONS.slice(0, 3).forEach((conv, index) => {
+                        console.log(`📝 演示对话 ${index + 1}:`, conv.query?.content || conv.query?.text || '无内容');
+                    });
+                    
+                    if (DEMO_CONVERSATIONS.length > 3) {
+                        console.log(`... 还有 ${DEMO_CONVERSATIONS.length - 3} 条演示对话`);
+                    }
+                } else {
+                    console.warn('⚠️ 未找到演示对话数据 DEMO_CONVERSATIONS');
+                }
+                
+                // 检查演示函数是否可用
+                if (typeof getNextDemoConversation === 'function') {
+                    console.log('✅ getNextDemoConversation 函数可用');
+                } else {
+                    console.warn('⚠️ getNextDemoConversation 函数不可用');
+                }
+                
+                if (typeof resetDemoConversations === 'function') {
+                    console.log('✅ resetDemoConversations 函数可用');
+                } else {
+                    console.warn('⚠️ resetDemoConversations 函数不可用');
+                }
+                
+                console.log('🎤 长按中央黄色按钮开始语音对话体验');
             }, 100);
         });
         
