@@ -367,6 +367,62 @@
         </div>
     </div>
     
+    <!-- 日程详情弹窗 -->
+    <div id="schedule-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[75] hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="schedule-detail-content">
+                <!-- 弹窗头部 -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">日程详情</h3>
+                    <button id="close-schedule-detail" class="text-gray-400 hover:text-gray-600 text-xl">
+                        ❎
+                    </button>
+                </div>
+                
+                <!-- 日程信息 -->
+                <div class="p-4">
+                    <div class="flex items-start space-x-4 mb-4">
+                        <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                            <span class="text-2xl" id="detail-schedule-icon">📅</span>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800 text-lg mb-1" id="detail-schedule-title">开会</h4>
+                            <p class="text-sm text-gray-600" id="detail-schedule-time">今天 20:00</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 状态信息 -->
+                    <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700">当前状态</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full" id="detail-status-dot"></div>
+                                <span class="text-sm font-medium" id="detail-status-text">待开始</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 创建时间 -->
+                    <div class="mb-6">
+                        <p class="text-xs text-gray-500">创建时间：<span id="detail-created-time">2024年9月24日 10:30</span></p>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="p-4 border-t border-gray-200">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="edit-schedule-btn" class="px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-edit mr-2"></i>编辑
+                        </button>
+                        <button id="delete-schedule-btn" class="px-4 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 搜索对话窗口 -->
     <div id="search-dialog-window" class="fixed inset-0 bg-white z-[70] transform translate-y-full transition-transform duration-300 hidden">
         <!-- 搜索窗口头部 -->
@@ -14249,11 +14305,18 @@
         
         // 根据用户输入生成文字回复
         function generateTextResponse(userMessage) {
-            // 检查是否正在进行提醒对话（缺槽反问）
+            // 检查是否正在进行提醒对话（缺槽反问或编辑）
             if (currentReminderDialog) {
-                const followUpResult = handleReminderFollowUp(userMessage);
-                if (followUpResult) {
-                    return followUpResult;
+                if (currentReminderDialog.isEditing) {
+                    const editResult = handleScheduleEdit(userMessage);
+                    if (editResult) {
+                        return editResult;
+                    }
+                } else {
+                    const followUpResult = handleReminderFollowUp(userMessage);
+                    if (followUpResult) {
+                        return followUpResult;
+                    }
                 }
             }
             
@@ -15783,18 +15846,266 @@
             switchCalendarView('day');
         }
         
-        // 显示日程详情（预留功能）
+        // 显示日程详情弹窗
         function showScheduleDetail(scheduleId) {
             const schedule = reminderData.find(r => r.id === scheduleId);
-            if (schedule) {
-                console.log('📋 显示日程详情:', schedule);
-                // 这里可以实现日程详情弹窗
-                if (typeof appAlert === 'function') {
-                    appAlert(`${schedule.content}\n时间：${formatDateTime(schedule.dateTime)}\n状态：${getUserFriendlyStatus(schedule).text}`, '日程详情');
-                } else {
-                    alert(`${schedule.content}\n时间：${formatDateTime(schedule.dateTime)}\n状态：${getUserFriendlyStatus(schedule).text}`);
-                }
+            if (!schedule) {
+                console.error('❌ 找不到日程:', scheduleId);
+                return;
             }
+            
+            console.log('📋 显示日程详情:', schedule);
+            
+            // 获取弹窗元素
+            const modal = document.getElementById('schedule-detail-modal');
+            const content = document.getElementById('schedule-detail-content');
+            const iconEl = document.getElementById('detail-schedule-icon');
+            const titleEl = document.getElementById('detail-schedule-title');
+            const timeEl = document.getElementById('detail-schedule-time');
+            const statusDot = document.getElementById('detail-status-dot');
+            const statusText = document.getElementById('detail-status-text');
+            const createdTime = document.getElementById('detail-created-time');
+            
+            if (!modal || !content) {
+                console.error('❌ 日程详情弹窗元素不存在');
+                return;
+            }
+            
+            // 填充数据
+            const icon = getIconForReminderContent(schedule.content);
+            const userFriendlyStatus = getUserFriendlyStatus(schedule);
+            
+            if (iconEl) iconEl.textContent = icon;
+            if (titleEl) titleEl.textContent = schedule.content;
+            if (timeEl) timeEl.textContent = formatDateTime(schedule.dateTime);
+            if (statusDot) statusDot.className = `w-2 h-2 rounded-full ${userFriendlyStatus.color}`;
+            if (statusText) {
+                statusText.textContent = userFriendlyStatus.text;
+                statusText.className = `text-sm font-medium ${userFriendlyStatus.color.replace('bg-', 'text-')}`;
+            }
+            if (createdTime) createdTime.textContent = schedule.created.toLocaleString('zh-CN');
+            
+            // 存储当前查看的日程ID
+            modal.setAttribute('data-schedule-id', scheduleId);
+            
+            // 显示弹窗
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            // 初始化弹窗按钮事件（避免重复绑定）
+            initScheduleDetailModal();
+        }
+        
+        // 初始化日程详情弹窗
+        function initScheduleDetailModal() {
+            const modal = document.getElementById('schedule-detail-modal');
+            const content = document.getElementById('schedule-detail-content');
+            const closeBtn = document.getElementById('close-schedule-detail');
+            const editBtn = document.getElementById('edit-schedule-btn');
+            const deleteBtn = document.getElementById('delete-schedule-btn');
+            
+            // 关闭弹窗
+            const closeModal = () => {
+                if (content) {
+                    content.classList.add('scale-95', 'opacity-0');
+                    content.classList.remove('scale-100', 'opacity-100');
+                }
+                setTimeout(() => {
+                    if (modal) {
+                        modal.classList.add('hidden');
+                    }
+                }, 300);
+            };
+            
+            // 关闭按钮事件（移除旧的事件监听器）
+            if (closeBtn) {
+                closeBtn.replaceWith(closeBtn.cloneNode(true));
+                const newCloseBtn = document.getElementById('close-schedule-detail');
+                newCloseBtn.addEventListener('click', closeModal);
+            }
+            
+            // 点击背景关闭
+            if (modal) {
+                modal.replaceWith(modal.cloneNode(true));
+                const newModal = document.getElementById('schedule-detail-modal');
+                newModal.addEventListener('click', function(e) {
+                    if (e.target === newModal) {
+                        closeModal();
+                    }
+                });
+            }
+            
+            // 编辑按钮事件
+            if (editBtn) {
+                editBtn.replaceWith(editBtn.cloneNode(true));
+                const newEditBtn = document.getElementById('edit-schedule-btn');
+                newEditBtn.addEventListener('click', function() {
+                    const scheduleId = newModal.getAttribute('data-schedule-id');
+                    editSchedule(scheduleId);
+                    closeModal();
+                });
+            }
+            
+            // 删除按钮事件
+            if (deleteBtn) {
+                deleteBtn.replaceWith(deleteBtn.cloneNode(true));
+                const newDeleteBtn = document.getElementById('delete-schedule-btn');
+                newDeleteBtn.addEventListener('click', function() {
+                    const scheduleId = newModal.getAttribute('data-schedule-id');
+                    deleteSchedule(scheduleId);
+                    closeModal();
+                });
+            }
+        }
+        
+        // 编辑日程
+        function editSchedule(scheduleId) {
+            const schedule = reminderData.find(r => r.id === scheduleId);
+            if (!schedule) return;
+            
+            console.log('✏️ 编辑日程:', schedule);
+            
+            // 跳转到全屏对话窗，预填充编辑信息
+            showFullscreenChat();
+            addMessageToGlobalConversation(`正在编辑日程："${schedule.content}"，请告诉我新的时间或内容。`, 'assistant');
+            
+            // 设置当前编辑状态
+            currentReminderDialog = {
+                editingSchedule: schedule,
+                isEditing: true
+            };
+        }
+        
+        // 删除日程
+        function deleteSchedule(scheduleId) {
+            const scheduleIndex = reminderData.findIndex(r => r.id === scheduleId);
+            if (scheduleIndex === -1) return;
+            
+            const schedule = reminderData[scheduleIndex];
+            console.log('🗑️ 删除日程:', schedule);
+            
+            // 清除定时器
+            if (reminderTimers.has(scheduleId)) {
+                clearTimeout(reminderTimers.get(scheduleId));
+                reminderTimers.delete(scheduleId);
+            }
+            
+            // 从数据中移除
+            reminderData.splice(scheduleIndex, 1);
+            
+            // 刷新所有相关显示
+            updateHalfScreenConversation();
+            updateFullscreenConversation();
+            
+            // 如果在日程管理页面，刷新当前视图
+            const scheduleManagementPage = document.getElementById('schedule-management');
+            if (scheduleManagementPage && !scheduleManagementPage.classList.contains('hidden')) {
+                switchCalendarView(currentCalendarView);
+            }
+            
+            // 显示删除成功反馈
+            setTimeout(() => {
+                if (typeof appAlert === 'function') {
+                    appAlert('日程已删除', '操作成功');
+                } else {
+                    alert('日程已删除');
+                }
+            }, 100);
+        }
+        
+        // 处理日程编辑
+        function handleScheduleEdit(message) {
+            if (!currentReminderDialog || !currentReminderDialog.editingSchedule) {
+                return null;
+            }
+            
+            const originalSchedule = currentReminderDialog.editingSchedule;
+            console.log('✏️ 处理日程编辑:', message, '原日程:', originalSchedule);
+            
+            // 尝试解析新的时间或内容
+            const newTimeInfo = extractTimeFromMessage(message);
+            const newContent = extractContentFromMessage(message) || message.trim();
+            
+            let updatedContent = originalSchedule.content;
+            let updatedDateTime = originalSchedule.dateTime;
+            let updateMsg = '';
+            
+            // 如果提供了新时间
+            if (newTimeInfo) {
+                updatedDateTime = newTimeInfo;
+                updateMsg += `时间已更改为：${formatDateTime(newTimeInfo)}`;
+            }
+            
+            // 如果提供了新内容
+            if (newContent && newContent.length > 0) {
+                updatedContent = newContent;
+                updateMsg += updateMsg ? `，内容已更改为："${newContent}"` : `内容已更改为："${newContent}"`;
+            }
+            
+            // 如果没有提供任何有效更新
+            if (!newTimeInfo && (!newContent || newContent.length === 0)) {
+                return {
+                    text: '请告诉我要修改的新时间或新内容。例如："改为明天上午9点"或"改为吃早餐"',
+                    data: null
+                };
+            }
+            
+            // 更新原日程
+            originalSchedule.content = updatedContent;
+            originalSchedule.dateTime = updatedDateTime;
+            
+            // 清除旧的定时器
+            if (reminderTimers.has(originalSchedule.id)) {
+                clearTimeout(reminderTimers.get(originalSchedule.id));
+                reminderTimers.delete(originalSchedule.id);
+            }
+            
+            // 设置新的定时器
+            const delay = updatedDateTime.getTime() - Date.now();
+            if (delay > 0) {
+                const timerId = setTimeout(() => {
+                    showReminderNotification(originalSchedule);
+                }, delay);
+                reminderTimers.set(originalSchedule.id, timerId);
+            }
+            
+            // 清除编辑状态
+            currentReminderDialog = null;
+            
+            // 刷新显示
+            updateHalfScreenConversation();
+            updateFullscreenConversation();
+            
+            // 如果在日程管理页面，刷新视图
+            const scheduleManagementPage = document.getElementById('schedule-management');
+            if (scheduleManagementPage && !scheduleManagementPage.classList.contains('hidden')) {
+                switchCalendarView(currentCalendarView);
+            }
+            
+            return {
+                text: `✅ 日程编辑成功！${updateMsg}`,
+                data: {
+                    response: {
+                        type: 'text_reminder_card',
+                        content: {
+                            text: `日程编辑成功！${updateMsg}`,
+                            reminder_card: {
+                                id: originalSchedule.id,
+                                title: originalSchedule.content,
+                                time: formatDateTime(originalSchedule.dateTime),
+                                description: `♿️ 轮椅提醒 → 📱 手机备份`,
+                                type: 'reminder',
+                                icon: getIconForReminderContent(originalSchedule.content),
+                                status: 'active',
+                                urgent: false
+                            }
+                        }
+                    }
+                }
+            };
         }
         
         // ================ Discovery和日程管理页面结束 ================
