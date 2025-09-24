@@ -14826,21 +14826,72 @@
         function getIconForReminderContent(content) {
             const lowerContent = content.toLowerCase();
             
-            if (lowerContent.includes('吃') || lowerContent.includes('饭') || lowerContent.includes('meal') || lowerContent.includes('eat')) {
-                return '🍽️';
-            } else if (lowerContent.includes('药') || lowerContent.includes('pill') || lowerContent.includes('medicine')) {
+            console.log('🎯 为内容选择图标:', content);
+            
+            // 药物相关（优先级最高，避免被"吃"覆盖）
+            if (lowerContent.includes('药') || lowerContent.includes('pill') || lowerContent.includes('medicine') || 
+                lowerContent.includes('吃药') || lowerContent.includes('服药')) {
+                console.log('💊 选择药物图标');
                 return '💊';
-            } else if (lowerContent.includes('水') || lowerContent.includes('drink') || lowerContent.includes('water')) {
+            }
+            // 喝水相关
+            else if (lowerContent.includes('水') || lowerContent.includes('drink') || lowerContent.includes('water') || 
+                     lowerContent.includes('喝水') || lowerContent.includes('补水')) {
+                console.log('💧 选择喝水图标');
                 return '💧';
-            } else if (lowerContent.includes('会') || lowerContent.includes('meeting') || lowerContent.includes('开会')) {
+            }
+            // 用餐相关（放在药物后面，避免"吃药"被误判为用餐）
+            else if (lowerContent.includes('吃饭') || lowerContent.includes('用餐') || lowerContent.includes('meal') || 
+                     (lowerContent.includes('吃') && !lowerContent.includes('药')) || lowerContent.includes('breakfast') || 
+                     lowerContent.includes('lunch') || lowerContent.includes('dinner')) {
+                console.log('🍽️ 选择用餐图标');
+                return '🍽️';
+            }
+            // 会议相关
+            else if (lowerContent.includes('会') || lowerContent.includes('meeting') || lowerContent.includes('开会') || 
+                     lowerContent.includes('会议') || lowerContent.includes('团队')) {
+                console.log('📅 选择会议图标');
                 return '📅';
-            } else if (lowerContent.includes('休息') || lowerContent.includes('sleep') || lowerContent.includes('rest')) {
-                return '😴';
-            } else if (lowerContent.includes('运动') || lowerContent.includes('exercise') || lowerContent.includes('锻炼')) {
+            }
+            // 打电话相关
+            else if (lowerContent.includes('电话') || lowerContent.includes('call') || lowerContent.includes('打电话') || 
+                     lowerContent.includes('通话') || lowerContent.includes('联系')) {
+                console.log('📞 选择通话图标');
+                return '📞';
+            }
+            // 运动相关
+            else if (lowerContent.includes('运动') || lowerContent.includes('exercise') || lowerContent.includes('锻炼') || 
+                     lowerContent.includes('健身') || lowerContent.includes('跑步')) {
+                console.log('🏃 选择运动图标');
                 return '🏃';
-            } else if (lowerContent.includes('充电') || lowerContent.includes('charge') || lowerContent.includes('电')) {
+            }
+            // 休息相关
+            else if (lowerContent.includes('休息') || lowerContent.includes('sleep') || lowerContent.includes('rest') || 
+                     lowerContent.includes('睡觉') || lowerContent.includes('午休')) {
+                console.log('😴 选择休息图标');
+                return '😴';
+            }
+            // 充电相关
+            else if (lowerContent.includes('充电') || lowerContent.includes('charge') || lowerContent.includes('电池') || 
+                     lowerContent.includes('电量')) {
+                console.log('🔋 选择充电图标');
                 return '🔋';
-            } else {
+            }
+            // 娱乐相关
+            else if (lowerContent.includes('球赛') || lowerContent.includes('比赛') || lowerContent.includes('游戏') || 
+                     lowerContent.includes('电影') || lowerContent.includes('看') || lowerContent.includes('娱乐')) {
+                console.log('🎮 选择娱乐图标');
+                return '🎮';
+            }
+            // 工作相关
+            else if (lowerContent.includes('工作') || lowerContent.includes('work') || lowerContent.includes('办公') || 
+                     lowerContent.includes('项目') || lowerContent.includes('任务')) {
+                console.log('💼 选择工作图标');
+                return '💼';
+            }
+            // 默认图标
+            else {
+                console.log('⏰ 选择默认图标');
                 return '⏰';
             }
         }
