@@ -1519,6 +1519,103 @@
 
         </div>
         
+        <!-- 日程管理页面 -->
+        <div id="schedule-management" class="hidden bg-gradient-to-b from-purple-50 to-blue-50 min-h-screen p-4 pb-20">
+            <!-- 页面头部 -->
+            <div class="flex items-center justify-between mb-6 mt-4">
+                <button id="schedule-back-btn" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold text-gray-800">日程管理</h1>
+                <button id="add-schedule-btn" class="text-purple-600 hover:text-purple-800">
+                    <i class="fas fa-plus text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 视图切换选项卡 -->
+            <div class="bg-white rounded-xl shadow-sm p-1 mb-6">
+                <div class="grid grid-cols-3 gap-1">
+                    <button id="day-view-btn" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-purple-500 text-white">
+                        日视图
+                    </button>
+                    <button id="week-view-btn" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:bg-gray-50">
+                        周视图
+                    </button>
+                    <button id="month-view-btn" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-600 hover:bg-gray-50">
+                        月视图
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 当前日期显示 -->
+            <div class="text-center mb-6">
+                <div class="flex items-center justify-center space-x-4">
+                    <button id="prev-period-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="text-center">
+                        <h2 id="current-period-title" class="text-lg font-bold text-gray-800">2024年9月</h2>
+                        <p id="current-period-subtitle" class="text-sm text-gray-600">今天</p>
+                    </div>
+                    <button id="next-period-btn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 日视图 -->
+            <div id="day-view-content" class="space-y-4">
+                <div id="day-schedule-list" class="space-y-3">
+                    <!-- 日程项目将在这里动态生成 -->
+                </div>
+                <div id="day-empty-state" class="hidden text-center py-12 text-gray-500">
+                    <i class="fas fa-calendar-plus text-4xl mb-4 opacity-30"></i>
+                    <p class="text-lg mb-2">今天暂无日程安排</p>
+                    <p class="text-sm">点击右上角 + 添加新的提醒</p>
+                </div>
+            </div>
+            
+            <!-- 周视图 -->
+            <div id="week-view-content" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <!-- 周视图头部 -->
+                    <div class="grid grid-cols-7 bg-gray-50 text-center text-xs font-medium text-gray-600 py-2">
+                        <div>周日</div>
+                        <div>周一</div>
+                        <div>周二</div>
+                        <div>周三</div>
+                        <div>周四</div>
+                        <div>周五</div>
+                        <div>周六</div>
+                    </div>
+                    <!-- 周视图日期 -->
+                    <div id="week-calendar-grid" class="grid grid-cols-7">
+                        <!-- 周视图内容将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 月视图 -->
+            <div id="month-view-content" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <!-- 月视图头部 -->
+                    <div class="grid grid-cols-7 bg-gray-50 text-center text-xs font-medium text-gray-600 py-2">
+                        <div>日</div>
+                        <div>一</div>
+                        <div>二</div>
+                        <div>三</div>
+                        <div>四</div>
+                        <div>五</div>
+                        <div>六</div>
+                    </div>
+                    <!-- 月视图日期 -->
+                    <div id="month-calendar-grid" class="grid grid-cols-7 gap-px bg-gray-200">
+                        <!-- 月视图内容将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- 固件更新进度弹窗 -->
         <div id="firmware-update-progress-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div class="bg-white rounded-xl shadow-lg p-6 m-4 max-w-sm w-full">
