@@ -13409,6 +13409,12 @@
                         createReminderSuccessCard(responseData.content.reminder_card);
                     }
                     break;
+                case 'schedule_list':
+                    console.log('📋 日程列表回复');
+                    if (responseData.content && responseData.content.schedules) {
+                        createScheduleListCards(responseData.content.schedules, responseData.content.timeRange);
+                    }
+                    break;
                 case 'dual_card':
                 case 'text_dual_card':
                     console.log('📋 双卡片回复');
@@ -14138,6 +14144,12 @@
                 }
             }
             
+            // 检查是否是日程查询请求
+            const queryResult = parseScheduleQueryFromMessage(userMessage);
+            if (queryResult) {
+                return queryResult;
+            }
+            
             // 首先检查是否是日程提醒相关的消息
             const reminderResult = parseReminderFromMessage(userMessage);
             if (reminderResult) {
@@ -14811,6 +14823,214 @@
             console.log('🧪 已设置测试提醒，10秒后触发');
             
             return testReminder;
+        }
+        
+        // 解析日程查询请求
+        function parseScheduleQueryFromMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // 检测是否是日程查询相关的消息
+            const queryKeywords = [
+                '查看日程', '日程', '看看日程', '有什么提醒', '今天有什么', '明天有什么', 
+                '我的提醒', '查看提醒', '安排', '计划', 'schedule', 'agenda', '查询日程'
+            ];
+            
+            const hasQueryKeyword = queryKeywords.some(keyword => lowerMessage.includes(keyword));
+            
+            if (!hasQueryKeyword) {
+                return null;
+            }
+            
+            console.log('📅 检测到日程查询请求:', message);
+            
+            // 解析时间范围
+            const timeRange = extractTimeRangeFromMessage(message);
+            const schedules = getSchedulesInTimeRange(timeRange);
+            
+            if (schedules.length === 0) {
+                return {
+                    text: `您在${getTimeRangeDescription(timeRange)}暂无安排的日程提醒。`,
+                    data: null
+                };
+            } else {
+                return {
+                    text: `为您找到${schedules.length}个${getTimeRangeDescription(timeRange)}的日程安排：`,
+                    data: {
+                        response: {
+                            type: 'schedule_list',
+                            content: {
+                                schedules: schedules,
+                                timeRange: timeRange,
+                                total: schedules.length
+                            }
+                        }
+                    }
+                };
+            }
+        }
+        
+        // 从消息中提取时间范围
+        function extractTimeRangeFromMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('今天') || lowerMessage.includes('今日')) {
+                return 'today';
+            } else if (lowerMessage.includes('明天') || lowerMessage.includes('明日')) {
+                return 'tomorrow';
+            } else if (lowerMessage.includes('这周') || lowerMessage.includes('本周') || lowerMessage.includes('这一周')) {
+                return 'this_week';
+            } else if (lowerMessage.includes('下周') || lowerMessage.includes('下一周')) {
+                return 'next_week';
+            } else if (lowerMessage.includes('这个月') || lowerMessage.includes('本月')) {
+                return 'this_month';
+            } else {
+                return 'today'; // 默认今天
+            }
+        }
+        
+        // 获取时间范围描述
+        function getTimeRangeDescription(timeRange) {
+            switch (timeRange) {
+                case 'today': return '今天';
+                case 'tomorrow': return '明天';
+                case 'this_week': return '本周';
+                case 'next_week': return '下周';
+                case 'this_month': return '本月';
+                default: return '今天';
+            }
+        }
+        
+        // 获取指定时间范围内的日程
+        function getSchedulesInTimeRange(timeRange) {
+            const now = new Date();
+            const filteredSchedules = [];
+            
+            reminderData.forEach(reminder => {
+                if (reminder.status !== 'active' && reminder.status !== 'snoozed') {
+                    return; // 跳过已完成或无效的提醒
+                }
+                
+                const reminderDate = new Date(reminder.dateTime);
+                let inRange = false;
+                
+                switch (timeRange) {
+                    case 'today':
+                        inRange = isSameDay(reminderDate, now);
+                        break;
+                    case 'tomorrow':
+                        const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                        inRange = isSameDay(reminderDate, tomorrow);
+                        break;
+                    case 'this_week':
+                        inRange = isSameWeek(reminderDate, now);
+                        break;
+                    case 'next_week':
+                        const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        inRange = isSameWeek(reminderDate, nextWeek);
+                        break;
+                    case 'this_month':
+                        inRange = isSameMonth(reminderDate, now);
+                        break;
+                }
+                
+                if (inRange) {
+                    filteredSchedules.push(reminder);
+                }
+            });
+            
+            // 按时间排序
+            return filteredSchedules.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+        }
+        
+        // 判断是否同一天
+        function isSameDay(date1, date2) {
+            return date1.toDateString() === date2.toDateString();
+        }
+        
+        // 判断是否同一周
+        function isSameWeek(date1, date2) {
+            const startOfWeek1 = getStartOfWeek(date1);
+            const startOfWeek2 = getStartOfWeek(date2);
+            return startOfWeek1.getTime() === startOfWeek2.getTime();
+        }
+        
+        // 判断是否同一月
+        function isSameMonth(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() && 
+                   date1.getMonth() === date2.getMonth();
+        }
+        
+        // 获取一周的开始日期（周一）
+        function getStartOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+        
+        // 创建日程列表卡片
+        function createScheduleListCards(schedules, timeRange) {
+            console.log('📋 创建日程列表卡片:', schedules);
+            
+            if (schedules.length === 0) {
+                return;
+            }
+            
+            const timeRangeDesc = getTimeRangeDescription(timeRange);
+            
+            const cardsHtml = schedules.map((schedule, index) => {
+                const icon = getIconForReminderContent(schedule.content);
+                const timeStr = formatDateTime(schedule.dateTime);
+                const statusColor = schedule.status === 'active' ? 'text-green-600' : 'text-yellow-600';
+                const statusText = schedule.status === 'active' ? '已激活' : '延后中';
+                const bgColor = index % 2 === 0 ? 'from-blue-50 to-indigo-50 border-blue-200' : 'from-purple-50 to-violet-50 border-purple-200';
+                
+                return `
+                    <div class="bg-gradient-to-r ${bgColor} border rounded-xl p-4 mb-3">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <span class="text-2xl">${icon}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-1">${schedule.content}</h4>
+                                <p class="text-sm font-medium text-gray-700 mb-2">${timeStr}</p>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 ${schedule.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'} rounded-full"></div>
+                                    <span class="text-xs font-medium ${statusColor}">${statusText}</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-gray-400">
+                                <i class="fas fa-chevron-right text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const listMessage = {
+                id: `schedule_list_${Date.now()}`,
+                html: `
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fas fa-calendar-alt text-blue-500 text-lg"></i>
+                            <h3 class="font-bold text-gray-800">${timeRangeDesc}的日程安排</h3>
+                            <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-medium">${schedules.length}项</span>
+                        </div>
+                        ${cardsHtml}
+                        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                            <p class="text-xs text-gray-600 text-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                点击「完成」按钮可标记日程完成
+                            </p>
+                        </div>
+                    </div>
+                `,
+                sender: 'assistant',
+                timestamp: Date.now(),
+                isCard: true
+            };
+            
+            addSpecialMessageToGlobalConversation(listMessage);
         }
         
         // ================ 日程提醒系统结束 ================
