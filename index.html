@@ -14412,8 +14412,11 @@
             const timeEl = document.getElementById('reminder-time');
             
             if (notification && titleEl && descriptionEl && timeEl) {
-                titleEl.textContent = reminder.content;
-                descriptionEl.textContent = `时间到了！${reminder.content}`;
+                // 生成温暖的提醒话术
+                const warmMessage = generateWarmReminderMessage(reminder.content);
+                
+                titleEl.textContent = warmMessage.title;
+                descriptionEl.textContent = warmMessage.description;
                 timeEl.textContent = formatDateTime(reminder.dateTime);
                 
                 // 显示通知
@@ -14433,6 +14436,122 @@
             }
         }
         
+        // 生成温暖的提醒话术
+        function generateWarmReminderMessage(content) {
+            const lowerContent = content.toLowerCase();
+            const currentHour = new Date().getHours();
+            
+            // 获取时间段描述
+            const getTimeGreeting = () => {
+                if (currentHour >= 5 && currentHour < 12) return '早上好';
+                if (currentHour >= 12 && currentHour < 18) return '下午好';
+                if (currentHour >= 18 && currentHour < 22) return '晚上好';
+                return '夜深了';
+            };
+            
+            const timeGreeting = getTimeGreeting();
+            
+            // 药物相关提醒
+            if (lowerContent.includes('药') || lowerContent.includes('pill') || lowerContent.includes('medicine')) {
+                return {
+                    title: '用药提醒',
+                    description: `${timeGreeting}！该服用药物了，记得按时用药保持健康哦 💊`
+                };
+            }
+            
+            // 用餐相关提醒
+            if (lowerContent.includes('吃') || lowerContent.includes('饭') || lowerContent.includes('meal') || lowerContent.includes('eat')) {
+                const mealMessages = [
+                    `${timeGreeting}！该用餐啦，营养均衡很重要呢 🍽️`,
+                    `${timeGreeting}！吃饭时间到了，记得细嚼慢咽哦 🥗`,
+                    `该享用美食的时间到了！注意营养搭配呢 🍱`
+                ];
+                return {
+                    title: '用餐提醒',
+                    description: mealMessages[Math.floor(Math.random() * mealMessages.length)]
+                };
+            }
+            
+            // 喝水相关提醒
+            if (lowerContent.includes('水') || lowerContent.includes('drink') || lowerContent.includes('water')) {
+                const waterMessages = [
+                    `${timeGreeting}！该补充水分啦，身体健康最重要 💧`,
+                    `记得喝水哦，保持身体水分平衡很重要 🌊`,
+                    `该喝水了！小口慢饮，让身体充满活力 💙`
+                ];
+                return {
+                    title: '喝水提醒',
+                    description: waterMessages[Math.floor(Math.random() * waterMessages.length)]
+                };
+            }
+            
+            // 会议相关提醒
+            if (lowerContent.includes('会') || lowerContent.includes('meeting') || lowerContent.includes('开会')) {
+                return {
+                    title: '会议提醒',
+                    description: `${timeGreeting}！该参加会议了，祝您会议顺利 📅`
+                };
+            }
+            
+            // 休息相关提醒
+            if (lowerContent.includes('休息') || lowerContent.includes('sleep') || lowerContent.includes('rest')) {
+                const restMessages = [
+                    `${timeGreeting}！该休息一下了，劳逸结合才能更健康 😴`,
+                    `休息时间到了，给自己一个放松的时光吧 🌙`,
+                    `该休息啦！适当休息能让您精神更好 ✨`
+                ];
+                return {
+                    title: '休息提醒',
+                    description: restMessages[Math.floor(Math.random() * restMessages.length)]
+                };
+            }
+            
+            // 运动相关提醒
+            if (lowerContent.includes('运动') || lowerContent.includes('exercise') || lowerContent.includes('锻炼')) {
+                return {
+                    title: '运动提醒',
+                    description: `${timeGreeting}！该活动身体了，适度运动有益健康 🏃‍♀️`
+                };
+            }
+            
+            // 充电相关提醒
+            if (lowerContent.includes('充电') || lowerContent.includes('charge') || lowerContent.includes('电')) {
+                return {
+                    title: '充电提醒',
+                    description: `该给设备充电了，保持电量充足很重要 🔋`
+                };
+            }
+            
+            // 打电话相关提醒
+            if (lowerContent.includes('电话') || lowerContent.includes('call') || lowerContent.includes('打电话')) {
+                return {
+                    title: '通话提醒',
+                    description: `${timeGreeting}！该打电话了，别忘了重要的联系 📞`
+                };
+            }
+            
+            // 工作相关提醒
+            if (lowerContent.includes('工作') || lowerContent.includes('work') || lowerContent.includes('办公')) {
+                return {
+                    title: '工作提醒',
+                    description: `${timeGreeting}！该处理工作事务了，加油！💼`
+                };
+            }
+            
+            // 默认通用提醒
+            const genericMessages = [
+                `${timeGreeting}！您设置的提醒时间到了 ⏰`,
+                `该处理这件事情了！${content} ✨`,
+                `${timeGreeting}！不要忘记：${content} 📝`,
+                `提醒时间到了，该${content}啦！🎯`
+            ];
+            
+            return {
+                title: content || '重要提醒',
+                description: genericMessages[Math.floor(Math.random() * genericMessages.length)]
+            };
+        }
+        
         // 隐藏提醒通知
         function hideReminderNotification() {
             const notification = document.getElementById('reminder-notification');
@@ -14448,7 +14567,22 @@
         function completeReminder() {
             // 更新提醒状态为完成
             console.log('✅ 提醒已完成');
-            // 这里可以添加完成提醒的逻辑，比如记录到历史等
+            
+            // 生成贴心的完成反馈
+            const completeMessages = [
+                '太棒了！任务完成，您真的很棒 🎉',
+                '完成了！继续保持这个好习惯哦 ⭐',
+                '很好！您的自律让我很佩服 💪',
+                '任务达成！为您的坚持点赞 👏',
+                '完美完成！身体健康最重要呢 💚'
+            ];
+            
+            const randomMessage = completeMessages[Math.floor(Math.random() * completeMessages.length)];
+            
+            // 在对话中添加鼓励消息
+            setTimeout(() => {
+                addMessageToGlobalConversation(randomMessage, 'assistant');
+            }, 500);
         }
         
         // 稍后提醒
@@ -14457,9 +14591,13 @@
             const snoozeTime = 5 * 60 * 1000; // 5分钟
             const snoozeDateTime = new Date(Date.now() + snoozeTime);
             
+            // 获取当前活跃的提醒内容（如果有的话）
+            const activeReminder = reminderData.find(r => r.status === 'active');
+            const originalContent = activeReminder ? activeReminder.content : '重要事项';
+            
             const snoozeReminder = {
                 id: Date.now().toString(),
-                content: "稍后提醒",
+                content: originalContent,
                 dateTime: snoozeDateTime,
                 created: new Date(),
                 status: 'snoozed'
@@ -14470,6 +14608,22 @@
             }, snoozeTime);
             
             reminderTimers.set(snoozeReminder.id, timerId);
+            
+            // 生成贴心的稍后提醒反馈
+            const snoozeMessages = [
+                '好的，我会在5分钟后再次提醒您 ⏰',
+                '没问题！5分钟后我会再次温馨提醒 💙',
+                '理解！稍等5分钟后我再来提醒您 😊',
+                '好哒，5分钟后见！我会准时提醒的 ⭐'
+            ];
+            
+            const randomMessage = snoozeMessages[Math.floor(Math.random() * snoozeMessages.length)];
+            
+            // 在对话中添加反馈消息
+            setTimeout(() => {
+                addMessageToGlobalConversation(randomMessage, 'assistant');
+            }, 500);
+            
             console.log('⏰ 已设置稍后提醒，5分钟后再次提醒');
         }
         
