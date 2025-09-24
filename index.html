@@ -15364,12 +15364,26 @@
         // 切换日历视图
         function switchCalendarView(viewType) {
             console.log('📅 切换到视图:', viewType);
+            
+            // 检查基本页面元素是否存在
+            const scheduleManagementPage = document.getElementById('schedule-management');
+            if (!scheduleManagementPage) {
+                console.error('❌ 日程管理页面不存在，无法切换视图');
+                return;
+            }
+            
             currentCalendarView = viewType;
             
             // 更新按钮状态
             const dayBtn = document.getElementById('day-view-btn');
             const weekBtn = document.getElementById('week-view-btn');
             const monthBtn = document.getElementById('month-view-btn');
+            
+            console.log('🔍 检查按钮元素:', { 
+                dayBtn: !!dayBtn, 
+                weekBtn: !!weekBtn, 
+                monthBtn: !!monthBtn 
+            });
             
             // 重置所有按钮
             [dayBtn, weekBtn, monthBtn].forEach(btn => {
@@ -15391,6 +15405,12 @@
             const weekContent = document.getElementById('week-view-content');
             const monthContent = document.getElementById('month-view-content');
             
+            console.log('🔍 检查视图元素:', { 
+                dayContent: !!dayContent, 
+                weekContent: !!weekContent, 
+                monthContent: !!monthContent 
+            });
+            
             if (dayContent) {
                 dayContent.classList.toggle('hidden', viewType !== 'day');
             }
@@ -15405,16 +15425,20 @@
             updateCalendarTitle();
             
             // 渲染对应视图内容
-            switch (viewType) {
-                case 'day':
-                    renderDayView();
-                    break;
-                case 'week':
-                    renderWeekView();
-                    break;
-                case 'month':
-                    renderMonthView();
-                    break;
+            try {
+                switch (viewType) {
+                    case 'day':
+                        renderDayView();
+                        break;
+                    case 'week':
+                        renderWeekView();
+                        break;
+                    case 'month':
+                        renderMonthView();
+                        break;
+                }
+            } catch (error) {
+                console.error('❌ 渲染视图时出错:', error);
             }
         }
         
