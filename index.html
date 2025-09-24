@@ -15344,11 +15344,21 @@
         // 初始化日程管理页面
         function initScheduleManagementPage() {
             console.log('📅 初始化日程管理页面');
+            
+            // 检查页面元素是否存在
+            const scheduleManagementPage = document.getElementById('schedule-management');
+            if (!scheduleManagementPage) {
+                console.error('❌ 日程管理页面元素不存在');
+                return;
+            }
+            
             currentCalendarDate = new Date(); // 重置为当前日期
             currentCalendarView = 'day'; // 默认日视图
             
-            // 更新视图
-            switchCalendarView('day');
+            // 延迟初始化，确保DOM完全加载
+            setTimeout(() => {
+                switchCalendarView('day');
+            }, 100);
         }
         
         // 切换日历视图
@@ -15377,9 +15387,19 @@
             }
             
             // 显示对应视图
-            document.getElementById('day-view-content').classList.toggle('hidden', viewType !== 'day');
-            document.getElementById('week-view-content').classList.toggle('hidden', viewType !== 'week');
-            document.getElementById('month-view-content').classList.toggle('hidden', viewType !== 'month');
+            const dayContent = document.getElementById('day-view-content');
+            const weekContent = document.getElementById('week-view-content');
+            const monthContent = document.getElementById('month-view-content');
+            
+            if (dayContent) {
+                dayContent.classList.toggle('hidden', viewType !== 'day');
+            }
+            if (weekContent) {
+                weekContent.classList.toggle('hidden', viewType !== 'week');
+            }
+            if (monthContent) {
+                monthContent.classList.toggle('hidden', viewType !== 'month');
+            }
             
             // 更新日期标题
             updateCalendarTitle();
