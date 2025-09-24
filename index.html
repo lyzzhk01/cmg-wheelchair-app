@@ -14488,8 +14488,31 @@
             console.log('🕐 解析时间信息:', message);
             console.log('🕐 当前时间:', now.toLocaleString('zh-CN'));
             
+            // 检查"今晚"特殊表达
+            let match = lowerMessage.match(/今晚\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                let hour = parseInt(match[1]);
+                const minute = parseInt(match[2] || '0');
+                
+                // "今晚"的时间调整：如果小时数小于12，加12变成晚上时间
+                if (hour <= 12) {
+                    hour = hour + 12; // 8点→20点, 9点→21点
+                }
+                
+                const dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                console.log('🌙 解析今晚时间:', formatDateTime(dateTime), '(原始小时:', match[1], ', 调整后:', hour, ')');
+                
+                // 如果时间已过，不自动改到明天
+                if (dateTime > now) {
+                    return dateTime;
+                } else {
+                    console.log('⚠️ 今晚指定时间已过:', formatDateTime(dateTime));
+                    return null;
+                }
+            }
+            
             // 检查今天 + 时间段 + 具体时间
-            let match = lowerMessage.match(/(?:今天|今日)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+            match = lowerMessage.match(/(?:今天|今日)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
                 const timePeriod = match[1]; // 时间段：早上、下午、晚上等
                 let hour = parseInt(match[2]);
@@ -14633,6 +14656,7 @@
         function extractContentFromMessage(message) {
             // 移除时间相关的部分，提取提醒内容
             let content = message
+                .replace(/今晚\s*\d{1,2}[::：点]\d{0,2}/g, '') // 特殊处理"今晚"
                 .replace(/(?:今天|今日|明天|明日)\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/g, '')
                 .replace(/(?:早上|上午|中午|下午|晚上|夜里|夜间)\s*\d{1,2}[::：点]\d{0,2}/g, '')
                 .replace(/\d{1,2}[::：点]\d{0,2}/g, '')
