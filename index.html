@@ -13403,6 +13403,12 @@
                 case 'text_image_card':
                     console.log('🖼️ 图片卡片回复');
                     break;
+                case 'text_reminder_card':
+                    console.log('⏰ 文字+提醒卡片回复');
+                    if (responseData.content && responseData.content.reminder_card) {
+                        createReminderSuccessCard(responseData.content.reminder_card);
+                    }
+                    break;
                 case 'dual_card':
                 case 'text_dual_card':
                     console.log('📋 双卡片回复');
@@ -14124,6 +14130,14 @@
         
         // 根据用户输入生成文字回复
         function generateTextResponse(userMessage) {
+            // 检查是否正在进行提醒对话（缺槽反问）
+            if (currentReminderDialog) {
+                const followUpResult = handleReminderFollowUp(userMessage);
+                if (followUpResult) {
+                    return followUpResult;
+                }
+            }
+            
             // 首先检查是否是日程提醒相关的消息
             const reminderResult = parseReminderFromMessage(userMessage);
             if (reminderResult) {
@@ -14249,11 +14263,23 @@
                 const reminder = createReminder(content, timeInfo);
                 if (reminder) {
                     return {
-                        text: `✅ 已为您设置提醒：${content}，时间：${formatDateTime(reminder.dateTime)}`,
+                        text: `✅ 已为您设置提醒，我会准时通知您！`,
                         data: {
                             response: {
-                                type: 'reminder_created',
-                                content: reminder
+                                type: 'text_reminder_card',
+                                content: {
+                                    text: `已为您设置提醒，我会准时通知您！`,
+                                    reminder_card: {
+                                        id: reminder.id,
+                                        title: reminder.content,
+                                        time: formatDateTime(reminder.dateTime),
+                                        description: `♿️ 轮椅提醒 → 📱 手机备份`,
+                                        type: 'reminder',
+                                        icon: getIconForReminderContent(reminder.content),
+                                        status: 'active',
+                                        urgent: false
+                                    }
+                                }
                             }
                         }
                     };
@@ -14470,6 +14496,169 @@
             }
         }
         
+        // 处理提醒对话的后续回复（缺槽反问）
+        function handleReminderFollowUp(message) {
+            if (!currentReminderDialog) return null;
+            
+            console.log('🔄 处理提醒缺槽反问:', message);
+            
+            const partialReminder = currentReminderDialog.partialReminder;
+            const missingInfo = currentReminderDialog.missingInfo;
+            
+            // 尝试从新消息中提取缺失信息
+            let newTimeInfo = partialReminder.time;
+            let newContent = partialReminder.content;
+            
+            if (missingInfo.includes('时间')) {
+                const extractedTime = extractTimeFromMessage(message);
+                if (extractedTime) {
+                    newTimeInfo = extractedTime;
+                }
+            }
+            
+            if (missingInfo.includes('提醒内容')) {
+                const extractedContent = extractContentFromMessage(message) || message.trim();
+                if (extractedContent) {
+                    newContent = extractedContent;
+                }
+            }
+            
+            // 检查是否还有缺失信息
+            const stillMissing = [];
+            if (!newTimeInfo) stillMissing.push('时间');
+            if (!newContent) stillMissing.push('提醒内容');
+            
+            if (stillMissing.length > 0) {
+                // 仍有缺失信息，继续反问
+                currentReminderDialog.partialReminder.time = newTimeInfo;
+                currentReminderDialog.partialReminder.content = newContent;
+                currentReminderDialog.missingInfo = stillMissing;
+                
+                return {
+                    text: `好的，还需要您提供${stillMissing.join('和')}信息。`,
+                    data: null
+                };
+            } else {
+                // 信息完整，创建提醒
+                const reminder = createReminder(newContent, newTimeInfo);
+                currentReminderDialog = null; // 清除对话状态
+                
+                if (reminder) {
+                    return {
+                        text: `✅ 完美！已为您设置提醒，我会准时通知您！`,
+                        data: {
+                            response: {
+                                type: 'text_reminder_card',
+                                content: {
+                                    text: `完美！已为您设置提醒，我会准时通知您！`,
+                                    reminder_card: {
+                                        id: reminder.id,
+                                        title: reminder.content,
+                                        time: formatDateTime(reminder.dateTime),
+                                        description: `♿️ 轮椅提醒 → 📱 手机备份`,
+                                        type: 'reminder',
+                                        icon: getIconForReminderContent(reminder.content),
+                                        status: 'active',
+                                        urgent: false
+                                    }
+                                }
+                            }
+                        }
+                    };
+                } else {
+                    return {
+                        text: '抱歉，创建提醒时出现问题，请重新尝试。',
+                        data: null
+                    };
+                }
+            }
+        }
+        
+        // 根据提醒内容获取合适的图标
+        function getIconForReminderContent(content) {
+            const lowerContent = content.toLowerCase();
+            
+            if (lowerContent.includes('吃') || lowerContent.includes('饭') || lowerContent.includes('meal') || lowerContent.includes('eat')) {
+                return '🍽️';
+            } else if (lowerContent.includes('药') || lowerContent.includes('pill') || lowerContent.includes('medicine')) {
+                return '💊';
+            } else if (lowerContent.includes('水') || lowerContent.includes('drink') || lowerContent.includes('water')) {
+                return '💧';
+            } else if (lowerContent.includes('会') || lowerContent.includes('meeting') || lowerContent.includes('开会')) {
+                return '📅';
+            } else if (lowerContent.includes('休息') || lowerContent.includes('sleep') || lowerContent.includes('rest')) {
+                return '😴';
+            } else if (lowerContent.includes('运动') || lowerContent.includes('exercise') || lowerContent.includes('锻炼')) {
+                return '🏃';
+            } else if (lowerContent.includes('充电') || lowerContent.includes('charge') || lowerContent.includes('电')) {
+                return '🔋';
+            } else {
+                return '⏰';
+            }
+        }
+        
+        // 创建提醒成功卡片
+        function createReminderSuccessCard(reminderCard) {
+            console.log('🎨 创建提醒成功卡片:', reminderCard);
+            
+            const cardMessage = {
+                id: `reminder_success_${Date.now()}`,
+                html: `
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <span class="text-2xl">${reminderCard.icon}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">${reminderCard.title}</h4>
+                                <div class="space-y-1">
+                                    <p class="text-sm font-medium text-green-600">${reminderCard.time}</p>
+                                    <p class="text-xs text-gray-600">${reminderCard.description}</p>
+                                    <div class="flex items-center space-x-2 mt-2">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span class="text-xs font-medium text-green-700">已激活</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                sender: 'assistant',
+                timestamp: Date.now(),
+                isCard: true
+            };
+            
+            addSpecialMessageToGlobalConversation(cardMessage);
+        }
+        
+        // 添加测试提醒功能
+        function createTestReminder() {
+            const testDateTime = new Date(Date.now() + 10000); // 10秒后的测试提醒
+            const testReminder = {
+                id: 'test_' + Date.now(),
+                content: '测试提醒',
+                dateTime: testDateTime,
+                created: new Date(),
+                status: 'active'
+            };
+            
+            reminderData.push(testReminder);
+            
+            const timerId = setTimeout(() => {
+                showReminderNotification(testReminder);
+            }, 10000);
+            
+            reminderTimers.set(testReminder.id, timerId);
+            console.log('🧪 已设置测试提醒，10秒后触发');
+            
+            return testReminder;
+        }
+        
         // ================ 日程提醒系统结束 ================
         
         // 清除全局对话历史（可选功能）
@@ -14518,6 +14707,7 @@
                 }
                 
                 console.log('🎤 长按中央黄色按钮开始语音对话体验');
+                console.log('📋 提醒功能测试：在全屏对话窗输入"提醒我3分钟后喝水"');
                 
                 // 添加测试功能，双击黄色按钮可以手动触发对话窗测试
                 const globalVoiceBtn = document.getElementById('global-voice-btn');
@@ -14529,6 +14719,21 @@
                         addMessageToGlobalConversation('测试AI回复消息', 'assistant');
                         // 显示半屏对话窗
                         showHalfScreenChat();
+                    });
+                    
+                    // 三击测试提醒功能
+                    let clickCount = 0;
+                    globalVoiceBtn.addEventListener('click', function() {
+                        clickCount++;
+                        setTimeout(() => {
+                            if (clickCount === 3) {
+                                console.log('🧪 测试日程提醒功能');
+                                const testReminder = createTestReminder();
+                                addMessageToGlobalConversation('已创建测试提醒，10秒后触发', 'assistant');
+                                showHalfScreenChat();
+                            }
+                            clickCount = 0;
+                        }, 500);
                     });
                 }
             }, 100);
