@@ -15750,8 +15750,8 @@
                 const userFriendlyStatus = getUserFriendlyStatus(schedule);
                 
                 return `
-                    <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer" 
-                         onclick="showScheduleDetail('${schedule.id}')">
+                    <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer schedule-item" 
+                         data-schedule-id="${schedule.id}">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                                 <span class="text-2xl">${icon}</span>
@@ -15770,6 +15770,19 @@
                     </div>
                 `;
             }).join('');
+            
+            // 绑定日程项点击事件
+            setTimeout(() => {
+                const scheduleItems = document.querySelectorAll('.schedule-item');
+                scheduleItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const scheduleId = this.getAttribute('data-schedule-id');
+                        console.log('🖱️ 点击日程项:', scheduleId);
+                        showScheduleDetail(scheduleId);
+                    });
+                });
+                console.log('✅ 已绑定', scheduleItems.length, '个日程项的点击事件');
+            }, 100);
         }
         
         // 渲染周视图
@@ -15872,13 +15885,16 @@
         
         // 显示日程详情弹窗
         function showScheduleDetail(scheduleId) {
+            console.log('🔍 尝试显示日程详情，ID:', scheduleId);
+            console.log('📊 当前日程数据:', reminderData);
+            
             const schedule = reminderData.find(r => r.id === scheduleId);
             if (!schedule) {
-                console.error('❌ 找不到日程:', scheduleId);
+                console.error('❌ 找不到日程:', scheduleId, '可用日程:', reminderData.map(r => r.id));
                 return;
             }
             
-            console.log('📋 显示日程详情:', schedule);
+            console.log('📋 找到日程，准备显示详情:', schedule);
             
             // 获取弹窗元素
             const modal = document.getElementById('schedule-detail-modal');
@@ -15889,6 +15905,17 @@
             const statusDot = document.getElementById('detail-status-dot');
             const statusText = document.getElementById('detail-status-text');
             const createdTime = document.getElementById('detail-created-time');
+            
+            console.log('🔧 弹窗元素检查:', {
+                modal: !!modal,
+                content: !!content,
+                iconEl: !!iconEl,
+                titleEl: !!titleEl,
+                timeEl: !!timeEl,
+                statusDot: !!statusDot,
+                statusText: !!statusText,
+                createdTime: !!createdTime
+            });
             
             if (!modal || !content) {
                 console.error('❌ 日程详情弹窗元素不存在');
@@ -15912,11 +15939,14 @@
             // 存储当前查看的日程ID
             modal.setAttribute('data-schedule-id', scheduleId);
             
+            console.log('💫 开始显示弹窗动画');
+            
             // 显示弹窗
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('scale-95', 'opacity-0');
                 content.classList.add('scale-100', 'opacity-100');
+                console.log('✅ 弹窗显示完成');
             }, 10);
             
             // 初始化弹窗按钮事件（避免重复绑定）
@@ -15931,8 +15961,22 @@
             const editBtn = document.getElementById('edit-schedule-btn');
             const deleteBtn = document.getElementById('delete-schedule-btn');
             
+            console.log('🔧 初始化日程详情弹窗', {
+                modal: !!modal,
+                content: !!content,
+                closeBtn: !!closeBtn,
+                editBtn: !!editBtn,
+                deleteBtn: !!deleteBtn
+            });
+            
+            if (!modal || !content) {
+                console.error('❌ 弹窗关键元素缺失');
+                return;
+            }
+            
             // 关闭弹窗
             const closeModal = () => {
+                console.log('🔒 关闭日程详情弹窗');
                 if (content) {
                     content.classList.add('scale-95', 'opacity-0');
                     content.classList.remove('scale-100', 'opacity-100');
@@ -15944,30 +15988,31 @@
                 }, 300);
             };
             
-            // 关闭按钮事件（移除旧的事件监听器）
+            // 关闭按钮事件
             if (closeBtn) {
-                closeBtn.replaceWith(closeBtn.cloneNode(true));
-                const newCloseBtn = document.getElementById('close-schedule-detail');
-                newCloseBtn.addEventListener('click', closeModal);
-            }
-            
-            // 点击背景关闭
-            if (modal) {
-                modal.replaceWith(modal.cloneNode(true));
-                const newModal = document.getElementById('schedule-detail-modal');
-                newModal.addEventListener('click', function(e) {
-                    if (e.target === newModal) {
-                        closeModal();
-                    }
+                closeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('❎ 点击关闭按钮');
+                    closeModal();
                 });
             }
             
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    console.log('🖱️ 点击背景关闭弹窗');
+                    closeModal();
+                }
+            });
+            
             // 编辑按钮事件
             if (editBtn) {
-                editBtn.replaceWith(editBtn.cloneNode(true));
-                const newEditBtn = document.getElementById('edit-schedule-btn');
-                newEditBtn.addEventListener('click', function() {
-                    const scheduleId = newModal.getAttribute('data-schedule-id');
+                editBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const scheduleId = modal.getAttribute('data-schedule-id');
+                    console.log('✏️ 点击编辑按钮, 日程ID:', scheduleId);
                     editSchedule(scheduleId);
                     closeModal();
                 });
@@ -15975,12 +16020,17 @@
             
             // 删除按钮事件
             if (deleteBtn) {
-                deleteBtn.replaceWith(deleteBtn.cloneNode(true));
-                const newDeleteBtn = document.getElementById('delete-schedule-btn');
-                newDeleteBtn.addEventListener('click', function() {
-                    const scheduleId = newModal.getAttribute('data-schedule-id');
-                    deleteSchedule(scheduleId);
-                    closeModal();
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const scheduleId = modal.getAttribute('data-schedule-id');
+                    console.log('🗑️ 点击删除按钮, 日程ID:', scheduleId);
+                    
+                    // 确认删除
+                    if (confirm('确定要删除这个日程吗？')) {
+                        deleteSchedule(scheduleId);
+                        closeModal();
+                    }
                 });
             }
         }
