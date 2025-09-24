@@ -252,6 +252,43 @@
         </div>
     </div>
 
+    <!-- 日程提醒弹窗 -->
+    <div id="reminder-notification" class="fixed top-4 left-4 right-4 z-[9998] transform -translate-y-full transition-transform duration-300 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-w-sm mx-auto">
+            <!-- 提醒头部 -->
+            <div class="bg-blue-50 px-4 py-3 border-b border-blue-100">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-bell text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-800">日程提醒</h3>
+                        <p class="text-xs text-gray-500" id="reminder-time">现在</p>
+                    </div>
+                    <button id="reminder-dismiss" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i class="fas fa-times text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 提醒内容 -->
+            <div class="px-4 py-3">
+                <h4 class="font-medium text-gray-800 mb-1" id="reminder-title">提醒吃饭</h4>
+                <p class="text-sm text-gray-600" id="reminder-description">该吃午饭了，注意营养均衡</p>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="px-4 pb-4 flex space-x-3">
+                <button id="reminder-complete" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                    完成
+                </button>
+                <button id="reminder-snooze" class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    稍后提醒
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 全局半屏对话窗 -->
     <div id="global-chat-dialog" class="fixed top-16 left-0 right-0 z-50 transform -translate-y-full transition-transform duration-300 hidden">
         <!-- 拖拽手柄 -->
@@ -13008,6 +13045,11 @@
         let currentVoiceTimeout = null;
         let currentVoiceRecognitionData = null; // 当前正在识别的对话数据
         
+        // 日程提醒功能变量
+        let reminderTimers = new Map(); // 存储所有提醒定时器
+        let reminderData = []; // 存储提醒数据
+        let currentReminderDialog = null; // 当前正在进行的提醒对话
+        
         // 初始化全局语音功能
         function initGlobalVoiceFunction() {
             const globalVoiceBtn = document.getElementById('global-voice-btn');
@@ -13078,6 +13120,9 @@
             
             // 全屏语音按钮交互
             initFullscreenVoiceButton();
+            
+            // 初始化日程提醒功能
+            initReminderSystem();
             
             // 拖拽手柄点击切换半屏对话窗
             const dragHandle = globalChatDialog?.querySelector('.w-10.h-1');
@@ -13391,7 +13436,7 @@
                 id: `card_${Date.now()}`,
                 html: `
                     <div class="space-y-2">
-                        <p class="text-sm text-gray-600 mb-3">已为您设置以下提醒：</p>
+                        <p class="text-sm text-gray-600 mb-3">The following reminders have been set for you：</p>
                         ${cardsHtml}
                     </div>
                 `,
@@ -14079,6 +14124,12 @@
         
         // 根据用户输入生成文字回复
         function generateTextResponse(userMessage) {
+            // 首先检查是否是日程提醒相关的消息
+            const reminderResult = parseReminderFromMessage(userMessage);
+            if (reminderResult) {
+                return reminderResult;
+            }
+            
             // 使用演示数据匹配用户输入
             if (typeof DEMO_CONVERSATIONS !== 'undefined') {
                 // 查找匹配的演示对话
@@ -14118,6 +14169,308 @@
                 data: null
             };
         }
+        
+        // ================ 日程提醒系统 ================
+        
+        // 初始化日程提醒系统
+        function initReminderSystem() {
+            const reminderDismiss = document.getElementById('reminder-dismiss');
+            const reminderComplete = document.getElementById('reminder-complete');
+            const reminderSnooze = document.getElementById('reminder-snooze');
+            
+            // 关闭提醒
+            if (reminderDismiss) {
+                reminderDismiss.addEventListener('click', hideReminderNotification);
+            }
+            
+            // 完成提醒
+            if (reminderComplete) {
+                reminderComplete.addEventListener('click', function() {
+                    completeReminder();
+                    hideReminderNotification();
+                });
+            }
+            
+            // 稍后提醒
+            if (reminderSnooze) {
+                reminderSnooze.addEventListener('click', function() {
+                    snoozeReminder();
+                    hideReminderNotification();
+                });
+            }
+            
+            console.log('⏰ 日程提醒系统已初始化');
+        }
+        
+        // 从用户消息中解析日程提醒
+        function parseReminderFromMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // 检测是否是提醒相关的消息
+            const reminderKeywords = ['提醒', '提醒我', '设置提醒', '定时', '闹钟', 'remind', 'reminder', 'alert', '记得'];
+            const hasReminderKeyword = reminderKeywords.some(keyword => lowerMessage.includes(keyword));
+            
+            if (!hasReminderKeyword) {
+                return null;
+            }
+            
+            console.log('📅 检测到日程提醒请求:', message);
+            
+            // 解析时间和内容
+            const timeInfo = extractTimeFromMessage(message);
+            const content = extractContentFromMessage(message);
+            
+            // 检查缺少的信息
+            const missingInfo = [];
+            if (!timeInfo) {
+                missingInfo.push('时间');
+            }
+            if (!content) {
+                missingInfo.push('提醒内容');
+            }
+            
+            if (missingInfo.length > 0) {
+                // 需要反问获取更多信息
+                currentReminderDialog = {
+                    partialReminder: {
+                        time: timeInfo,
+                        content: content,
+                        originalMessage: message
+                    },
+                    missingInfo: missingInfo
+                };
+                
+                return {
+                    text: `我来帮您设置提醒！请告诉我${missingInfo.join('和')}。`,
+                    data: null
+                };
+            } else {
+                // 信息完整，创建提醒
+                const reminder = createReminder(content, timeInfo);
+                if (reminder) {
+                    return {
+                        text: `✅ 已为您设置提醒：${content}，时间：${formatDateTime(reminder.dateTime)}`,
+                        data: {
+                            response: {
+                                type: 'reminder_created',
+                                content: reminder
+                            }
+                        }
+                    };
+                } else {
+                    return {
+                        text: '抱歉，我无法理解您提供的时间，请重新说明具体时间。',
+                        data: null
+                    };
+                }
+            }
+        }
+        
+        // 从消息中提取时间信息
+        function extractTimeFromMessage(message) {
+            const now = new Date();
+            const lowerMessage = message.toLowerCase();
+            
+            // 匹配具体时间格式
+            const timePatterns = [
+                // 今天/明天 + 时间
+                /(?:今天|今日)\s*(\d{1,2})[::：点](\d{0,2})/,
+                /(?:明天|明日)\s*(\d{1,2})[::：点](\d{0,2})/,
+                // 直接时间
+                /(\d{1,2})[::：点](\d{0,2})/,
+                // 几分钟后
+                /(\d+)\s*分钟后/,
+                // 几小时后
+                /(\d+)\s*小时后/,
+                // 相对时间
+                /(\d+)\s*(?:分钟|小时)后/
+            ];
+            
+            // 检查今天时间
+            let match = lowerMessage.match(/(?:今天|今日)\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const hour = parseInt(match[1]);
+                const minute = parseInt(match[2] || '0');
+                const dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                if (dateTime > now) {
+                    return dateTime;
+                }
+            }
+            
+            // 检查明天时间
+            match = lowerMessage.match(/(?:明天|明日)\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const hour = parseInt(match[1]);
+                const minute = parseInt(match[2] || '0');
+                const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                return new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour, minute);
+            }
+            
+            // 检查直接时间（假设是今天，如果已过则是明天）
+            match = lowerMessage.match(/(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const hour = parseInt(match[1]);
+                const minute = parseInt(match[2] || '0');
+                let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                if (dateTime <= now) {
+                    dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+                }
+                return dateTime;
+            }
+            
+            // 检查相对时间
+            match = lowerMessage.match(/(\d+)\s*分钟后/);
+            if (match) {
+                const minutes = parseInt(match[1]);
+                return new Date(now.getTime() + minutes * 60 * 1000);
+            }
+            
+            match = lowerMessage.match(/(\d+)\s*小时后/);
+            if (match) {
+                const hours = parseInt(match[1]);
+                return new Date(now.getTime() + hours * 60 * 60 * 1000);
+            }
+            
+            return null;
+        }
+        
+        // 从消息中提取提醒内容
+        function extractContentFromMessage(message) {
+            // 移除时间相关的部分，提取提醒内容
+            let content = message
+                .replace(/(?:今天|今日|明天|明日)\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                .replace(/\d{1,2}[::：点]\d{0,2}/g, '')
+                .replace(/\d+\s*(?:分钟|小时)后/g, '')
+                .replace(/(?:提醒我?|设置提醒|定时|记得)/g, '')
+                .trim();
+            
+            return content || null;
+        }
+        
+        // 创建提醒
+        function createReminder(content, dateTime) {
+            if (!dateTime || !content) {
+                return null;
+            }
+            
+            const reminder = {
+                id: Date.now().toString(),
+                content: content,
+                dateTime: dateTime,
+                created: new Date(),
+                status: 'active'
+            };
+            
+            // 保存提醒
+            reminderData.push(reminder);
+            
+            // 设置定时器
+            const delay = dateTime.getTime() - Date.now();
+            if (delay > 0) {
+                const timerId = setTimeout(() => {
+                    showReminderNotification(reminder);
+                }, delay);
+                
+                reminderTimers.set(reminder.id, timerId);
+                console.log(`⏰ 已设置提醒: ${content}, 将在 ${formatDateTime(dateTime)} 触发`);
+            }
+            
+            return reminder;
+        }
+        
+        // 显示提醒通知
+        function showReminderNotification(reminder) {
+            const notification = document.getElementById('reminder-notification');
+            const titleEl = document.getElementById('reminder-title');
+            const descriptionEl = document.getElementById('reminder-description');
+            const timeEl = document.getElementById('reminder-time');
+            
+            if (notification && titleEl && descriptionEl && timeEl) {
+                titleEl.textContent = reminder.content;
+                descriptionEl.textContent = `时间到了！${reminder.content}`;
+                timeEl.textContent = formatDateTime(reminder.dateTime);
+                
+                // 显示通知
+                notification.classList.remove('hidden');
+                setTimeout(() => {
+                    notification.classList.remove('-translate-y-full');
+                }, 10);
+                
+                // 自动隐藏（可选）
+                setTimeout(() => {
+                    if (!notification.classList.contains('-translate-y-full')) {
+                        hideReminderNotification();
+                    }
+                }, 30000); // 30秒后自动隐藏
+                
+                console.log('🔔 提醒通知已显示:', reminder.content);
+            }
+        }
+        
+        // 隐藏提醒通知
+        function hideReminderNotification() {
+            const notification = document.getElementById('reminder-notification');
+            if (notification) {
+                notification.classList.add('-translate-y-full');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 300);
+            }
+        }
+        
+        // 完成提醒
+        function completeReminder() {
+            // 更新提醒状态为完成
+            console.log('✅ 提醒已完成');
+            // 这里可以添加完成提醒的逻辑，比如记录到历史等
+        }
+        
+        // 稍后提醒
+        function snoozeReminder() {
+            // 5分钟后再次提醒
+            const snoozeTime = 5 * 60 * 1000; // 5分钟
+            const snoozeDateTime = new Date(Date.now() + snoozeTime);
+            
+            const snoozeReminder = {
+                id: Date.now().toString(),
+                content: "稍后提醒",
+                dateTime: snoozeDateTime,
+                created: new Date(),
+                status: 'snoozed'
+            };
+            
+            const timerId = setTimeout(() => {
+                showReminderNotification(snoozeReminder);
+            }, snoozeTime);
+            
+            reminderTimers.set(snoozeReminder.id, timerId);
+            console.log('⏰ 已设置稍后提醒，5分钟后再次提醒');
+        }
+        
+        // 格式化日期时间
+        function formatDateTime(dateTime) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+            const targetDate = new Date(dateTime.getFullYear(), dateTime.getMonth(), dateTime.getDate());
+            
+            const timeStr = dateTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            
+            if (targetDate.getTime() === today.getTime()) {
+                return `今天 ${timeStr}`;
+            } else if (targetDate.getTime() === tomorrow.getTime()) {
+                return `明天 ${timeStr}`;
+            } else {
+                return dateTime.toLocaleString('zh-CN', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+        }
+        
+        // ================ 日程提醒系统结束 ================
         
         // 清除全局对话历史（可选功能）
         function clearGlobalConversationHistory() {
