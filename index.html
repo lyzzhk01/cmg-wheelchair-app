@@ -14309,50 +14309,80 @@
             const now = new Date();
             const lowerMessage = message.toLowerCase();
             
-            // 匹配具体时间格式
-            const timePatterns = [
-                // 今天/明天 + 时间
-                /(?:今天|今日)\s*(\d{1,2})[::：点](\d{0,2})/,
-                /(?:明天|明日)\s*(\d{1,2})[::：点](\d{0,2})/,
-                // 直接时间
-                /(\d{1,2})[::：点](\d{0,2})/,
-                // 几分钟后
-                /(\d+)\s*分钟后/,
-                // 几小时后
-                /(\d+)\s*小时后/,
-                // 相对时间
-                /(\d+)\s*(?:分钟|小时)后/
-            ];
+            console.log('🕐 解析时间信息:', message);
+            console.log('🕐 当前时间:', now.toLocaleString('zh-CN'));
             
-            // 检查今天时间
-            let match = lowerMessage.match(/(?:今天|今日)\s*(\d{1,2})[::：点](\d{0,2})/);
+            // 检查今天 + 时间段 + 具体时间
+            let match = lowerMessage.match(/(?:今天|今日)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
-                const hour = parseInt(match[1]);
-                const minute = parseInt(match[2] || '0');
+                const timePeriod = match[1]; // 时间段：早上、下午、晚上等
+                let hour = parseInt(match[2]);
+                const minute = parseInt(match[3] || '0');
+                
+                // 根据时间段调整小时
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
                 const dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                console.log('🕐 解析今天时间:', formatDateTime(dateTime), '(原始小时:', match[2], ', 调整后:', hour, ')');
+                
+                // 如果时间已过，不自动改到明天，而是返回null让用户重新确认
                 if (dateTime > now) {
                     return dateTime;
+                } else {
+                    console.log('⚠️ 指定时间已过:', formatDateTime(dateTime));
+                    return null;
                 }
             }
             
             // 检查明天时间
-            match = lowerMessage.match(/(?:明天|明日)\s*(\d{1,2})[::：点](\d{0,2})/);
+            match = lowerMessage.match(/(?:明天|明日)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
-                const hour = parseInt(match[1]);
-                const minute = parseInt(match[2] || '0');
+                const timePeriod = match[1];
+                let hour = parseInt(match[2]);
+                const minute = parseInt(match[3] || '0');
+                
+                // 根据时间段调整小时
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
                 const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-                return new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour, minute);
+                const dateTime = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour, minute);
+                console.log('🕐 解析明天时间:', formatDateTime(dateTime));
+                return dateTime;
             }
             
-            // 检查直接时间（假设是今天，如果已过则是明天）
+            // 检查早上/下午/晚上 + 时间（无日期，默认今天或明天）
+            match = lowerMessage.match(/(早上|上午|中午|下午|晚上|夜里|夜间)\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const timePeriod = match[1];
+                let hour = parseInt(match[2]);
+                const minute = parseInt(match[3] || '0');
+                
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
+                let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                
+                // 如果时间已过，设置为明天
+                if (dateTime <= now) {
+                    dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+                }
+                
+                console.log('🕐 解析时间段:', timePeriod, hour + ':' + minute, '→', formatDateTime(dateTime));
+                return dateTime;
+            }
+            
+            // 检查直接时间（无时间段限定）
             match = lowerMessage.match(/(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
                 const hour = parseInt(match[1]);
                 const minute = parseInt(match[2] || '0');
                 let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                
+                // 如果时间已过，设置为明天
                 if (dateTime <= now) {
                     dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
                 }
+                
+                console.log('🕐 解析直接时间:', hour + ':' + minute, '→', formatDateTime(dateTime));
                 return dateTime;
             }
             
@@ -14360,23 +14390,75 @@
             match = lowerMessage.match(/(\d+)\s*分钟后/);
             if (match) {
                 const minutes = parseInt(match[1]);
-                return new Date(now.getTime() + minutes * 60 * 1000);
+                const dateTime = new Date(now.getTime() + minutes * 60 * 1000);
+                console.log('🕐 解析相对时间(分钟):', minutes, '分钟后 →', formatDateTime(dateTime));
+                return dateTime;
             }
             
             match = lowerMessage.match(/(\d+)\s*小时后/);
             if (match) {
                 const hours = parseInt(match[1]);
-                return new Date(now.getTime() + hours * 60 * 60 * 1000);
+                const dateTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+                console.log('🕐 解析相对时间(小时):', hours, '小时后 →', formatDateTime(dateTime));
+                return dateTime;
             }
             
+            console.log('⚠️ 未能解析出时间信息');
             return null;
+        }
+        
+        // 根据时间段调整小时数
+        function adjustHourByTimePeriod(hour, timePeriod) {
+            if (!timePeriod) return hour;
+            
+            switch (timePeriod) {
+                case '早上':
+                case '上午':
+                    // 早上和上午：6-11点，如果用户说早上9点，就是9点
+                    if (hour >= 1 && hour <= 11) {
+                        return hour;
+                    }
+                    break;
+                    
+                case '中午':
+                    // 中午：12-13点
+                    if (hour >= 11 && hour <= 13) {
+                        return hour;
+                    } else if (hour >= 1 && hour <= 2) {
+                        return hour + 12; // 1点→13点
+                    }
+                    break;
+                    
+                case '下午':
+                    // 下午：14-17点
+                    if (hour >= 14 && hour <= 17) {
+                        return hour;
+                    } else if (hour >= 1 && hour <= 5) {
+                        return hour + 12; // 1点→13点, 2点→14点
+                    }
+                    break;
+                    
+                case '晚上':
+                case '夜里':
+                case '夜间':
+                    // 晚上：18-23点
+                    if (hour >= 18 && hour <= 23) {
+                        return hour;
+                    } else if (hour >= 6 && hour <= 11) {
+                        return hour + 12; // 6点→18点, 9点→21点
+                    }
+                    break;
+            }
+            
+            return hour; // 如果无法调整，返回原值
         }
         
         // 从消息中提取提醒内容
         function extractContentFromMessage(message) {
             // 移除时间相关的部分，提取提醒内容
             let content = message
-                .replace(/(?:今天|今日|明天|明日)\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                .replace(/(?:今天|今日|明天|明日)\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                .replace(/(?:早上|上午|中午|下午|晚上|夜里|夜间)\s*\d{1,2}[::：点]\d{0,2}/g, '')
                 .replace(/\d{1,2}[::：点]\d{0,2}/g, '')
                 .replace(/\d+\s*(?:分钟|小时)后/g, '')
                 .replace(/(?:提醒我?|设置提醒|定时|记得)/g, '')
