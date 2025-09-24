@@ -15407,12 +15407,14 @@
             
             if (weekViewBtn) {
                 weekViewBtn.addEventListener('click', function() {
+                    console.log('🗓️ 用户点击周视图按钮');
                     switchCalendarView('week');
                 });
             }
             
             if (monthViewBtn) {
                 monthViewBtn.addEventListener('click', function() {
+                    console.log('📅 用户点击月视图按钮');
                     switchCalendarView('month');
                 });
             }
@@ -15486,7 +15488,7 @@
             [dayBtn, weekBtn, monthBtn].forEach(btn => {
                 if (btn) {
                     btn.classList.remove('bg-purple-500', 'text-white');
-                    btn.classList.add('text-gray-600');
+                    btn.classList.add('text-gray-600', 'hover:bg-gray-50');
                 }
             });
             
@@ -15494,7 +15496,10 @@
             const activeBtn = document.getElementById(`${viewType}-view-btn`);
             if (activeBtn) {
                 activeBtn.classList.add('bg-purple-500', 'text-white');
-                activeBtn.classList.remove('text-gray-600');
+                activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-50');
+                console.log('✅ 已激活按钮:', `${viewType}-view-btn`);
+            } else {
+                console.error('❌ 找不到激活按钮:', `${viewType}-view-btn`);
             }
             
             // 显示对应视图
