@@ -763,6 +763,10 @@
                         <i class="fas fa-lock mb-1 text-base"></i>
                         <span>锁车</span>
                     </button>
+                    <button id="discovery-entrance-btn" class="shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 py-3 rounded-lg font-medium flex flex-col items-center justify-center shadow-sm text-sm min-w-[104px]">
+                        <i class="fas fa-compass mb-1 text-base"></i>
+                        <span>发现</span>
+                    </button>
                 </div>
             </div>
             
@@ -1578,7 +1582,7 @@
         </div>
 
                 <!-- 发现广场页面 -->
-        <div id="voice" class="hidden bg-gradient-to-b from-purple-50 to-blue-50 min-h-screen p-4 pb-20">
+        <div id="discovery" class="hidden bg-gradient-to-b from-purple-50 to-blue-50 min-h-screen p-4 pb-20">
             <!-- 页面标题 -->
             <div class="text-center mb-6 mt-4">
                 <h1 class="text-2xl font-bold text-gray-800">发现广场</h1>
@@ -1664,6 +1668,15 @@
             
             <!-- 功能入口网格 -->
             <div class="grid grid-cols-2 gap-4">
+                <!-- 日程管理 -->
+                <div id="schedule-management-btn" class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-calendar-alt text-white text-xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 text-sm mb-1">日程管理</h4>
+                    <p class="text-xs text-gray-500">智能提醒</p>
+                </div>
+                
                 <!-- 电台播放 -->
                 <div class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
                     <div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-red-400 to-pink-500 rounded-xl flex items-center justify-center">
@@ -1683,7 +1696,7 @@
                 </div>
                 
                 <!-- 路线导航 -->
-                <div class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer" id="route-navigation-btn">
+                <div class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-shadow cursor-pointer" id="discovery-route-navigation-btn">
                     <div class="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center">
                         <i class="fas fa-route text-white text-xl"></i>
                     </div>
@@ -9030,7 +9043,8 @@
                 'real-time-mapping', 'set-charging-station', 
                 'set-waypoints', 'set-parking-spots', 'set-safety-zones', 'set-restricted-zones', 
                 'mapping-complete', 'app-update', 'firmware-update',
-                'outdoor-navigation-destination', 'outdoor-navigation-confirm', 'outdoor-navigation-route', 'outdoor-navigation-arrived'
+                'outdoor-navigation-destination', 'outdoor-navigation-confirm', 'outdoor-navigation-route', 'outdoor-navigation-arrived',
+                'discovery', 'schedule-management'
             ];
             
             pages.forEach(page => {
@@ -9049,7 +9063,9 @@
                     'outdoor-navigation-destination', 
                     'outdoor-navigation-confirm', 
                     'outdoor-navigation-route', 
-                    'outdoor-navigation-arrived'
+                    'outdoor-navigation-arrived',
+                    'discovery',
+                    'schedule-management'
                 ];
                 
                 if (hideNavPages.includes(pageId)) {
@@ -15234,6 +15250,387 @@
             };
         }
         
+        // ================ Discovery和日程管理页面 ================
+        
+        // 初始化Discovery和日程管理功能
+        function initDiscoveryAndSchedule() {
+            // Discovery入口按钮
+            const discoveryEntranceBtn = document.getElementById('discovery-entrance-btn');
+            if (discoveryEntranceBtn) {
+                discoveryEntranceBtn.addEventListener('click', function() {
+                    showPage('discovery');
+                });
+            }
+            
+            // 日程管理按钮
+            const scheduleManagementBtn = document.getElementById('schedule-management-btn');
+            if (scheduleManagementBtn) {
+                scheduleManagementBtn.addEventListener('click', function() {
+                    showPage('schedule-management');
+                    initScheduleManagementPage();
+                });
+            }
+            
+            // 日程管理页面内的按钮
+            initScheduleManagementButtons();
+            
+            console.log('🧭 Discovery和日程管理功能已初始化');
+        }
+        
+        // 初始化日程管理页面按钮
+        function initScheduleManagementButtons() {
+            // 返回按钮
+            const scheduleBackBtn = document.getElementById('schedule-back-btn');
+            if (scheduleBackBtn) {
+                scheduleBackBtn.addEventListener('click', function() {
+                    showPage('discovery');
+                });
+            }
+            
+            // 添加日程按钮
+            const addScheduleBtn = document.getElementById('add-schedule-btn');
+            if (addScheduleBtn) {
+                addScheduleBtn.addEventListener('click', function() {
+                    // 跳转到全屏对话窗，提示用户输入
+                    showFullscreenChat();
+                    addMessageToGlobalConversation('您可以通过语音或文字告诉我要设置的提醒，例如："提醒我明天9点开会"', 'assistant');
+                });
+            }
+            
+            // 视图切换按钮
+            const dayViewBtn = document.getElementById('day-view-btn');
+            const weekViewBtn = document.getElementById('week-view-btn');
+            const monthViewBtn = document.getElementById('month-view-btn');
+            
+            if (dayViewBtn) {
+                dayViewBtn.addEventListener('click', function() {
+                    switchCalendarView('day');
+                });
+            }
+            
+            if (weekViewBtn) {
+                weekViewBtn.addEventListener('click', function() {
+                    switchCalendarView('week');
+                });
+            }
+            
+            if (monthViewBtn) {
+                monthViewBtn.addEventListener('click', function() {
+                    switchCalendarView('month');
+                });
+            }
+            
+            // 上一个/下一个时间段按钮
+            const prevPeriodBtn = document.getElementById('prev-period-btn');
+            const nextPeriodBtn = document.getElementById('next-period-btn');
+            
+            if (prevPeriodBtn) {
+                prevPeriodBtn.addEventListener('click', function() {
+                    navigatePeriod(-1);
+                });
+            }
+            
+            if (nextPeriodBtn) {
+                nextPeriodBtn.addEventListener('click', function() {
+                    navigatePeriod(1);
+                });
+            }
+        }
+        
+        // 当前日程管理状态
+        let currentCalendarView = 'day';
+        let currentCalendarDate = new Date();
+        
+        // 初始化日程管理页面
+        function initScheduleManagementPage() {
+            console.log('📅 初始化日程管理页面');
+            currentCalendarDate = new Date(); // 重置为当前日期
+            currentCalendarView = 'day'; // 默认日视图
+            
+            // 更新视图
+            switchCalendarView('day');
+        }
+        
+        // 切换日历视图
+        function switchCalendarView(viewType) {
+            console.log('📅 切换到视图:', viewType);
+            currentCalendarView = viewType;
+            
+            // 更新按钮状态
+            const dayBtn = document.getElementById('day-view-btn');
+            const weekBtn = document.getElementById('week-view-btn');
+            const monthBtn = document.getElementById('month-view-btn');
+            
+            // 重置所有按钮
+            [dayBtn, weekBtn, monthBtn].forEach(btn => {
+                if (btn) {
+                    btn.classList.remove('bg-purple-500', 'text-white');
+                    btn.classList.add('text-gray-600');
+                }
+            });
+            
+            // 激活当前按钮
+            const activeBtn = document.getElementById(`${viewType}-view-btn`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-purple-500', 'text-white');
+                activeBtn.classList.remove('text-gray-600');
+            }
+            
+            // 显示对应视图
+            document.getElementById('day-view-content').classList.toggle('hidden', viewType !== 'day');
+            document.getElementById('week-view-content').classList.toggle('hidden', viewType !== 'week');
+            document.getElementById('month-view-content').classList.toggle('hidden', viewType !== 'month');
+            
+            // 更新日期标题
+            updateCalendarTitle();
+            
+            // 渲染对应视图内容
+            switch (viewType) {
+                case 'day':
+                    renderDayView();
+                    break;
+                case 'week':
+                    renderWeekView();
+                    break;
+                case 'month':
+                    renderMonthView();
+                    break;
+            }
+        }
+        
+        // 更新日历标题
+        function updateCalendarTitle() {
+            const titleEl = document.getElementById('current-period-title');
+            const subtitleEl = document.getElementById('current-period-subtitle');
+            
+            if (!titleEl || !subtitleEl) return;
+            
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const targetDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), currentCalendarDate.getDate());
+            
+            switch (currentCalendarView) {
+                case 'day':
+                    titleEl.textContent = currentCalendarDate.toLocaleDateString('zh-CN', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    
+                    if (targetDate.getTime() === today.getTime()) {
+                        subtitleEl.textContent = '今天';
+                    } else if (targetDate.getTime() === today.getTime() + 24 * 60 * 60 * 1000) {
+                        subtitleEl.textContent = '明天';
+                    } else if (targetDate.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
+                        subtitleEl.textContent = '昨天';
+                    } else {
+                        subtitleEl.textContent = currentCalendarDate.toLocaleDateString('zh-CN', { weekday: 'long' });
+                    }
+                    break;
+                    
+                case 'week':
+                    const weekStart = getStartOfWeek(currentCalendarDate);
+                    const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+                    titleEl.textContent = `${weekStart.getMonth() + 1}月${weekStart.getDate()}日 - ${weekEnd.getMonth() + 1}月${weekEnd.getDate()}日`;
+                    subtitleEl.textContent = '本周';
+                    break;
+                    
+                case 'month':
+                    titleEl.textContent = currentCalendarDate.toLocaleDateString('zh-CN', { 
+                        year: 'numeric', 
+                        month: 'long' 
+                    });
+                    subtitleEl.textContent = '月视图';
+                    break;
+            }
+        }
+        
+        // 导航到上一个/下一个时间段
+        function navigatePeriod(direction) {
+            switch (currentCalendarView) {
+                case 'day':
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() + direction);
+                    break;
+                case 'week':
+                    currentCalendarDate.setDate(currentCalendarDate.getDate() + direction * 7);
+                    break;
+                case 'month':
+                    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+                    break;
+            }
+            
+            // 重新渲染当前视图
+            switchCalendarView(currentCalendarView);
+        }
+        
+        // 渲染日视图
+        function renderDayView() {
+            const scheduleList = document.getElementById('day-schedule-list');
+            const emptyState = document.getElementById('day-empty-state');
+            
+            if (!scheduleList || !emptyState) return;
+            
+            // 获取当天的日程
+            const daySchedules = reminderData.filter(reminder => {
+                if (reminder.status === 'completed') return false;
+                return isSameDay(new Date(reminder.dateTime), currentCalendarDate);
+            }).sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+            
+            if (daySchedules.length === 0) {
+                scheduleList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            scheduleList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            // 渲染日程列表
+            scheduleList.innerHTML = daySchedules.map(schedule => {
+                const icon = getIconForReminderContent(schedule.content);
+                const timeStr = new Date(schedule.dateTime).toLocaleTimeString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                const userFriendlyStatus = getUserFriendlyStatus(schedule);
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer" 
+                         onclick="showScheduleDetail('${schedule.id}')">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                                <span class="text-2xl">${icon}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800">${schedule.content}</h3>
+                                <p class="text-sm text-gray-600">${timeStr}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 ${userFriendlyStatus.color} rounded-full"></div>
+                                    <span class="text-xs font-medium ${userFriendlyStatus.color.replace('bg-', 'text-')}">${userFriendlyStatus.text}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 渲染周视图
+        function renderWeekView() {
+            const weekGrid = document.getElementById('week-calendar-grid');
+            if (!weekGrid) return;
+            
+            const weekStart = getStartOfWeek(currentCalendarDate);
+            let html = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
+                const daySchedules = reminderData.filter(reminder => {
+                    if (reminder.status === 'completed') return false;
+                    return isSameDay(new Date(reminder.dateTime), date);
+                });
+                
+                const isToday = isSameDay(date, new Date());
+                const dateClass = isToday ? 'bg-purple-50 border-purple-200' : 'bg-white';
+                
+                html += `
+                    <div class="p-2 border-r border-b border-gray-100 ${dateClass} min-h-[80px] cursor-pointer hover:bg-gray-50"
+                         onclick="selectDate('${date.toISOString()}')">
+                        <div class="text-center mb-2">
+                            <span class="text-sm font-medium ${isToday ? 'text-purple-600' : 'text-gray-700'}">${date.getDate()}</span>
+                        </div>
+                        <div class="space-y-1">
+                            ${daySchedules.slice(0, 2).map(schedule => `
+                                <div class="bg-blue-100 text-blue-800 text-xs p-1 rounded truncate">
+                                    ${schedule.content}
+                                </div>
+                            `).join('')}
+                            ${daySchedules.length > 2 ? `<div class="text-xs text-gray-500">+${daySchedules.length - 2}个</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            weekGrid.innerHTML = html;
+        }
+        
+        // 渲染月视图
+        function renderMonthView() {
+            const monthGrid = document.getElementById('month-calendar-grid');
+            if (!monthGrid) return;
+            
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            let html = '';
+            const today = new Date();
+            
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+                const isCurrentMonth = date.getMonth() === month;
+                const isToday = isSameDay(date, today);
+                
+                const daySchedules = reminderData.filter(reminder => {
+                    if (reminder.status === 'completed') return false;
+                    return isSameDay(new Date(reminder.dateTime), date);
+                });
+                
+                const dateClass = isToday ? 'bg-purple-500 text-white' : 
+                                 isCurrentMonth ? 'text-gray-900' : 'text-gray-400';
+                const cellClass = isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50';
+                
+                html += `
+                    <div class="p-2 ${cellClass} min-h-[60px] cursor-pointer transition-colors border-gray-100"
+                         onclick="selectDate('${date.toISOString()}')">
+                        <div class="text-center mb-1">
+                            <span class="text-sm font-medium ${dateClass} ${isToday ? 'w-6 h-6 rounded-full flex items-center justify-center mx-auto' : ''}">${date.getDate()}</span>
+                        </div>
+                        <div class="space-y-1">
+                            ${daySchedules.slice(0, 1).map(schedule => `
+                                <div class="bg-blue-100 text-blue-800 text-xs p-1 rounded truncate">
+                                    ${getIconForReminderContent(schedule.content)}
+                                </div>
+                            `).join('')}
+                            ${daySchedules.length > 1 ? `<div class="w-2 h-2 bg-red-500 rounded-full mx-auto"></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            monthGrid.innerHTML = html;
+        }
+        
+        // 选择日期
+        function selectDate(dateString) {
+            const selectedDate = new Date(dateString);
+            currentCalendarDate = selectedDate;
+            
+            // 切换到日视图显示选中日期的详情
+            switchCalendarView('day');
+        }
+        
+        // 显示日程详情（预留功能）
+        function showScheduleDetail(scheduleId) {
+            const schedule = reminderData.find(r => r.id === scheduleId);
+            if (schedule) {
+                console.log('📋 显示日程详情:', schedule);
+                // 这里可以实现日程详情弹窗
+                if (typeof appAlert === 'function') {
+                    appAlert(`${schedule.content}\n时间：${formatDateTime(schedule.dateTime)}\n状态：${getUserFriendlyStatus(schedule).text}`, '日程详情');
+                } else {
+                    alert(`${schedule.content}\n时间：${formatDateTime(schedule.dateTime)}\n状态：${getUserFriendlyStatus(schedule).text}`);
+                }
+            }
+        }
+        
+        // ================ Discovery和日程管理页面结束 ================
+        
         // ================ 日程提醒系统结束 ================
         
         // 清除全局对话历史（可选功能）
@@ -15283,6 +15680,10 @@
                 
                 console.log('🎤 长按中央黄色按钮开始语音对话体验');
                 console.log('📋 提醒功能测试：在全屏对话窗输入"提醒我3分钟后喝水"');
+                console.log('📅 日程管理：点击首页"发现"按钮进入功能广场');
+                
+                // 初始化discovery和日程管理功能
+                initDiscoveryAndSchedule();
                 
                 // 添加测试功能，双击黄色按钮可以手动触发对话窗测试
                 const globalVoiceBtn = document.getElementById('global-voice-btn');
