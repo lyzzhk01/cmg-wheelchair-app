@@ -14488,55 +14488,45 @@
             console.log('🕐 解析时间信息:', message);
             console.log('🕐 当前时间:', now.toLocaleString('zh-CN'));
             
-            // 检查具体日期（如：10.25号早上7点、10月25日下午3点）
-            let match = lowerMessage.match(/(\d{1,2})\.(\d{1,2})号?\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/);
+            // 检查具体日期+时间的完整表达 (优先级最高)
+            let match = lowerMessage.match(/(\d{1,2})\.(\d{1,2})号?.*?(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
-                console.log('🔍 找到日期匹配:', match[0]);
+                console.log('🔍 找到具体日期匹配:', match[0]);
                 
                 const month = parseInt(match[1]);
                 const day = parseInt(match[2]);
+                const timePeriod = match[3];
+                let hour = parseInt(match[4]);
+                const minute = parseInt(match[5] || '0');
                 
-                // 提取时间段和具体时间
-                const timeMatch = match[0].match(/(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
-                if (timeMatch) {
-                    const timePeriod = timeMatch[1];
-                    let hour = parseInt(timeMatch[2]);
-                    const minute = parseInt(timeMatch[3] || '0');
-                    
-                    // 根据时间段调整小时
-                    hour = adjustHourByTimePeriod(hour, timePeriod);
-                    
-                    // 构建日期，假设是今年的日期
-                    const targetDate = new Date(now.getFullYear(), month - 1, day, hour, minute);
-                    
-                    console.log('📅 解析具体日期:', match[0], '→', formatDateTime(targetDate), 
-                               `(月:${month}, 日:${day}, 时间段:${timePeriod}, 原始小时:${timeMatch[2]}, 调整后:${hour})`);
-                    return targetDate;
-                }
+                // 根据时间段调整小时
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
+                // 构建日期，假设是今年的日期
+                const targetDate = new Date(now.getFullYear(), month - 1, day, hour, minute);
+                
+                console.log('📅 解析具体日期:', match[0], '→', formatDateTime(targetDate), 
+                           `(月:${month}, 日:${day}, 时间段:${timePeriod}, 原始小时:${match[4]}, 调整后:${hour})`);
+                return targetDate;
             }
             
-            // 检查月日表达（如：10月25日早上7点）
-            match = lowerMessage.match(/(\d{1,2})月(\d{1,2})日?\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/);
+            // 检查月日表达+时间的完整表达
+            match = lowerMessage.match(/(\d{1,2})月(\d{1,2})日?.*?(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
                 console.log('🔍 找到月日匹配:', match[0]);
                 
                 const month = parseInt(match[1]);
                 const day = parseInt(match[2]);
+                const timePeriod = match[3];
+                let hour = parseInt(match[4]);
+                const minute = parseInt(match[5] || '0');
                 
-                // 提取时间段和具体时间
-                const timeMatch = match[0].match(/(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
-                if (timeMatch) {
-                    const timePeriod = timeMatch[1];
-                    let hour = parseInt(timeMatch[2]);
-                    const minute = parseInt(timeMatch[3] || '0');
-                    
-                    hour = adjustHourByTimePeriod(hour, timePeriod);
-                    
-                    const targetDate = new New(now.getFullYear(), month - 1, day, hour, minute);
-                    
-                    console.log('📅 解析月日表达:', match[0], '→', formatDateTime(targetDate));
-                    return targetDate;
-                }
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
+                const targetDate = new Date(now.getFullYear(), month - 1, day, hour, minute);
+                
+                console.log('📅 解析月日表达:', match[0], '→', formatDateTime(targetDate));
+                return targetDate;
             }
             
             // 检查月日表达（如：10月25日）
