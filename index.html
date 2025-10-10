@@ -14648,39 +14648,47 @@
             }
             
             // 检查早上/下午/晚上 + 时间（无日期，默认今天或明天）
-            match = lowerMessage.match(/(早上|上午|中午|下午|晚上|夜里|夜间)\s*(\d{1,2})[::：点](\d{0,2})/);
-            if (match) {
-                const timePeriod = match[1];
-                let hour = parseInt(match[2]);
-                const minute = parseInt(match[3] || '0');
-                
-                hour = adjustHourByTimePeriod(hour, timePeriod);
-                
-                let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-                
-                // 如果时间已过，设置为明天
-                if (dateTime <= now) {
-                    dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+            // 但要排除已经包含重复规则的情况
+            if (!lowerMessage.includes('每月') && !lowerMessage.includes('每周')) {
+                match = lowerMessage.match(/(早上|上午|中午|下午|晚上|夜里|夜间)\s*(\d{1,2})[::：点](\d{0,2})/);
+                if (match) {
+                    const timePeriod = match[1];
+                    let hour = parseInt(match[2]);
+                    const minute = parseInt(match[3] || '0');
+                    
+                    hour = adjustHourByTimePeriod(hour, timePeriod);
+                    
+                    let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                    
+                    // 如果时间已过，设置为明天
+                    if (dateTime <= now) {
+                        dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+                    }
+                    
+                    console.log('🕐 解析时间段:', timePeriod, hour + ':' + minute, '→', formatDateTime(dateTime));
+                    return dateTime;
                 }
-                
-                console.log('🕐 解析时间段:', timePeriod, hour + ':' + minute, '→', formatDateTime(dateTime));
-                return dateTime;
             }
             
             // 检查直接时间（无时间段限定）
-            match = lowerMessage.match(/(\d{1,2})[::：点](\d{0,2})/);
-            if (match) {
-                const hour = parseInt(match[1]);
-                const minute = parseInt(match[2] || '0');
-                let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-                
-                // 如果时间已过，设置为明天
-                if (dateTime <= now) {
-                    dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+            // 也要排除已经包含重复规则的情况
+            if (!lowerMessage.includes('每月') && !lowerMessage.includes('每周')) {
+                match = lowerMessage.match(/(\d{1,2})[::：点](\d{0,2})/);
+                if (match) {
+                    const hour = parseInt(match[1]);
+                    const minute = parseInt(match[2] || '0');
+                    let dateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                    
+                    // 如果时间已过，设置为明天
+                    if (dateTime <= now) {
+                        dateTime = new Date(dateTime.getTime() + 24 * 60 * 60 * 1000);
+                    }
+                    
+                    console.log('🕐 解析直接时间:', hour + ':' + minute, '→', formatDateTime(dateTime));
+                    return dateTime;
                 }
-                
-                console.log('🕐 解析直接时间:', hour + ':' + minute, '→', formatDateTime(dateTime));
-                return dateTime;
+            } else {
+                console.log('⚠️ 检测到重复规则，跳过直接时间解析，避免冲突');
             }
             
             // 检查相对时间
