@@ -15120,19 +15120,37 @@
                     
                     // 检测每月X号 + 新时间
                     const monthDayMatch = originalMsg.match(/每月(\d{1,2})号?/);
-                    const timeMatch = message.toLowerCase().match(/(\d{1,2})[::：点](\d{0,2})|(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+                    const timeMatch = message.toLowerCase().match(/(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+                    
+                    console.log('🔍 智能合成检测:', {
+                        原始消息: originalMsg,
+                        新消息: message.toLowerCase(),
+                        每月匹配: monthDayMatch,
+                        时间匹配: timeMatch
+                    });
                     
                     if (monthDayMatch && timeMatch) {
                         const dayOfMonth = parseInt(monthDayMatch[1]);
-                        const timePeriod = timeMatch[3]; // 可能为空
-                        let hour = parseInt(timeMatch[2] || timeMatch[4]);
-                        const minute = parseInt(timeMatch[3] || timeMatch[5] || '0');
+                        const timePeriod = timeMatch[1]; // 时间段
+                        let hour = parseInt(timeMatch[2]); // 小时
+                        const minute = parseInt(timeMatch[3] || '0'); // 分钟
+                        
+                        console.log('🕐 解析参数:', {
+                            dayOfMonth,
+                            timePeriod, 
+                            原始小时: timeMatch[2],
+                            hour,
+                            minute
+                        });
                         
                         // 根据时间段调整小时
                         hour = adjustHourByTimePeriod(hour, timePeriod);
+                        console.log('🕐 时间段调整后小时:', hour);
                         
                         newTimeInfo = getNextMonthDay(dayOfMonth, hour, minute);
                         console.log('🎯 智能合成时间 - 每月', dayOfMonth, '号', hour + ':' + minute, '→', formatDateTime(newTimeInfo));
+                    } else {
+                        console.log('❌ 智能合成失败，匹配结果不完整');
                     }
                     
                     // 检测每周X + 新时间  
