@@ -13891,11 +13891,11 @@
                 // 检查是否是特殊卡片消息
                 if (message.isCard && message.html) {
                     return `
-                        <div class="flex items-start mb-3">
+                        <div class="flex items-start mb-3 w-full">
                             <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-1">
                                 <i class="fas fa-robot text-white text-xs"></i>
                             </div>
-                            <div class="max-w-[85%]">
+                            <div class="flex-1 w-full min-w-0">
                                 ${message.html}
                             </div>
                         </div>
@@ -15173,7 +15173,7 @@
             const cardMessage = {
                 id: `reminder_success_${Date.now()}`,
                 html: `
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
+                    <div class="w-full bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
                         <div class="flex items-start space-x-3">
                             <!-- 左侧图标 -->
                             <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -15181,7 +15181,7 @@
                             </div>
                             
                             <!-- 中间内容区域 -->
-                            <div class="flex-1 space-y-2">
+                            <div class="flex-1 space-y-2 min-w-0">
                                 <!-- 第一行：标题 -->
                                 <h4 class="font-bold text-gray-800 text-lg leading-tight">${reminderCard.title}</h4>
                                 
