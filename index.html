@@ -15108,26 +15108,55 @@
         function createReminderSuccessCard(reminderCard) {
             console.log('🎨 创建提醒成功卡片:', reminderCard);
             
+            // 获取重复规则信息（如果有的话）
+            const repeatRule = getRepeatRule(reminderCard);
+            
+            // 获取状态信息
+            const schedule = reminderData.find(r => r.id === reminderCard.id);
+            const statusInfo = schedule ? getUserFriendlyStatus(schedule) : {
+                text: '待开始',
+                color: 'bg-blue-500',
+                icon: 'fa-clock'
+            };
+            
             const cardMessage = {
                 id: `reminder_success_${Date.now()}`,
                 html: `
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-sm">
                         <div class="flex items-start space-x-3">
+                            <!-- 左侧图标 -->
                             <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
                                 <span class="text-2xl">${reminderCard.icon}</span>
                             </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-800 mb-2">${reminderCard.title}</h4>
-                                <div class="space-y-1">
-                                    <p class="text-sm font-medium text-green-600">${reminderCard.time}</p>
-                                    <p class="text-xs text-gray-600">${reminderCard.description}</p>
-                                    <div class="flex items-center space-x-2 mt-2">
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        <span class="text-xs font-medium text-blue-700">待开始</span>
-                                        <i class="fas fa-clock text-xs text-blue-700"></i>
+                            
+                            <!-- 中间内容区域 -->
+                            <div class="flex-1 space-y-2">
+                                <!-- 第一行：标题 -->
+                                <h4 class="font-bold text-gray-800 text-lg leading-tight">${reminderCard.title}</h4>
+                                
+                                <!-- 第二行：提醒时间 -->
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-blue-500 text-sm"></i>
+                                    <span class="text-sm font-medium text-gray-700">${reminderCard.time}</span>
+                                </div>
+                                
+                                <!-- 第三行：重复规则（可选） -->
+                                ${repeatRule ? `
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-repeat text-purple-500 text-sm"></i>
+                                        <span class="text-sm text-purple-600">${repeatRule}</span>
                                     </div>
+                                ` : ''}
+                                
+                                <!-- 第四行：日程状态 -->
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 ${statusInfo.color} rounded-full"></div>
+                                    <span class="text-xs font-medium ${statusInfo.color.replace('bg-', 'text-')}">${statusInfo.text}</span>
+                                    <i class="fas ${statusInfo.icon} text-xs ${statusInfo.color.replace('bg-', 'text-')}"></i>
                                 </div>
                             </div>
+                            
+                            <!-- 右侧成功标记 -->
                             <div class="flex-shrink-0">
                                 <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                                     <i class="fas fa-check text-white text-xs"></i>
@@ -15142,6 +15171,35 @@
             };
             
             addSpecialMessageToGlobalConversation(cardMessage);
+        }
+        
+        // 获取重复规则信息（未来可扩展）
+        function getRepeatRule(reminderCard) {
+            // 现在先返回null，未来可以在日程创建时检测重复规则
+            // 例如："每天提醒我吃药"、"每周五开会"等
+            const content = reminderCard.title?.toLowerCase() || '';
+            
+            if (content.includes('每天')) {
+                return '🔁每天';
+            } else if (content.includes('每周')) {
+                return '🔁每周';
+            } else if (content.includes('每月')) {
+                return '🔁每月';
+            } else if (content.includes('工作日')) {
+                return '🔁工作日';
+            } else if (content.includes('周一') || content.includes('周二') || content.includes('周三') || 
+                      content.includes('周四') || content.includes('周五') || content.includes('周六') || content.includes('周日')) {
+                return '🔁每周';
+            }
+            
+            // 检查是否是常见的重复性任务
+            if (content.includes('吃药') || content.includes('用药') || content.includes('服药')) {
+                return '🔁每天'; // 药物通常是每天的
+            } else if (content.includes('开会') && content.includes('团队')) {
+                return '🔁每周'; // 团队会议通常是每周的
+            }
+            
+            return null; // 无重复规则
         }
         
         // 添加测试提醒功能
