@@ -14488,8 +14488,44 @@
             console.log('🕐 解析时间信息:', message);
             console.log('🕐 当前时间:', now.toLocaleString('zh-CN'));
             
+            // 检查具体日期（如：10.25号、10月25日）
+            let match = lowerMessage.match(/(\d{1,2})\.(\d{1,2})号?\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const month = parseInt(match[1]);
+                const day = parseInt(match[2]);
+                const timePeriod = match[3];
+                let hour = parseInt(match[4]);
+                const minute = parseInt(match[5] || '0');
+                
+                // 根据时间段调整小时
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
+                // 构建日期，假设是今年的日期
+                const targetDate = new Date(now.getFullYear(), month - 1, day, hour, minute);
+                
+                console.log('📅 解析具体日期:', match[0], '→', formatDateTime(targetDate));
+                return targetDate;
+            }
+            
+            // 检查月日表达（如：10月25日）
+            match = lowerMessage.match(/(\d{1,2})月(\d{1,2})日?\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+            if (match) {
+                const month = parseInt(match[1]);
+                const day = parseInt(match[2]);
+                const timePeriod = match[3];
+                let hour = parseInt(match[4]);
+                const minute = parseInt(match[5] || '0');
+                
+                hour = adjustHourByTimePeriod(hour, timePeriod);
+                
+                const targetDate = new Date(now.getFullYear(), month - 1, day, hour, minute);
+                
+                console.log('📅 解析月日表达:', match[0], '→', formatDateTime(targetDate));
+                return targetDate;
+            }
+            
             // 检查"今晚"特殊表达
-            let match = lowerMessage.match(/今晚\s*(\d{1,2})[::：点](\d{0,2})/);
+            match = lowerMessage.match(/今晚\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
                 let hour = parseInt(match[1]);
                 const minute = parseInt(match[2] || '0');
@@ -14654,15 +14690,30 @@
         
         // 从消息中提取提醒内容
         function extractContentFromMessage(message) {
+            console.log('📝 原始消息:', message);
+            
             // 移除时间相关的部分，提取提醒内容
             let content = message
-                .replace(/今晚\s*\d{1,2}[::：点]\d{0,2}/g, '') // 特殊处理"今晚"
+                // 移除具体日期表达
+                .replace(/\d{1,2}\.\d{1,2}号?\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                .replace(/\d{1,2}月\d{1,2}日?\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                // 移除今晚表达
+                .replace(/今晚\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                // 移除今天明天表达
                 .replace(/(?:今天|今日|明天|明日)\s*(?:早上|上午|中午|下午|晚上|夜里|夜间)?\s*\d{1,2}[::：点]\d{0,2}/g, '')
+                // 移除单独的时间段表达
                 .replace(/(?:早上|上午|中午|下午|晚上|夜里|夜间)\s*\d{1,2}[::：点]\d{0,2}/g, '')
-                .replace(/\d{1,2}[::：点]\d{0,2}/g, '')
+                // 移除相对时间
                 .replace(/\d+\s*(?:分钟|小时)后/g, '')
-                .replace(/(?:提醒我?|设置提醒|定时|记得)/g, '')
+                // 移除时间相关词汇
+                .replace(/\d{1,2}[::：点]\d{0,2}/g, '')
+                // 移除提醒相关词汇
+                .replace(/(?:提醒我?|设置提醒|定时|记得|到时候)/g, '')
+                // 移除"我要"等无意义前缀
+                .replace(/^(?:我要|我想|我需要|帮我|给我)/g, '')
                 .trim();
+            
+            console.log('📝 提取的内容:', content);
             
             return content || null;
         }
