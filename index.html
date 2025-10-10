@@ -15224,33 +15224,56 @@
             addSpecialMessageToGlobalConversation(cardMessage);
         }
         
-        // 获取重复规则信息（未来可扩展）
+        // 获取重复规则信息（严格模式：只有明确表达重复意图才显示）
         function getRepeatRule(reminderCard) {
-            // 现在先返回null，未来可以在日程创建时检测重复规则
-            // 例如："每天提醒我吃药"、"每周五开会"等
-            const content = reminderCard.title?.toLowerCase() || '';
+            // 获取原始用户输入消息来检测重复意图
+            const originalMessage = getOriginalUserMessage(reminderCard.id);
+            const content = (originalMessage || reminderCard.title || '').toLowerCase();
             
+            console.log('🔁 检查重复规则，原始消息:', originalMessage);
+            
+            // 只有用户明确表达重复意图才显示重复规则
             if (content.includes('每天')) {
-                return '🔁每天';
+                return '每天';
             } else if (content.includes('每周')) {
-                return '🔁每周';
+                return '每周';
             } else if (content.includes('每月')) {
-                return '🔁每月';
+                return '每月';
             } else if (content.includes('工作日')) {
-                return '🔁工作日';
+                return '工作日';
             } else if (content.includes('周一') || content.includes('周二') || content.includes('周三') || 
                       content.includes('周四') || content.includes('周五') || content.includes('周六') || content.includes('周日')) {
-                return '🔁每周';
+                return '每周';
+            } else if (content.includes('每天都') || content.includes('天天')) {
+                return '每天';
+            } else if (content.includes('每周都') || content.includes('周周')) {
+                return '每周';
             }
             
-            // 检查是否是常见的重复性任务
-            if (content.includes('吃药') || content.includes('用药') || content.includes('服药')) {
-                return '🔁每天'; // 药物通常是每天的
-            } else if (content.includes('开会') && content.includes('团队')) {
-                return '🔁每周'; // 团队会议通常是每周的
+            // 没有明确重复表达的一次性任务，不显示重复规则
+            console.log('🚫 未检测到明确的重复意图，不显示重复规则');
+            return null;
+        }
+        
+        // 获取用户的原始消息（用于检测重复意图）
+        function getOriginalUserMessage(reminderId) {
+            // 从对话历史中找到创建这个提醒时的用户消息
+            const recentMessages = globalConversationData.slice(-10); // 检查最近10条消息
+            
+            for (let i = recentMessages.length - 1; i >= 0; i--) {
+                const msg = recentMessages[i];
+                if (msg.sender === 'user' && (
+                    msg.text?.includes('提醒') || 
+                    msg.text?.includes('定时') || 
+                    msg.text?.includes('记得') ||
+                    msg.text?.includes('每天') ||
+                    msg.text?.includes('每周')
+                )) {
+                    return msg.text;
+                }
             }
             
-            return null; // 无重复规则
+            return null;
         }
         
         // 添加测试提醒功能
