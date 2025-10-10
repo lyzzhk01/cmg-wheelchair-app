@@ -15094,6 +15094,7 @@
             if (!currentReminderDialog) return null;
             
             console.log('🔄 处理提醒缺槽反问:', message);
+            console.log('📋 当前部分提醒信息:', currentReminderDialog.partialReminder);
             
             const partialReminder = currentReminderDialog.partialReminder;
             const missingInfo = currentReminderDialog.missingInfo;
@@ -15103,9 +15104,21 @@
             let newContent = partialReminder.content;
             
             if (missingInfo.includes('时间')) {
-                const extractedTime = extractTimeFromMessage(message);
+                // 合并原始消息和新时间信息来重新解析
+                const combinedMessage = `${partialReminder.originalMessage} ${message}`;
+                console.log('🔗 合并消息重新解析:', combinedMessage);
+                
+                const extractedTime = extractTimeFromMessage(combinedMessage);
                 if (extractedTime) {
                     newTimeInfo = extractedTime;
+                    console.log('⏰ 从合并消息中提取到时间:', formatDateTime(extractedTime));
+                } else {
+                    // 如果合并消息解析失败，尝试单独解析新消息
+                    const simpleTime = extractTimeFromMessage(message);
+                    if (simpleTime) {
+                        newTimeInfo = simpleTime;
+                        console.log('⏰ 从单独消息中提取到时间:', formatDateTime(simpleTime));
+                    }
                 }
             }
             
@@ -15120,6 +15133,12 @@
             const stillMissing = [];
             if (!newTimeInfo) stillMissing.push('时间');
             if (!newContent) stillMissing.push('提醒内容');
+            
+            console.log('🔍 信息完整性检查:', {
+                newTimeInfo: newTimeInfo ? formatDateTime(newTimeInfo) : null,
+                newContent,
+                stillMissing
+            });
             
             if (stillMissing.length > 0) {
                 // 仍有缺失信息，继续反问
