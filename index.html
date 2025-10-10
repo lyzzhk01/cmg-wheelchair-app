@@ -14450,6 +14450,21 @@
                 // 信息完整，创建提醒
                 const reminder = createReminder(content, timeInfo);
                 if (reminder) {
+                    // 检查是否是间隔性提醒，调整时间显示
+                    const originalMessage = reminder.originalMessage || message;
+                    let displayTime = formatDateTime(reminder.dateTime);
+                    
+                    // 如果是间隔性提醒，使用特殊的时间显示格式
+                    const intervalMatch = originalMessage?.toLowerCase().match(/每(\d+)\s*(小时|分钟)/);
+                    const rangeMatch = originalMessage?.toLowerCase().match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                    
+                    if (intervalMatch && rangeMatch) {
+                        const startHour = parseInt(rangeMatch[1]);
+                        const endHour = parseInt(rangeMatch[2]);
+                        const nextTime = reminder.dateTime;
+                        displayTime = `下次 ${nextTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})} (${startHour}-${endHour}点)`;
+                    }
+                    
                     return {
                         text: `✅ 已为您设置提醒，我会准时通知您！`,
                         data: {
@@ -14460,12 +14475,13 @@
                                     reminder_card: {
                                         id: reminder.id,
                                         title: reminder.content,
-                                        time: formatDateTime(reminder.dateTime),
+                                        time: displayTime,
                                         description: `♿️ 轮椅提醒 → 📱 手机备份`,
                                         type: 'reminder',
                                         icon: getIconForReminderContent(reminder.content),
                                         status: 'active',
-                                        urgent: false
+                                        urgent: false,
+                                        originalMessage: originalMessage
                                     }
                                 }
                             }
@@ -14488,8 +14504,38 @@
             console.log('🕐 解析时间信息:', message);
             console.log('🕐 当前时间:', now.toLocaleString('zh-CN'));
             
+            // 检查间隔性循环提醒（如：每2小时、每30分钟）
+            let match = lowerMessage.match(/每(\d+)\s*(小时|分钟)/);
+            if (match) {
+                console.log('🔍 找到间隔循环匹配:', match[0]);
+                
+                const interval = parseInt(match[1]);
+                const unit = match[2];
+                
+                // 查找时间范围（如：8点到23点）
+                const rangeMatch = lowerMessage.match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                
+                if (rangeMatch) {
+                    const startHour = parseInt(rangeMatch[1]);
+                    const endHour = parseInt(rangeMatch[2]);
+                    
+                    // 计算下一次提醒时间
+                    const nextReminderTime = getNextIntervalReminder(startHour, endHour, interval, unit);
+                    
+                    console.log('📅 解析间隔循环:', match[0], `时间段:${startHour}-${endHour}点`, '→', formatDateTime(nextReminderTime));
+                    return nextReminderTime;
+                } else {
+                    // 没有时间范围，从当前时间开始计算下一次
+                    const intervalMs = unit === '小时' ? interval * 60 * 60 * 1000 : interval * 60 * 1000;
+                    const nextTime = new Date(now.getTime() + intervalMs);
+                    
+                    console.log('📅 解析间隔循环(无范围):', match[0], '→', formatDateTime(nextTime));
+                    return nextTime;
+                }
+            }
+            
             // 检查重复性日程：每周X + 时间
-            let match = lowerMessage.match(/每周(一|二|三|四|五|六|日|天)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+            match = lowerMessage.match(/每周(一|二|三|四|五|六|日|天)\s*(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
             if (match) {
                 console.log('🔍 找到每周X匹配:', match[0]);
                 
@@ -14813,7 +14859,7 @@
         }
         
         // 创建提醒
-        function createReminder(content, dateTime) {
+        function createReminder(content, dateTime, originalMessage = null) {
             if (!dateTime || !content) {
                 return null;
             }
@@ -14823,7 +14869,8 @@
                 content: content,
                 dateTime: dateTime,
                 created: new Date(),
-                status: 'active'
+                status: 'active',
+                originalMessage: originalMessage
             };
             
             // 保存提醒
@@ -15401,6 +15448,21 @@
             
             console.log('🔁 检查重复规则，原始消息:', originalMessage);
             
+            // 检测间隔性循环规则（优先级最高）
+            const intervalMatch = content.match(/每(\d+)\s*(小时|分钟)/);
+            if (intervalMatch) {
+                const interval = intervalMatch[1];
+                const unit = intervalMatch[2];
+                
+                // 检查是否有时间范围
+                const rangeMatch = content.match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                if (rangeMatch) {
+                    return `每${interval}${unit}(${rangeMatch[1]}-${rangeMatch[2]}点)`;
+                } else {
+                    return `每${interval}${unit}`;
+                }
+            }
+            
             // 检测具体的重复规则
             // 每周具体星期
             if (content.includes('每周一')) return '每周一';
@@ -15807,6 +15869,46 @@
             
             console.log(`📆 计算下一个${dayOfMonth}号:`, formatDateTime(targetDate));
             return targetDate;
+        }
+        
+        // 计算间隔性提醒的下一次时间
+        function getNextIntervalReminder(startHour, endHour, interval, unit) {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            console.log('🔄 计算间隔提醒:', {startHour, endHour, interval, unit, currentHour, currentMinute});
+            
+            // 如果当前时间在范围内
+            if (currentHour >= startHour && currentHour < endHour) {
+                // 计算下一次提醒时间
+                const intervalMs = unit === '小时' ? interval * 60 * 60 * 1000 : interval * 60 * 1000;
+                const nextTime = new Date(now.getTime() + intervalMs);
+                
+                // 检查是否超出当天范围
+                if (nextTime.getHours() >= endHour) {
+                    // 超出范围，设置为明天的开始时间
+                    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                    return new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), startHour, 0);
+                } else {
+                    return nextTime;
+                }
+            } else if (currentHour < startHour) {
+                // 当前时间早于开始时间，设置为今天的开始时间
+                return new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, 0);
+            } else {
+                // 当前时间晚于结束时间，设置为明天的开始时间
+                const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                return new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), startHour, 0);
+            }
+        }
+        
+        // 格式化间隔性提醒的时间显示
+        function formatIntervalReminderTime(startHour, endHour, nextTime) {
+            const timeStr = formatDateTime(nextTime);
+            const rangeStr = `${startHour}:00-${endHour}:00`;
+            
+            return `下次 ${nextTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})} (${rangeStr})`;
         }
         
         // ================ Discovery和日程管理页面 ================
