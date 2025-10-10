@@ -14448,7 +14448,7 @@
                 };
             } else {
                 // 信息完整，创建提醒
-                const reminder = createReminder(content, timeInfo);
+                const reminder = createReminder(content, timeInfo, message);
                 if (reminder) {
                     // 检查是否是间隔性提醒，调整时间显示
                     const originalMessage = reminder.originalMessage || message;
@@ -15263,10 +15263,24 @@
                 };
             } else {
                 // 信息完整，创建提醒
-                const reminder = createReminder(newContent, newTimeInfo);
+                const combinedMessage = `${partialReminder.originalMessage} ${message}`;
+                const reminder = createReminder(newContent, newTimeInfo, combinedMessage);
                 currentReminderDialog = null; // 清除对话状态
                 
                 if (reminder) {
+                    // 检查是否是间隔性提醒，调整时间显示
+                    let displayTime = formatDateTime(reminder.dateTime);
+                    
+                    const intervalMatch = combinedMessage?.toLowerCase().match(/每(\d+)\s*(小时|分钟)/);
+                    const rangeMatch = combinedMessage?.toLowerCase().match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                    
+                    if (intervalMatch && rangeMatch) {
+                        const startHour = parseInt(rangeMatch[1]);
+                        const endHour = parseInt(rangeMatch[2]);
+                        const nextTime = reminder.dateTime;
+                        displayTime = `下次 ${nextTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})} (${startHour}-${endHour}点)`;
+                    }
+                    
                     return {
                         text: `✅ 完美！已为您设置提醒，我会准时通知您！`,
                         data: {
@@ -15277,12 +15291,13 @@
                                     reminder_card: {
                                         id: reminder.id,
                                         title: reminder.content,
-                                        time: formatDateTime(reminder.dateTime),
+                                        time: displayTime,
                                         description: `♿️ 轮椅提醒 → 📱 手机备份`,
                                         type: 'reminder',
                                         icon: getIconForReminderContent(reminder.content),
                                         status: 'active',
-                                        urgent: false
+                                        urgent: false,
+                                        originalMessage: combinedMessage
                                     }
                                 }
                             }
