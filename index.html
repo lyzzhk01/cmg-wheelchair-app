@@ -15113,11 +15113,49 @@
                     newTimeInfo = extractedTime;
                     console.log('⏰ 从合并消息中提取到时间:', formatDateTime(extractedTime));
                 } else {
-                    // 如果合并消息解析失败，尝试单独解析新消息
-                    const simpleTime = extractTimeFromMessage(message);
-                    if (simpleTime) {
-                        newTimeInfo = simpleTime;
-                        console.log('⏰ 从单独消息中提取到时间:', formatDateTime(simpleTime));
+                    console.log('⚠️ 合并消息解析失败，尝试智能时间合成');
+                    
+                    // 智能时间合成：检测原始消息中的重复规则，与新时间组合
+                    const originalMsg = partialReminder.originalMessage.toLowerCase();
+                    
+                    // 检测每月X号 + 新时间
+                    const monthDayMatch = originalMsg.match(/每月(\d{1,2})号?/);
+                    const timeMatch = message.toLowerCase().match(/(\d{1,2})[::：点](\d{0,2})|(?:(早上|上午|中午|下午|晚上|夜里|夜间))?\s*(\d{1,2})[::：点](\d{0,2})/);
+                    
+                    if (monthDayMatch && timeMatch) {
+                        const dayOfMonth = parseInt(monthDayMatch[1]);
+                        const timePeriod = timeMatch[3]; // 可能为空
+                        let hour = parseInt(timeMatch[2] || timeMatch[4]);
+                        const minute = parseInt(timeMatch[3] || timeMatch[5] || '0');
+                        
+                        // 根据时间段调整小时
+                        hour = adjustHourByTimePeriod(hour, timePeriod);
+                        
+                        newTimeInfo = getNextMonthDay(dayOfMonth, hour, minute);
+                        console.log('🎯 智能合成时间 - 每月', dayOfMonth, '号', hour + ':' + minute, '→', formatDateTime(newTimeInfo));
+                    }
+                    
+                    // 检测每周X + 新时间  
+                    const weekDayMatch = originalMsg.match(/每周(一|二|三|四|五|六|日|天)/);
+                    if (weekDayMatch && timeMatch && !newTimeInfo) {
+                        const weekdayText = weekDayMatch[1];
+                        const timePeriod = timeMatch[3];
+                        let hour = parseInt(timeMatch[2] || timeMatch[4]);
+                        const minute = parseInt(timeMatch[3] || timeMatch[5] || '0');
+                        
+                        hour = adjustHourByTimePeriod(hour, timePeriod);
+                        
+                        newTimeInfo = getNextWeekday(weekdayText, hour, minute);
+                        console.log('🎯 智能合成时间 - 每周', weekdayText, hour + ':' + minute, '→', formatDateTime(newTimeInfo));
+                    }
+                    
+                    if (!newTimeInfo) {
+                        // 如果智能合成也失败，尝试单独解析新消息
+                        const simpleTime = extractTimeFromMessage(message);
+                        if (simpleTime) {
+                            newTimeInfo = simpleTime;
+                            console.log('⏰ 从单独消息中提取到时间:', formatDateTime(simpleTime));
+                        }
                     }
                 }
             }
