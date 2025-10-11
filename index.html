@@ -1670,6 +1670,14 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 选中日期的日程展示区域 -->
+            <div id="selected-date-schedules" class="mt-6 bg-white rounded-xl shadow-sm p-4">
+                <div id="selected-date-title" class="text-lg font-semibold text-gray-800 mb-4">今日安排</div>
+                <div id="selected-date-content">
+                    <!-- 选中日期的日程列表将在这里显示 -->
+                </div>
+            </div>
         </div>
         
         <!-- 固件更新进度弹窗 -->
@@ -16866,7 +16874,7 @@
             }, 100);
         }
         
-        // 渲染周视图
+        // 渲染周视图  
         function renderWeekView() {
             const weekGrid = document.getElementById('week-calendar-grid');
             if (!weekGrid) return;
@@ -16876,28 +16884,25 @@
             
             for (let i = 0; i < 7; i++) {
                 const date = new Date(weekStart.getTime() + i * 24 * 60 * 60 * 1000);
-                const daySchedules = reminderData.filter(reminder => {
-                    if (reminder.status === 'completed') return false;
-                    return isSameDay(new Date(reminder.dateTime), date);
-                });
+                const dateStr = formatDateForStorage(date);
+                const daySchedules = getSchedulesForDate(dateStr);
                 
                 const isToday = isSameDay(date, new Date());
-                const dateClass = isToday ? 'bg-purple-50 border-purple-200' : 'bg-white';
+                const isSelected = window.selectedCalendarDate === dateStr;
+                const hasSchedules = daySchedules.length > 0;
+                
+                let cellClass = 'bg-white hover:bg-gray-50 text-gray-800';
+                if (isToday) {
+                    cellClass = 'bg-blue-500 text-white hover:bg-blue-600';
+                } else if (isSelected) {
+                    cellClass = 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+                }
                 
                 html += `
-                    <div class="p-2 border-r border-b border-gray-100 ${dateClass} min-h-[80px] cursor-pointer hover:bg-gray-50"
-                         onclick="selectDate('${date.toISOString()}')">
-                        <div class="text-center mb-2">
-                            <span class="text-sm font-medium ${isToday ? 'text-purple-600' : 'text-gray-700'}">${date.getDate()}</span>
-                        </div>
-                        <div class="space-y-1">
-                            ${daySchedules.slice(0, 2).map(schedule => `
-                                <div class="bg-blue-100 text-blue-800 text-xs p-1 rounded truncate">
-                                    ${schedule.content}
-                                </div>
-                            `).join('')}
-                            ${daySchedules.length > 2 ? `<div class="text-xs text-gray-500">+${daySchedules.length - 2}个</div>` : ''}
-                        </div>
+                    <div class="p-3 border-r border-b border-gray-100 ${cellClass} h-20 cursor-pointer flex flex-col items-center justify-center relative"
+                         onclick="selectCalendarDate('${dateStr}')">
+                        <div class="text-lg font-medium">${date.getDate()}</div>
+                        ${hasSchedules ? '<div class="w-2 h-2 bg-red-500 rounded-full mt-1"></div>' : ''}
                     </div>
                 `;
             }
@@ -16924,30 +16929,31 @@
                 const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
                 const isCurrentMonth = date.getMonth() === month;
                 const isToday = isSameDay(date, today);
+                const dateStr = formatDateForStorage(date);
+                const isSelected = window.selectedCalendarDate === dateStr;
                 
-                const daySchedules = reminderData.filter(reminder => {
-                    if (reminder.status === 'completed') return false;
-                    return isSameDay(new Date(reminder.dateTime), date);
-                });
+                const daySchedules = getSchedulesForDate(dateStr);
+                const hasSchedules = daySchedules.length > 0;
                 
-                const dateClass = isToday ? 'bg-purple-500 text-white' : 
-                                 isCurrentMonth ? 'text-gray-900' : 'text-gray-400';
-                const cellClass = isCurrentMonth ? 'bg-white hover:bg-gray-50' : 'bg-gray-50';
+                let textClass = 'text-gray-900';
+                let cellClass = 'bg-white hover:bg-gray-50';
+                
+                if (!isCurrentMonth) {
+                    textClass = 'text-gray-400';
+                    cellClass = 'bg-gray-50';
+                } else if (isToday) {
+                    textClass = 'text-white';
+                    cellClass = 'bg-blue-500 hover:bg-blue-600';
+                } else if (isSelected) {
+                    textClass = 'text-blue-800';
+                    cellClass = 'bg-blue-100 hover:bg-blue-200';
+                }
                 
                 html += `
-                    <div class="p-2 ${cellClass} min-h-[60px] cursor-pointer transition-colors border-gray-100"
-                         onclick="selectDate('${date.toISOString()}')">
-                        <div class="text-center mb-1">
-                            <span class="text-sm font-medium ${dateClass} ${isToday ? 'w-6 h-6 rounded-full flex items-center justify-center mx-auto' : ''}">${date.getDate()}</span>
-                        </div>
-                        <div class="space-y-1">
-                            ${daySchedules.slice(0, 1).map(schedule => `
-                                <div class="bg-blue-100 text-blue-800 text-xs p-1 rounded truncate">
-                                    ${getIconForReminderContent(schedule.content)}
-                                </div>
-                            `).join('')}
-                            ${daySchedules.length > 1 ? `<div class="w-2 h-2 bg-red-500 rounded-full mx-auto"></div>` : ''}
-                        </div>
+                    <div class="p-2 ${cellClass} h-16 cursor-pointer transition-colors flex flex-col items-center justify-center relative"
+                         onclick="selectCalendarDate('${dateStr}')">
+                        <div class="text-sm font-medium ${textClass}">${date.getDate()}</div>
+                        ${hasSchedules && isCurrentMonth ? '<div class="w-2 h-2 bg-red-500 rounded-full mt-1"></div>' : ''}
                     </div>
                 `;
             }
@@ -16955,13 +16961,101 @@
             monthGrid.innerHTML = html;
         }
         
-        // 选择日期
-        function selectDate(dateString) {
-            const selectedDate = new Date(dateString);
-            currentCalendarDate = selectedDate;
+        // 选择日历日期（点击日历日期时调用）
+        function selectCalendarDate(dateStr) {
+            console.log('📅 选择日历日期:', dateStr);
             
-            // 切换到日视图显示选中日期的详情
-            switchCalendarView('day');
+            const date = new Date(dateStr + 'T00:00:00');
+            if (isNaN(date.getTime())) {
+                console.error('❌ 无效的日期字符串:', dateStr);
+                return;
+            }
+            
+            // 记录选中的日期
+            window.selectedCalendarDate = dateStr;
+            
+            // 重新渲染当前视图以更新选中状态
+            if (currentCalendarView === 'week') {
+                renderWeekView();
+            } else if (currentCalendarView === 'month') {
+                renderMonthView();
+            }
+            
+            // 显示选中日期的日程
+            renderSelectedDateSchedules(dateStr);
+        }
+        
+        // 渲染选中日期的日程列表
+        function renderSelectedDateSchedules(dateStr) {
+            const titleEl = document.getElementById('selected-date-title');
+            const contentEl = document.getElementById('selected-date-content');
+            
+            if (!titleEl || !contentEl) return;
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            const schedules = getSchedulesForDate(dateStr);
+            
+            // 更新标题
+            const isToday = isSameDay(date, new Date());
+            const dateDisplay = isToday ? '今日安排' : `${date.getMonth() + 1}月${date.getDate()}日安排`;
+            titleEl.textContent = dateDisplay;
+            
+            // 渲染日程列表
+            if (schedules.length === 0) {
+                contentEl.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <div class="text-6xl mb-4">📅</div>
+                        <div class="text-lg font-medium mb-2">你这一天没有任务</div>
+                        <div class="text-sm">放松一下吧</div>
+                    </div>
+                `;
+            } else {
+                let html = '<div class="space-y-3">';
+                
+                schedules.forEach(schedule => {
+                    const time = new Date(schedule.dateTime);
+                    const timeStr = time.toLocaleTimeString('zh-CN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                    });
+                    
+                    const status = getUserFriendlyStatus(schedule.status);
+                    const icon = getIconForReminderContent(schedule.content);
+                    
+                    html += `
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer schedule-item" data-schedule-id="${schedule.id}">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-2xl">${icon}</div>
+                                <div>
+                                    <div class="font-medium text-gray-800">${schedule.content}</div>
+                                    <div class="text-sm text-gray-500 flex items-center space-x-2">
+                                        <span>${timeStr}</span>
+                                        ${schedule.repeatRule ? `<span class="text-purple-600">🔁 ${schedule.repeatRule}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs px-2 py-1 rounded-full ${status.color}">${status.text}</span>
+                                ${status.icon}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                contentEl.innerHTML = html;
+                
+                // 绑定点击事件
+                bindScheduleItemEvents();
+            }
+        }
+        
+        // 选择日期（兼容旧的调用）
+        function selectDate(dateString) {
+            const date = new Date(dateString);
+            const dateStr = formatDateForStorage(date);
+            selectCalendarDate(dateStr);
         }
         
         // 显示日程详情弹窗
