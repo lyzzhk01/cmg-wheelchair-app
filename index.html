@@ -16081,27 +16081,58 @@
                 return null;
             }
             
+            console.log(`📅 计算${weekReference}${weekdayText}:`, {
+                当前时间: formatDateTime(now),
+                当前星期: now.getDay(),
+                目标星期: targetWeekday,
+                目标时间: `${hour}:${minute}`
+            });
+            
             let targetDate;
             
             if (weekReference === '下周') {
-                // 下周的指定星期
-                const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-                const nextWeekStart = getStartOfWeek(nextWeek);
-                targetDate = new Date(nextWeekStart.getTime() + targetWeekday * 24 * 60 * 60 * 1000);
+                // 下周的指定星期：直接从下周一开始计算
+                const currentWeekday = now.getDay(); // 0=周日, 1=周一...
+                const daysToAdd = 7 - currentWeekday + targetWeekday;  // 到下周目标星期的天数
+                
+                // 特殊处理：如果今天是周日(0)，需要调整计算
+                const finalDaysToAdd = currentWeekday === 0 ? targetWeekday : daysToAdd;
+                
+                targetDate = new Date(now);
+                targetDate.setDate(now.getDate() + finalDaysToAdd);
                 targetDate.setHours(hour, minute, 0, 0);
+                
+                console.log(`📆 下周${weekdayText}计算:`, {
+                    当前星期几: currentWeekday,
+                    目标星期几: targetWeekday,
+                    需要增加天数: finalDaysToAdd,
+                    最终日期: formatDateTime(targetDate)
+                });
+                
             } else if (weekReference === '这周' || weekReference === '本周') {
                 // 这周的指定星期
-                const thisWeekStart = getStartOfWeek(now);
-                targetDate = new Date(thisWeekStart.getTime() + targetWeekday * 24 * 60 * 60 * 1000);
+                const currentWeekday = now.getDay();
+                const daysToAdd = targetWeekday - currentWeekday;
+                
+                targetDate = new Date(now);
+                targetDate.setDate(now.getDate() + daysToAdd);
                 targetDate.setHours(hour, minute, 0, 0);
                 
                 // 如果时间已过，自动改为下周同一天
                 if (targetDate <= now) {
-                    targetDate = new Date(targetDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    targetDate.setDate(targetDate.getDate() + 7);
+                    console.log(`⏰ 时间已过，调整为下周同一天:`, formatDateTime(targetDate));
                 }
+                
+                console.log(`📆 这周${weekdayText}计算:`, {
+                    当前星期几: currentWeekday,
+                    目标星期几: targetWeekday,
+                    天数差: daysToAdd,
+                    最终日期: formatDateTime(targetDate)
+                });
             }
             
-            console.log(`📆 计算${weekReference}${weekdayText}:`, formatDateTime(targetDate), `(${getDaysFromNow(targetDate)}天后)`);
+            console.log(`✅ 最终计算结果:`, formatDateTime(targetDate), `(${getDaysFromNow(targetDate)}天后)`);
             return targetDate;
         }
         
