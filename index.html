@@ -17077,6 +17077,27 @@
             }
         }
         
+        // 绑定日程项点击事件
+        function bindScheduleItemEvents() {
+            // 延迟执行，确保DOM元素已渲染
+            setTimeout(() => {
+                const scheduleItems = document.querySelectorAll('.schedule-item');
+                scheduleItems.forEach(item => {
+                    // 移除旧的事件监听器（避免重复绑定）
+                    const newItem = item.cloneNode(true);
+                    item.parentNode.replaceChild(newItem, item);
+                    
+                    // 绑定新的点击事件
+                    newItem.addEventListener('click', function() {
+                        const scheduleId = this.getAttribute('data-schedule-id');
+                        console.log('🖱️ 点击日程项:', scheduleId);
+                        showScheduleDetail(scheduleId);
+                    });
+                });
+                console.log('✅ 已绑定', scheduleItems.length, '个日程项的点击事件');
+            }, 50);
+        }
+        
         // 选择日期（兼容旧的调用）
         function selectDate(dateString) {
             const date = new Date(dateString);
