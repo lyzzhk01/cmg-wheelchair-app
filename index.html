@@ -14462,9 +14462,11 @@
                 // 信息完整，创建提醒
                 const reminder = createReminder(content, timeInfo, message);
                 if (reminder) {
-                    // 检查是否是间隔性提醒，调整时间显示
+                    // 检查提醒类型
+                    const isPrepareType = isPreparationType(content);
                     const originalMessage = reminder.originalMessage || message;
                     let displayTime = formatDateTime(reminder.dateTime);
+                    let responseText = '';
                     
                     // 如果是间隔性提醒，使用特殊的时间显示格式
                     const intervalMatch = originalMessage?.toLowerCase().match(/每(\d+)\s*(小时|分钟)/);
@@ -14475,25 +14477,35 @@
                         const endHour = parseInt(rangeMatch[2]);
                         const nextTime = reminder.dateTime;
                         displayTime = `下次 ${nextTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})} (${startHour}-${endHour}点)`;
+                        responseText = '已为您设置提醒，我会准时通知您！';
+                    } else if (isPrepareType) {
+                        // 准备型提醒的特殊提示语
+                        responseText = '已为您设置提醒，我会先提前10分钟提醒您开始准备，然后再准时通知您！';
+                        
+                        // 为准备型提醒创建提前提醒
+                        createPrepareReminder(reminder);
+                    } else {
+                        responseText = '已为您设置提醒，我会准时通知您！';
                     }
                     
                     return {
-                        text: `✅ 已为您设置提醒，我会准时通知您！`,
+                        text: `✅ ${responseText}`,
                         data: {
                             response: {
                                 type: 'text_reminder_card',
                                 content: {
-                                    text: `已为您设置提醒，我会准时通知您！`,
+                                    text: responseText,
                                     reminder_card: {
                                         id: reminder.id,
                                         title: reminder.content,
                                         time: displayTime,
-                                        description: `♿️ 轮椅提醒 → 📱 手机备份`,
-                                        type: 'reminder',
+                                        description: isPrepareType ? `♿️ 提前10分钟准备提醒` : `♿️ 轮椅提醒 → 📱 手机备份`,
+                                        type: isPrepareType ? 'prepare' : 'reminder',
                                         icon: getIconForReminderContent(reminder.content),
                                         status: 'active',
                                         urgent: false,
-                                        originalMessage: originalMessage
+                                        originalMessage: originalMessage,
+                                        isPrepareType: isPrepareType
                                     }
                                 }
                             }
@@ -16284,6 +16296,100 @@
             };
             
             addSpecialMessageToGlobalConversation(cardMessage);
+        }
+        
+        // 判断是否为准备型提醒
+        function isPreparationType(content) {
+            const lowerContent = content.toLowerCase();
+            
+            console.log('🎯 检查是否为准备型提醒:', content);
+            
+            // 外出行为关键词
+            const outgoingKeywords = ['去', '到', '前往', '出门', '外出'];
+            const hasOutgoing = outgoingKeywords.some(keyword => lowerContent.includes(keyword));
+            
+            // 具体的准备型场所/活动
+            const prepareLocations = [
+                '药店', '医院', '诊所', '商场', '超市', '银行', '邮局', '图书馆',
+                '学校', '公司', '办公室', '机场', '车站', '餐厅', '咖啡厅',
+                '理发店', '美容院', '健身房', '电影院', '商店', '市场'
+            ];
+            
+            const prepareActivities = [
+                '买药', '复查', '体检', '购物', '买菜', '取钱', '寄快递',
+                '面试', '约会', '聚餐', '看电影', '理发', '健身', '学习',
+                '办事', '取证', '交费', '维修', '保养'
+            ];
+            
+            // 检查是否包含准备型场所或活动
+            const hasLocation = prepareLocations.some(location => lowerContent.includes(location));
+            const hasActivity = prepareActivities.some(activity => lowerContent.includes(activity));
+            
+            const isPrepareType = hasOutgoing && (hasLocation || hasActivity);
+            
+            console.log('🔍 准备型提醒判断:', {
+                content: lowerContent,
+                hasOutgoing,
+                hasLocation,
+                hasActivity,
+                isPrepareType
+            });
+            
+            return isPrepareType;
+        }
+        
+        // 创建准备提醒（提前10分钟）
+        function createPrepareReminder(mainReminder) {
+            const prepareTime = new Date(mainReminder.dateTime.getTime() - 10 * 60 * 1000); // 提前10分钟
+            
+            // 只有未来时间才创建准备提醒
+            if (prepareTime.getTime() > Date.now()) {
+                const prepareReminder = {
+                    id: `prepare_${mainReminder.id}`,
+                    content: `准备${mainReminder.content}`,
+                    dateTime: prepareTime,
+                    created: new Date(),
+                    status: 'active',
+                    type: 'prepare',
+                    mainReminderId: mainReminder.id
+                };
+                
+                reminderData.push(prepareReminder);
+                
+                // 设置提前提醒定时器
+                const delay = prepareTime.getTime() - Date.now();
+                const timerId = setTimeout(() => {
+                    showPrepareNotification(prepareReminder, mainReminder);
+                }, delay);
+                
+                reminderTimers.set(prepareReminder.id, timerId);
+                
+                console.log('⏰ 已创建准备提醒:', prepareReminder.content, '在', formatDateTime(prepareTime));
+            }
+        }
+        
+        // 显示准备提醒通知
+        function showPrepareNotification(prepareReminder, mainReminder) {
+            console.log('🔔 触发准备提醒通知');
+            
+            const notification = document.getElementById('reminder-notification');
+            const titleEl = document.getElementById('reminder-title');
+            const descriptionEl = document.getElementById('reminder-description');
+            const timeEl = document.getElementById('reminder-time');
+            
+            if (notification && titleEl && descriptionEl && timeEl) {
+                titleEl.textContent = `准备${mainReminder.content}`;
+                descriptionEl.textContent = `还有10分钟就要${mainReminder.content}了，建议现在开始准备出门 🚪`;
+                timeEl.textContent = '准备提醒';
+                
+                // 显示通知
+                notification.classList.remove('hidden');
+                setTimeout(() => {
+                    notification.classList.remove('-translate-y-full');
+                }, 10);
+                
+                console.log('🔔 准备提醒通知已显示');
+            }
         }
         
         // ================ Discovery和日程管理页面 ================
