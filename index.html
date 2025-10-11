@@ -16076,6 +16076,28 @@
             return Math.round((targetDay.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
         }
         
+        // 格式化日期为存储格式（YYYY-MM-DD）
+        function formatDateForStorage(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // 获取指定日期的日程数据
+        function getSchedulesForDate(dateStr) {
+            const targetDate = new Date(dateStr + 'T00:00:00');
+            if (isNaN(targetDate.getTime())) {
+                console.error('❌ 无效的日期字符串:', dateStr);
+                return [];
+            }
+            
+            return reminderData.filter(reminder => {
+                if (reminder.status === 'completed') return false;
+                return isSameDay(new Date(reminder.dateTime), targetDate);
+            }).sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+        }
+        
         // 计算具体的星期日期（一次性）
         function getSpecificWeekday(weekReference, weekdayText, hour, minute) {
             const now = new Date();
