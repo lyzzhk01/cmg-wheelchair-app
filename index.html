@@ -16363,34 +16363,51 @@
             
             console.log('🎯 检查是否为准备型提醒:', content);
             
-            // 外出行为关键词
-            const outgoingKeywords = ['去', '到', '前往', '出门', '外出'];
+            // 外出行为关键词（扩展）
+            const outgoingKeywords = ['去', '到', '前往', '出门', '外出', '离开', '走', '启程'];
             const hasOutgoing = outgoingKeywords.some(keyword => lowerContent.includes(keyword));
+            
+            // 准备行为关键词（新增）
+            const prepareKeywords = ['带', '拿', '取', '准备', '整理', '收拾', '检查', '确认'];
+            const hasPrepareAction = prepareKeywords.some(keyword => lowerContent.includes(keyword));
             
             // 具体的准备型场所/活动
             const prepareLocations = [
                 '药店', '医院', '诊所', '商场', '超市', '银行', '邮局', '图书馆',
                 '学校', '公司', '办公室', '机场', '车站', '餐厅', '咖啡厅',
-                '理发店', '美容院', '健身房', '电影院', '商店', '市场'
+                '理发店', '美容院', '健身房', '电影院', '商店', '市场', '家里'
             ];
             
             const prepareActivities = [
                 '买药', '复查', '体检', '购物', '买菜', '取钱', '寄快递',
                 '面试', '约会', '聚餐', '看电影', '理发', '健身', '学习',
-                '办事', '取证', '交费', '维修', '保养'
+                '办事', '取证', '交费', '维修', '保养', '接人', '送人'
             ];
             
-            // 检查是否包含准备型场所或活动
+            // 准备物品关键词（新增）
+            const prepareItems = [
+                '水杯', '水壶', '雨伞', '钥匙', '钱包', '手机', '充电器',
+                '药', '证件', '文件', '包', '衣服', '口罩', '眼镜'
+            ];
+            
+            // 检查是否包含准备型场所、活动或物品
             const hasLocation = prepareLocations.some(location => lowerContent.includes(location));
             const hasActivity = prepareActivities.some(activity => lowerContent.includes(activity));
+            const hasItem = prepareItems.some(item => lowerContent.includes(item));
             
-            const isPrepareType = hasOutgoing && (hasLocation || hasActivity);
+            // 判断逻辑：
+            // 1. 有外出行为 + (场所/活动/物品) = 准备型
+            // 2. 有准备行为 + 外出相关 = 准备型
+            const isPrepareType = (hasOutgoing && (hasLocation || hasActivity || hasItem)) || 
+                                (hasPrepareAction && hasOutgoing);
             
             console.log('🔍 准备型提醒判断:', {
                 content: lowerContent,
                 hasOutgoing,
+                hasPrepareAction,
                 hasLocation,
                 hasActivity,
+                hasItem,
                 isPrepareType
             });
             
