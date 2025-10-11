@@ -14512,25 +14512,53 @@
                 const interval = parseInt(match[1]);
                 const unit = match[2];
                 
-                // 查找时间范围（如：8点到23点）
-                const rangeMatch = lowerMessage.match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                // 查找结束时间（如：1小时后结束）
+                const endTimeMatch = lowerMessage.match(/(\d+)\s*(?:小时|分钟)后结束/);
                 
-                if (rangeMatch) {
-                    const startHour = parseInt(rangeMatch[1]);
-                    const endHour = parseInt(rangeMatch[2]);
+                if (endTimeMatch) {
+                    // 临时循环：从当前时间开始，有明确结束时间
+                    const duration = parseInt(endTimeMatch[1]);
+                    const durationUnit = endTimeMatch[0].includes('小时') ? '小时' : '分钟';
                     
-                    // 计算下一次提醒时间
-                    const nextReminderTime = getNextIntervalReminder(startHour, endHour, interval, unit);
-                    
-                    console.log('📅 解析间隔循环:', match[0], `时间段:${startHour}-${endHour}点`, '→', formatDateTime(nextReminderTime));
-                    return nextReminderTime;
-                } else {
-                    // 没有时间范围，从当前时间开始计算下一次
+                    // 下次提醒时间：当前时间 + 间隔
                     const intervalMs = unit === '小时' ? interval * 60 * 60 * 1000 : interval * 60 * 1000;
                     const nextTime = new Date(now.getTime() + intervalMs);
                     
-                    console.log('📅 解析间隔循环(无范围):', match[0], '→', formatDateTime(nextTime));
+                    console.log('📅 解析临时循环:', match[0], `结束:${duration}${durationUnit}后`, '→', formatDateTime(nextTime));
+                    
+                    // 存储循环信息到提醒对象中，用于重复规则显示
+                    nextTime.intervalInfo = {
+                        interval,
+                        unit,
+                        duration,
+                        durationUnit,
+                        startTime: now,
+                        endTime: new Date(now.getTime() + (durationUnit === '小时' ? duration * 60 : duration) * 60 * 1000),
+                        isTemporary: true
+                    };
+                    
                     return nextTime;
+                } else {
+                    // 查找时间范围（如：8点到23点）
+                    const rangeMatch = lowerMessage.match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
+                    
+                    if (rangeMatch) {
+                        const startHour = parseInt(rangeMatch[1]);
+                        const endHour = parseInt(rangeMatch[2]);
+                        
+                        // 计算下一次提醒时间
+                        const nextReminderTime = getNextIntervalReminder(startHour, endHour, interval, unit);
+                        
+                        console.log('📅 解析间隔循环:', match[0], `时间段:${startHour}-${endHour}点`, '→', formatDateTime(nextReminderTime));
+                        return nextReminderTime;
+                    } else {
+                        // 没有时间范围，从当前时间开始计算下一次
+                        const intervalMs = unit === '小时' ? interval * 60 * 60 * 1000 : interval * 60 * 1000;
+                        const nextTime = new Date(now.getTime() + intervalMs);
+                        
+                        console.log('📅 解析间隔循环(无范围):', match[0], '→', formatDateTime(nextTime));
+                        return nextTime;
+                    }
                 }
             }
             
@@ -14870,7 +14898,8 @@
                 dateTime: dateTime,
                 created: new Date(),
                 status: 'active',
-                originalMessage: originalMessage
+                originalMessage: originalMessage,
+                intervalInfo: dateTime.intervalInfo || null // 保存间隔信息
             };
             
             // 保存提醒
@@ -15469,10 +15498,24 @@
                 const interval = intervalMatch[1];
                 const unit = intervalMatch[2];
                 
-                // 检查是否有时间范围
+                // 检查是否有结束时间（临时循环）
+                const endTimeMatch = content.match(/(\d+)\s*(?:小时|分钟)后结束/);
+                if (endTimeMatch) {
+                    const duration = endTimeMatch[1];
+                    const durationUnit = endTimeMatch[0].includes('小时') ? '小时' : '分钟';
+                    
+                    // 计算时间段
+                    const now = new Date();
+                    const endTime = new Date(now.getTime() + (durationUnit === '小时' ? duration * 60 : duration) * 60 * 1000);
+                    const timeRange = `${now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}～${endTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}`;
+                    
+                    return `每${interval}${unit}（${timeRange}）`;
+                }
+                
+                // 检查是否有时间范围（日常循环）
                 const rangeMatch = content.match(/(\d{1,2})点?\s*(?:到|至|-|～)\s*(\d{1,2})点?/);
                 if (rangeMatch) {
-                    return `每${interval}${unit}(${rangeMatch[1]}-${rangeMatch[2]}点)`;
+                    return `每${interval}${unit}（${rangeMatch[1]}-${rangeMatch[2]}点）`;
                 } else {
                     return `每${interval}${unit}`;
                 }
