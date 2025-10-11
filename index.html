@@ -13578,6 +13578,12 @@
                         createReminderSuccessCard(responseData.content.reminder_card);
                     }
                     break;
+                case 'sedentary_reminder_card':
+                    console.log('🪑 久坐提醒卡片回复');
+                    if (responseData.content && responseData.content.sedentary_card) {
+                        createSedentaryReminderCard(responseData.content.sedentary_card);
+                    }
+                    break;
                 case 'schedule_list':
                     console.log('📋 日程列表回复');
                     if (responseData.content && responseData.content.schedules) {
@@ -14418,6 +14424,12 @@
             
             console.log('📅 检测到日程提醒请求:', message);
             
+            // 优先检测久坐提醒
+            const sedentaryResult = parseSedentaryReminder(message);
+            if (sedentaryResult) {
+                return sedentaryResult;
+            }
+            
             // 解析时间和内容
             const timeInfo = extractTimeFromMessage(message);
             const content = extractContentFromMessage(message);
@@ -14952,9 +14964,17 @@
         }
         
         // 生成温暖的提醒话术
-        function generateWarmReminderMessage(content) {
+        function generateWarmReminderMessage(content, reminder = null) {
             const lowerContent = content.toLowerCase();
             const currentHour = new Date().getHours();
+            
+            // 特殊处理久坐提醒
+            if (reminder && reminder.type === 'sedentary') {
+                return {
+                    title: '久坐提醒',
+                    description: `您已经连续乘坐${reminder.duration}${reminder.unit}了，建议稍作休息或进行轮椅上的活动 🪑`
+                };
+            }
             
             // 获取时间段描述
             const getTimeGreeting = () => {
@@ -15826,6 +15846,15 @@
         
         // 获取用户友好的状态信息
         function getUserFriendlyStatus(schedule) {
+            // 特殊处理久坐提醒
+            if (schedule.type === 'sedentary' || schedule.status === 'monitoring') {
+                return {
+                    text: '持续监测',
+                    color: 'bg-orange-500',
+                    icon: 'fa-radar'
+                };
+            }
+            
             const now = new Date();
             const scheduleTime = new Date(schedule.dateTime);
             const diffMinutes = (scheduleTime.getTime() - now.getTime()) / (1000 * 60);
@@ -15967,6 +15996,210 @@
             const rangeStr = `${startHour}:00-${endHour}:00`;
             
             return `下次 ${nextTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})} (${rangeStr})`;
+        }
+        
+        // 解析久坐提醒
+        function parseSedentaryReminder(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // 检测久坐相关关键词
+            const sedentaryKeywords = ['久坐', '坐太久', '不要超过', '坐超过', '连续坐', '持续坐', '在轮椅上'];
+            const hasSedentaryKeyword = sedentaryKeywords.some(keyword => lowerMessage.includes(keyword));
+            
+            if (!hasSedentaryKeyword) {
+                return null;
+            }
+            
+            console.log('🪑 检测到久坐提醒请求:', message);
+            
+            // 提取久坐时长
+            const durationMatch = lowerMessage.match(/(?:超过|坐)\s*(\d+)\s*(?:个)?\s*(小时|分钟)/);
+            
+            if (durationMatch) {
+                const duration = parseInt(durationMatch[1]);
+                const unit = durationMatch[2];
+                const durationMs = unit === '小时' ? duration * 60 * 60 * 1000 : duration * 60 * 1000;
+                
+                console.log('🪑 解析久坐时长:', duration, unit);
+                
+                // 创建久坐提醒（特殊类型）
+                const sedentaryReminder = createSedentaryReminder(duration, unit);
+                
+                if (sedentaryReminder) {
+                    return {
+                        text: `✅ 已为您设置久坐提醒，我会监测您的乘坐时长并及时提醒！`,
+                        data: {
+                            response: {
+                                type: 'sedentary_reminder_card',
+                                content: {
+                                    text: `已为您设置久坐提醒，我会监测您的乘坐时长并及时提醒！`,
+                                    sedentary_card: {
+                                        id: sedentaryReminder.id,
+                                        title: '久坐提醒',
+                                        time: `持续乘坐${duration}${unit}`,
+                                        description: `♿️ 压力传感器监测`,
+                                        type: 'sedentary',
+                                        icon: '🪑',
+                                        status: 'monitoring',
+                                        duration: duration,
+                                        unit: unit
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+            } else {
+                // 缺少时长信息，需要反问
+                return {
+                    text: '我来帮您设置久坐提醒！请告诉我超过多长时间需要提醒您？例如："1小时"或"30分钟"',
+                    data: null
+                };
+            }
+            
+            return null;
+        }
+        
+        // 创建久坐提醒
+        function createSedentaryReminder(duration, unit) {
+            const sedentaryReminder = {
+                id: `sedentary_${Date.now()}`,
+                type: 'sedentary',
+                content: '久坐提醒',
+                duration: duration,
+                unit: unit,
+                durationMs: unit === '小时' ? duration * 60 * 60 * 1000 : duration * 60 * 1000,
+                created: new Date(),
+                status: 'monitoring',
+                lastSitTime: null, // 最后一次坐下的时间
+                isActive: true
+            };
+            
+            // 添加到特殊提醒数据中
+            if (!window.sedentaryReminders) {
+                window.sedentaryReminders = [];
+            }
+            window.sedentaryReminders.push(sedentaryReminder);
+            
+            // 启动久坐监测
+            startSedentaryMonitoring(sedentaryReminder);
+            
+            console.log('🪑 已创建久坐提醒:', sedentaryReminder);
+            return sedentaryReminder;
+        }
+        
+        // 启动久坐监测
+        function startSedentaryMonitoring(sedentaryReminder) {
+            console.log('🔍 启动久坐监测:', sedentaryReminder.duration, sedentaryReminder.unit);
+            
+            // 模拟压力传感器检测
+            // 假设用户现在坐下了
+            sedentaryReminder.lastSitTime = new Date();
+            
+            // 设置检查定时器
+            const checkInterval = 30000; // 每30秒检查一次
+            
+            function checkSedentaryStatus() {
+                if (!sedentaryReminder.isActive) return;
+                
+                const now = new Date();
+                const sitDuration = now.getTime() - sedentaryReminder.lastSitTime.getTime();
+                
+                console.log('🪑 检查久坐状态:', Math.round(sitDuration / 1000), '秒, 阈值:', Math.round(sedentaryReminder.durationMs / 1000), '秒');
+                
+                if (sitDuration >= sedentaryReminder.durationMs) {
+                    // 触发久坐提醒
+                    showSedentaryNotification(sedentaryReminder);
+                    
+                    // 重置坐下时间，避免重复提醒
+                    sedentaryReminder.lastSitTime = new Date();
+                }
+                
+                // 继续监测
+                setTimeout(checkSedentaryStatus, checkInterval);
+            }
+            
+            // 开始监测
+            setTimeout(checkSedentaryStatus, checkInterval);
+        }
+        
+        // 显示久坐提醒通知
+        function showSedentaryNotification(sedentaryReminder) {
+            console.log('🔔 触发久坐提醒通知');
+            
+            // 使用现有的提醒通知系统
+            const mockReminder = {
+                content: '久坐提醒',
+                dateTime: new Date(),
+                type: 'sedentary'
+            };
+            
+            showReminderNotification(mockReminder);
+        }
+        
+        // 处理久坐提醒卡片
+        function handleSedentaryReminderResponse(responseData) {
+            console.log('🪑 处理久坐提醒卡片:', responseData);
+            
+            if (responseData.content && responseData.content.sedentary_card) {
+                createSedentaryReminderCard(responseData.content.sedentary_card);
+            }
+        }
+        
+        // 创建久坐提醒卡片
+        function createSedentaryReminderCard(sedentaryCard) {
+            console.log('🎨 创建久坐提醒卡片:', sedentaryCard);
+            
+            const cardMessage = {
+                id: `sedentary_card_${Date.now()}`,
+                html: `
+                    <div class="w-full bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start space-x-3">
+                            <!-- 左侧图标 -->
+                            <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <span class="text-2xl">${sedentaryCard.icon}</span>
+                            </div>
+                            
+                            <!-- 中间内容区域 -->
+                            <div class="flex-1 space-y-2 min-w-0">
+                                <!-- 第一行：标题 -->
+                                <h4 class="font-bold text-gray-800 text-lg leading-tight">${sedentaryCard.title}</h4>
+                                
+                                <!-- 第二行：监测时长 -->
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-stopwatch text-orange-500 text-sm"></i>
+                                    <span class="text-sm font-medium text-gray-700">${sedentaryCard.time}</span>
+                                </div>
+                                
+                                <!-- 第三行：重复规则 -->
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-repeat text-purple-500 text-sm"></i>
+                                    <span class="text-sm text-purple-600">每天</span>
+                                </div>
+                                
+                                <!-- 第四行：监测状态 -->
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                    <span class="text-xs font-medium text-orange-600">持续监测</span>
+                                    <i class="fas fa-radar text-xs text-orange-600"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- 右侧成功标记 -->
+                            <div class="flex-shrink-0">
+                                <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                sender: 'assistant',
+                timestamp: Date.now(),
+                isCard: true
+            };
+            
+            addSpecialMessageToGlobalConversation(cardMessage);
         }
         
         // ================ Discovery和日程管理页面 ================
