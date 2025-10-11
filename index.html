@@ -16730,11 +16730,13 @@
             const dayContent = document.getElementById('day-view-content');
             const weekContent = document.getElementById('week-view-content');
             const monthContent = document.getElementById('month-view-content');
+            const selectedDateSchedules = document.getElementById('selected-date-schedules');
             
             console.log('🔍 检查视图元素:', { 
                 dayContent: !!dayContent, 
                 weekContent: !!weekContent, 
-                monthContent: !!monthContent 
+                monthContent: !!monthContent,
+                selectedDateSchedules: !!selectedDateSchedules
             });
             
             if (dayContent) {
@@ -16745,6 +16747,15 @@
             }
             if (monthContent) {
                 monthContent.classList.toggle('hidden', viewType !== 'month');
+            }
+            
+            // 选中日期展示区域：只在周视图和月视图中显示
+            if (selectedDateSchedules) {
+                if (viewType === 'day') {
+                    selectedDateSchedules.classList.add('hidden');
+                } else {
+                    selectedDateSchedules.classList.remove('hidden');
+                }
             }
             
             // 更新日期标题
