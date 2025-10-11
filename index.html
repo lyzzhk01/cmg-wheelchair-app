@@ -16628,7 +16628,8 @@
             }
             
             currentCalendarDate = new Date(); // 重置为当前日期
-            currentCalendarView = 'day'; // 默认日视图
+            currentCalendarView = 'week'; // 默认周视图（更实用）
+            window.selectedCalendarDate = formatDateForStorage(new Date()); // 默认选中今天
             
             // 延迟初始化，确保DOM完全加载
             setTimeout(() => {
@@ -16645,16 +16646,19 @@
                     }
                 });
                 
-                // 激活日视图按钮
-                if (dayBtn) {
-                    dayBtn.classList.add('bg-purple-500', 'text-white');
-                    dayBtn.classList.remove('text-gray-600', 'hover:bg-gray-50');
+                // 激活周视图按钮
+                if (weekBtn) {
+                    weekBtn.classList.add('bg-purple-500', 'text-white');
+                    weekBtn.classList.remove('text-gray-600', 'hover:bg-gray-50');
                 }
                 
-                console.log('🎨 按钮状态已重置，日视图按钮已激活');
+                console.log('🎨 按钮状态已重置，周视图按钮已激活');
                 
-                // 然后切换到日视图
-                switchCalendarView('day');
+                // 切换到周视图
+                switchCalendarView('week');
+                
+                // 初始化选中today的日程展示
+                renderSelectedDateSchedules(window.selectedCalendarDate);
             }, 100);
         }
         
