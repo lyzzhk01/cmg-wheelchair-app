@@ -13846,10 +13846,7 @@
                 globalFullscreenChat.classList.add('translate-y-full');
                 setTimeout(() => {
                     globalFullscreenChat.classList.add('hidden');
-                    // 如果有对话内容，显示半屏窗口
-                    if (globalConversationData.length > 0) {
-                        showHalfScreenChat();
-                    }
+                    // 直接关闭对话窗，不再自动显示半屏窗口
                 }, 300);
             }
         }
